@@ -167,9 +167,6 @@ namespace BfresEditor
             var bfresMesh = (BfresMeshAsset)mesh;
             var meshBone = ParentModel.Skeleton.Bones[bfresMesh.BoneIndex];
 
-            if (name != "view" && !BlocksToCache.Contains(name))
-                BlocksToCache.Add(name);
-
             switch (name)
             {
                 case "shape":
