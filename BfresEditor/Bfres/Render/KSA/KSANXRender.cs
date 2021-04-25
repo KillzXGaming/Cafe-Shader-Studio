@@ -173,7 +173,7 @@ namespace BfresEditor
                     SetShapeBlock(bfresMesh, meshBone.Transform, block);
                     break;
                 case "bone":
-                    SetBoneMatrixBlock(this.ParentModel.Skeleton, bfresMesh.SkinCount > 1, block, 64);
+                    SetBoneMatrixBlock(this.ParentModel.Skeleton, bfresMesh.SkinCount > 1, block, 150);
                     break;
                 case "view":
                     SetViewportUniforms(control.Camera, block);
@@ -187,7 +187,6 @@ namespace BfresEditor
                 case "fog":
                     SetFogUniforms(block);
                     break;
-
                 case "model":
                     SetModelBlock(block);
                     break;
