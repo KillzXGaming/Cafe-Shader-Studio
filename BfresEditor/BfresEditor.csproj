@@ -8,12 +8,16 @@
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <OutputPath>C:\Users\Nathan\Documents\GitHub\SuperBMD\Cafe-Shader-Studio\CafeShaderStudio\bin\Debug\net5.0\Plugins</OutputPath>
+    <OutputPath>>..\CafeShaderStudio\bin\Debug\net5.0\Plugins</OutputPath>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <OutputPath>>..\CafeShaderStudio\bin\Release\net5.0\Plugins</OutputPath>
+  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x86'">
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <OutputPath>C:\Users\Nathan\source\repos\CafeShaderStudio\CafeShaderStudio\bin\Debug\net5.0\Plugins\</OutputPath>
+    <OutputPath>>..\CafeShaderStudio\bin\Debug\net5.0\Plugins</OutputPath>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
