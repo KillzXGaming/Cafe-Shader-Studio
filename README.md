@@ -38,5 +38,6 @@ Keep in mind this is very WIP. Editing is limited to material editing. You can e
 - OpenTK Team - for opengl c# bindings.
 - mellinoe and IMGUI Team - for c# port and creating the IMGUI library
 - Syroot - for bfres library and binary IO
+- Jasper (no clip developer) - various help for MK8 and AGL usage.
 
 HDR Cubemaps from HDRLabs used under the Creative Commons Attribution-Noncommercial-Share Alike 3.0 License. http://www.hdrlabs.com/sibl/index.html
