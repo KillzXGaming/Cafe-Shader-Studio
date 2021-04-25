@@ -34,6 +34,7 @@ namespace CafeShaderStudio
         float status_start = 0.0f;
 
         bool initGlobalShaders = false;
+        bool ForceFocused = false;
 
         private List<string> recentFiles = new List<string>();
         private const int MaxRecentFileCount = 20;
@@ -173,6 +174,8 @@ namespace CafeShaderStudio
                 Toolbox.Core.FileManager.GetFileFormats();
             }));
             Thread2.Start();
+
+            ForceFocused = true;
         }
 
         private void ReloadGlobalShaders()
@@ -252,6 +255,8 @@ namespace CafeShaderStudio
 
             string dir = System.IO.Path.GetDirectoryName(fileName);
             TryLoadCourseDir(dir);
+
+            ForceFocused = true;
 
             status = "";
         }
@@ -340,7 +345,7 @@ namespace CafeShaderStudio
         {
             base.OnRenderFrame(e);
 
-            if (!this.Focused && !TimelineWindow.IsActive)
+            if (!this.Focused && !TimelineWindow.IsActive && !ForceFocused)
             {
                 System.Threading.Thread.Sleep(1);
                 return;
@@ -390,6 +395,9 @@ namespace CafeShaderStudio
             GL.Viewport(0, 0, Width, Height);
 
             _controller.Render();
+
+            //Only force focus for a frame
+            if (ForceFocused) ForceFocused = false;
 
             SwapBuffers();
         }
