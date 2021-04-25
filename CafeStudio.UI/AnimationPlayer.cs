@@ -64,9 +64,10 @@ namespace CafeStudio.UI
                 return;
 
             if (reset)
+            {
                 Reset();
-
-            CurrentAnimations.Clear();
+                CurrentAnimations.Clear();
+            }
 
             animation.CanPlay = true;
 
