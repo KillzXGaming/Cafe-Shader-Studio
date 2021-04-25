@@ -12,6 +12,8 @@ namespace CafeStudio.UI
     {
         private Stopwatch stopWatch;
 
+        System.Timers.Timer animationTimer;
+
         public AnimPlayerState AnimationPlayerState = AnimPlayerState.Stop;
 
         public bool IsPlaying => AnimationPlayerState == AnimPlayerState.Playing;
@@ -20,33 +22,51 @@ namespace CafeStudio.UI
         public float StartFrame { get; set; } = 0;
         public float FrameCount { get; set; } = 1;
 
+        public float FrameRate = 60.0f;
+
         public bool ForceLoop { get; set; } = true;
 
         public EventHandler OnFrameChanged;
 
         public float CurrentFrame;
 
-        public Dictionary<string, AnimationGroup> CurrentAnimations = new Dictionary<string, AnimationGroup>();
+        public List<STAnimation> CurrentAnimations = new List<STAnimation>();
 
         public AnimationPlayer()
         {
             stopWatch = new Stopwatch();
             stopWatch.Start();
+
+            animationTimer = new System.Timers.Timer()
+            {
+                Interval = (int)(1000.0f / 60.0f),
+            };
+            animationTimer.Elapsed += timer_Tick;
+
+            UpdateFramerate();
         }
 
-        public bool HasAnimation(STAnimation animation) => CurrentAnimations.Any(
-            x => x.Value.Animations.Contains(animation));
-
-        public void AddAnimation(STAnimation animation, string groupName, bool reset = false)
+        void timer_Tick(object sender, EventArgs e)
         {
-            if (animation == null || CurrentAnimations.Values.Any(x => x.Animations.Contains(animation)))
+            UpdateAnimationFrame();
+        }
+
+        public void UpdateFramerate()
+        {
+            animationTimer.Interval = (int)(1000.0f / FrameRate);
+        }
+
+        public bool HasAnimation(STAnimation animation) => CurrentAnimations.Contains(animation);
+
+        public void AddAnimation(STAnimation animation, string groupName, bool reset = true)
+        {
+            if (animation == null || CurrentAnimations.Contains(animation))
                 return;
 
             if (reset)
-            {
-                ResetModels();
-                CurrentAnimations.Clear();
-            }
+                Reset();
+
+            CurrentAnimations.Clear();
 
             animation.CanPlay = true;
 
@@ -56,10 +76,7 @@ namespace CafeStudio.UI
 
             groupName = System.IO.Path.GetFileNameWithoutExtension(groupName);
 
-            if (!CurrentAnimations.ContainsKey(groupName))
-                CurrentAnimations.Add(groupName, new AnimationGroup());
-
-            CurrentAnimations[groupName].Animations.Add(animation);
+            CurrentAnimations.Add(animation);
 
             if (reset)
                 SetAnimationsToFrame(0);
@@ -84,17 +101,20 @@ namespace CafeStudio.UI
 
         public void Play()
         {
+            animationTimer.Start();
             AnimationPlayerState = AnimPlayerState.Playing;
         }
 
         public void Stop()
         {
+            animationTimer.Stop();
             CurrentFrame = StartFrame;
             AnimationPlayerState = AnimPlayerState.Stop;
         }
 
         public void Pause()
         {
+            animationTimer.Stop();
             AnimationPlayerState = AnimPlayerState.Stop;
         }
 
@@ -102,6 +122,9 @@ namespace CafeStudio.UI
 
         public void OnControlClosing()
         {
+            animationTimer.Stop();
+            animationTimer.Dispose();
+
             disposed = true;
             AnimationPlayerState = AnimPlayerState.Stop;
             stopWatch.Stop();
@@ -158,25 +181,22 @@ namespace CafeStudio.UI
         private void SetAnimationsToFrame(float frameNum)
         {
             CurrentFrame = frameNum;
-            foreach (var group in CurrentAnimations.Values)
+            foreach (var anim in CurrentAnimations)
             {
-                foreach (var anim in group.Animations)
+                if (anim.Loop || ForceLoop)
                 {
-                    if (anim.Loop || ForceLoop)
-                    {
-                        var lastFrame = anim.FrameCount;
-                        while (frameNum > lastFrame)
-                            frameNum -= lastFrame+1;
-                    }
-
-                    // if (!anim.CanPlay || !anim.Loop && (frameNum < anim.StartFrame || frameNum > anim.FrameCount))
-                    //    continue;
-
-                    float animFrameNum = frameNum;
-
-                    anim.SetFrame(animFrameNum);
-                    anim.NextFrame();
+                    var lastFrame = anim.FrameCount;
+                    while (frameNum > lastFrame)
+                        frameNum -= lastFrame + 1;
                 }
+
+                // if (!anim.CanPlay || !anim.Loop && (frameNum < anim.StartFrame || frameNum > anim.FrameCount))
+                //    continue;
+
+                float animFrameNum = frameNum;
+
+                anim.SetFrame(animFrameNum);
+                anim.NextFrame();
             }
         }
 

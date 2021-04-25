@@ -59,9 +59,6 @@ namespace CafeStudio.UI
 
         public void Render()
         {
-            if (AnimationPlayer.IsPlaying)
-                AnimationPlayer.UpdateAnimationFrame();
-
             if (!AnimationPlayer.IsPlaying)
             {
                 if (ImGui.Button("Play")) {
@@ -73,6 +70,14 @@ namespace CafeStudio.UI
                 if (ImGui.Button("Stop")) {
                     AnimationPlayer.Pause();
                 }
+            }
+
+            ImGui.SameLine();
+            ImGui.SetNextItemWidth(150);
+
+            if (ImGui.DragFloat("Framerate", ref AnimationPlayer.FrameRate, 1, 1, 240))
+            {
+                AnimationPlayer.UpdateFramerate();
             }
 
             var size = ImGui.GetWindowSize();
@@ -113,8 +118,6 @@ namespace CafeStudio.UI
             ImGui.Image((IntPtr)id, viewerSize,
                 new System.Numerics.Vector2(0, 1),
                 new System.Numerics.Vector2(1, 0));
-
-
 
             ImGui.SetCursorPos(pos);
             CurveEditor.DrawText();
