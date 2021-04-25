@@ -160,7 +160,7 @@ namespace BfresEditor
             base.Render(control, shader, mesh);
         }
 
-        public override void LoadUniformBlock(GLContext control, ShaderProgram shader,
+        public override void LoadUniformBlock(GLContext control, ShaderProgram shader, int index,
             UniformBlock block, string name, GenericPickableMesh mesh)
         {
             var bfresMaterial = (FMAT)this.MaterialData;

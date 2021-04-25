@@ -141,7 +141,7 @@ namespace BfresEditor
                 SetScreenTextureBuffer(shader, control);
         }
 
-        public override void LoadUniformBlock(GLContext control, ShaderProgram shader, UniformBlock block, string name, GenericPickableMesh mesh)
+        public override void LoadUniformBlock(GLContext control, ShaderProgram shader, int index, UniformBlock block, string name, GenericPickableMesh mesh)
         {
             var bfresMaterial = (FMAT)this.MaterialData;
             var bfresMesh = (BfresMeshAsset)mesh;

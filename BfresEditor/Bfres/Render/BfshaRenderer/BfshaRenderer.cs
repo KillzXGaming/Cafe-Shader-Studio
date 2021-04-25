@@ -223,6 +223,7 @@ namespace BfresEditor
             for (int i = 0; i < ShaderModel.UniformBlocks.Count; i++)
             {
                 string name = ShaderModel.UniformBlockDict.GetKey(i);
+                var uniformBlock = ShaderModel.UniformBlocks[i];
 
                 var locationInfo = ProgramPasses[this.ProgramIndex].UniformBlockLocations[i];
                 int fragLocation = locationInfo.FragmentLocation;
@@ -237,7 +238,7 @@ namespace BfresEditor
                 //If a block is not cached, update it in the render loop.
                 if (!BlocksToCache.Contains(name)) {
                     shaderBlock.Buffer.Clear();
-                    LoadUniformBlock(control, shader, shaderBlock, name, mesh);
+                    LoadUniformBlock(control, shader, i, shaderBlock, name, mesh);
                 }
 
                 RenderBlock(shaderBlock, programID, vertLocation, fragLocation);
@@ -248,7 +249,7 @@ namespace BfresEditor
         /// Loads a given uniform block. Switch between the name to determine what type of block data to load.
         /// Fill the UniformBlock type with data.
         /// </summary>
-        public virtual void LoadUniformBlock(GLContext control, ShaderProgram shader,
+        public virtual void LoadUniformBlock(GLContext control, ShaderProgram shader, int index,
             UniformBlock block, string name, GenericPickableMesh mesh)
         {
          
