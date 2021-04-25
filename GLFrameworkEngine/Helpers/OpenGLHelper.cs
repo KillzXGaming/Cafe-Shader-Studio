@@ -2,12 +2,18 @@
 using System.Collections.Generic;
 using System.Text;
 using OpenTK.Graphics.OpenGL;
+using OpenTK;
 using Toolbox.Core; 
 
 namespace GLFrameworkEngine
 {
     public class OpenGLHelper
     {
+        public static Vector2 NormMouseCoords(int x, int y, int width, int height)
+        {
+            return new Vector2(x - width / 2, y - height / 2);
+        }
+
         public static int GetSwizzle(STChannelType channel)
         {
             switch (channel)

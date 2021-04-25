@@ -10,5 +10,14 @@ namespace GLFrameworkEngine
     public class KeyEventInfo
     {
         public char KeyChar { get; set; }
+
+        public bool KeyShift { get; set; }
+        public bool KeyCtrl { get; set; }
+        public bool KeyAlt { get; set; }
+
+        public bool IsKeyDown(char key)
+        {
+            return key == KeyChar;
+        }
     }
 }

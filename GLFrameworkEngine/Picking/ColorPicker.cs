@@ -126,6 +126,20 @@ namespace GLFrameworkEngine
             return SearchPickedColor(pickingColor);
         }
 
+        public void UpdatePickingDepth(GLContext context, Vector2 position)
+        {
+            var camera = context.Camera;
+
+            GL.ReadPixels((int)position.X, (int)position.Y, 1, 1, PixelFormat.DepthComponent, PixelType.Float, ref Depth);
+            //Get normalized depth for z depth
+            if (Depth == 1.0f)
+                NormalizedPickingDepth = camera.ZFar;
+            else
+                NormalizedPickingDepth = -(camera.ZFar * camera.ZNear / (Depth * (camera.ZFar - camera.ZNear) - camera.ZFar));
+
+            camera.Depth = NormalizedPickingDepth;
+        }
+
         /// <summary>
         /// Searches and returns the object that has a color id match from the picking color buffer.
         /// </summary>

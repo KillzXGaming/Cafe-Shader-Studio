@@ -125,9 +125,11 @@ namespace CafeStudio.UI
             GL.BindFramebuffer(FramebufferTarget.DrawFramebuffer, FinalBuffer.ID);
             GL.BlitFramebuffer(0, 0, Width, Height, 0, 0, Width, Height, ClearBufferMask.DepthBufferBit, BlitFramebufferFilter.Nearest);
 
+
             _background.Draw(_context, Pass.OPAQUE);
             _floor.Draw(_context, Pass.OPAQUE);
             _context.Scene.DrawSelection(_context);
+
 
             FinalBuffer.Unbind();
         }
@@ -204,6 +206,9 @@ namespace CafeStudio.UI
 
             DrawBfresModels();
 
+            //Update depth information of the current mouse.
+            _context.ColorPicker.UpdatePickingDepth(_context, _context.CurrentMousePoint);
+
             ScreenBuffer.Unbind();
 
             _context.CurrentShader = null;
@@ -259,7 +264,7 @@ namespace CafeStudio.UI
             GL.Enable(EnableCap.DepthTest);
         }
 
-        public void OnMouseMove(MouseEventInfo e)
+        public void OnMouseMove(MouseEventInfo e, KeyEventInfo k)
         {
             _context.OnMouseMove(e);
 
@@ -273,7 +278,7 @@ namespace CafeStudio.UI
             if (transformState != 0)
                 return;
 
-            _context.Camera.Controller.MouseMove(e, _previousPosition);
+            _context.Camera.Controller.MouseMove(e, k, _previousPosition);
             _previousPosition = new OpenTK.Vector2(e.X, e.Y);
         }
 
@@ -283,13 +288,13 @@ namespace CafeStudio.UI
             previousMouseWheel = 0;
         }
 
-        public void OnMouseWheel(MouseEventInfo e)
+        public void OnMouseWheel(MouseEventInfo e, KeyEventInfo k)
         {
             if (previousMouseWheel == 0)
                 previousMouseWheel = e.WheelPrecise;
 
             e.Delta = e.WheelPrecise - previousMouseWheel;
-            _context.Camera.Controller.MouseWheel(e);
+            _context.Camera.Controller.MouseWheel(e, k);
             previousMouseWheel = e.WheelPrecise;
         }
 
@@ -301,7 +306,7 @@ namespace CafeStudio.UI
             _previousPosition = new OpenTK.Vector2(e.X, e.Y);
         }
 
-        public void OnMouseDown(MouseEventInfo e)
+        public void OnMouseDown(MouseEventInfo e, KeyEventInfo k)
         {
             _context.OnMouseDown(e);
 
@@ -317,7 +322,7 @@ namespace CafeStudio.UI
             if (e.LeftButton == ButtonState.Pressed)
                 PickScene(e, true);
 
-            _context.Camera.Controller.MouseClick(e);
+            _context.Camera.Controller.MouseClick(e, k);
         }
     }
 }

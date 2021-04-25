@@ -128,10 +128,17 @@ namespace GLFrameworkEngine
         /// <summary>
         /// Gets the distance of the camera.
         /// </summary>
-        public float Distance => Math.Abs(Translation.Z);
+        public float Distance
+        {
+            get { return Math.Abs(_translation.Z); }
+            set {
+                _translation.Z = value;
+            }
+        }
 
         protected Matrix4 projectionMatrix;
         protected Matrix4 viewMatrix;
+        protected Matrix3 invRotationMatrix;
 
         /// <summary>
         /// Gets the model matrix of the camera.
@@ -162,6 +169,35 @@ namespace GLFrameworkEngine
         }
 
         /// <summary>
+        /// Gets or sets the inverse rotation matrix.
+        /// </summary>
+        public Matrix3 InverseRotationMatrix
+        {
+            get { return invRotationMatrix; }
+            set { invRotationMatrix = value; }
+        }
+
+        /// <summary>
+        /// Inverts the camera rotation controls.
+        /// </summary>
+        public bool InvertRotation { get; set; } = false;
+
+        /// <summary>
+        /// The factor of the camera fustrum on the X axis.
+        /// </summary>
+        public float FactorX => (2f * (float)Math.Tan(Fov * 0.5f) * AspectRatio) / Width;
+
+        /// <summary>
+        /// The factor of the camera fustrum on the Y axis.
+        /// </summary>
+        public float FactorY => (2f * (float)Math.Tan(Fov * 0.5f) * AspectRatio) / Height;
+
+        /// <summary>
+        /// The depth of the mouse cursor.
+        /// </summary>
+        public float Depth { get; set; }
+
+        /// <summary>
         /// Updates the view and projection matrices with current camera data.
         /// </summary>
         public void UpdateTransform()
@@ -169,6 +205,8 @@ namespace GLFrameworkEngine
             projectionMatrix = GetProjectionMatrix();
             viewMatrix = GetViewMatrix();
             ViewProjectionMatrix = viewMatrix * projectionMatrix;
+            invRotationMatrix = Matrix3.CreateRotationX(-RotationX) * 
+                                     Matrix3.CreateRotationY(-RotationY);
 
             CameraFustrum.UpdateCamera(this);
         }
@@ -246,6 +284,20 @@ namespace GLFrameworkEngine
             Translation = translation;
         }
 
+        public Vector3 CoordFor(int x, int y, float depth)
+        {
+            Vector3 vec;
+
+            Vector2 normCoords = OpenGLHelper.NormMouseCoords(x, y, Width, Height);
+
+            vec.X = (normCoords.X * depth) * FactorX;
+            vec.Y = (normCoords.Y * depth) * FactorY;
+
+            vec.Z = depth - Distance;
+
+            return -Translation + Vector3.Transform(invRotationMatrix, vec);
+        }
+
         public Camera()
         {
             UpdateMode();
@@ -320,9 +372,9 @@ namespace GLFrameworkEngine
             _camera = camera;
         }
 
-        public void MouseClick(MouseEventInfo e) { }
+        public void MouseClick(MouseEventInfo e, KeyEventInfo k) { }
 
-        public void MouseMove(MouseEventInfo e, Vector2 previousLocation)
+        public void MouseMove(MouseEventInfo e, KeyEventInfo k, Vector2 previousLocation)
         {
             var position = new Vector2(e.X, e.Y);
             var movement = position - previousLocation;
@@ -337,7 +389,7 @@ namespace GLFrameworkEngine
             }
         }
 
-        public void MouseWheel(MouseEventInfo e)
+        public void MouseWheel(MouseEventInfo e, KeyEventInfo k)
         {
 
         }
@@ -352,28 +404,43 @@ namespace GLFrameworkEngine
     {
         private Camera _camera;
 
+        private float rotFactorX => _camera.InvertRotation ? -0.01f : 0.01f;
+        private float rotFactorY => _camera.InvertRotation ? -0.01f : 0.01f;
+
         public InspectCameraController(Camera camera)
         {
             _camera = camera;
         }
 
-        public void MouseClick(MouseEventInfo e)
+        public void MouseClick(MouseEventInfo e, KeyEventInfo k)
         {
+            if (k.KeyCtrl && e.RightButton == ButtonState.Pressed && _camera.Depth != _camera.ZFar) {
 
+                _camera.Translation = -_camera.CoordFor(e.X, e.Y, _camera.Depth);
+            }
         }
 
-        public void MouseMove(MouseEventInfo e, Vector2 previousLocation)
+        public void MouseMove(MouseEventInfo e, KeyEventInfo k, Vector2 previousLocation)
         {
-            var position = new Vector2(e.X, e.Y);
-            var movement = position - previousLocation;
+            var position = e.Position;
+            var movement = new Vector2(position.X, position.Y) - previousLocation;
 
             if (e.RightButton == ButtonState.Pressed && !_camera.LockRotation)
             {
-                _camera.RotationX += movement.Y / 100f;
-                _camera.RotationY += movement.X / 100f;
+                if (k.KeyCtrl)
+                {
+                    _camera._translation.Z *= 1 - movement.Y * -5 * 0.001f;
+                }
+                else
+                {
+                    if (!k.IsKeyDown('y'))
+                        _camera.RotationX += movement.Y * rotFactorX;
+                    if (!k.IsKeyDown('x'))
+                        _camera.RotationY += movement.X * rotFactorY;
 
-                //Reset direction
-                _camera.Direction = Camera.FaceDirection.Any;
+                    //Reset direction
+                    _camera.Direction = Camera.FaceDirection.Any;
+                }
             }
             if (e.LeftButton == ButtonState.Pressed)
             {
@@ -383,9 +450,24 @@ namespace GLFrameworkEngine
             _camera.UpdateTransform();
         }
 
-        public void MouseWheel(MouseEventInfo e)
+        public void MouseWheel(MouseEventInfo e, KeyEventInfo k)
         {
-            Zoom((e.Delta) * 0.1f * _camera.ZoomSpeed, true);
+            if (k.KeyCtrl)
+            {
+                float delta = e.Delta * Math.Min(0.01f, _camera.Depth / 500f);
+
+                Vector2 normCoords = OpenGLHelper.NormMouseCoords(e.X, e.Y, _camera.Width, _camera.Height);
+
+                Vector3 vec = _camera.InverseRotationMatrix.Row0 * -normCoords.X * delta * _camera.FactorX +
+                              _camera.InverseRotationMatrix.Row1 * normCoords.Y * delta * _camera.FactorY +
+                              _camera.InverseRotationMatrix.Row2 * delta;
+
+                _camera.Translation += vec;
+            }
+            else
+            {
+                Zoom(e.Delta * 0.1f * _camera.ZoomSpeed, true);
+            }
         }
 
         public void KeyPress(KeyEventInfo e)

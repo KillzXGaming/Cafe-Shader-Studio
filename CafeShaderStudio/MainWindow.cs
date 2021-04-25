@@ -864,10 +864,11 @@ namespace CafeShaderStudio
         private void UpdateCamera()
         {
             var mouseInfo = CreateMouseState();
+            var keyInfo = CreateKeyState();
 
             if (ImGui.IsAnyMouseDown() && !_mouseDown)
             {
-                Pipeline.OnMouseDown(mouseInfo);
+                Pipeline.OnMouseDown(mouseInfo, keyInfo);
                 _mouseDown = true;
             }
 
@@ -879,11 +880,23 @@ namespace CafeShaderStudio
                 _mouseDown = false;
             }
 
-            if (_mouseDown)
-                Pipeline.OnMouseMove(mouseInfo);
+            Pipeline._context.OnMouseMove(mouseInfo); 
 
-            Pipeline.OnMouseWheel(mouseInfo);
-            //   Pipeline._context.Camera.Controller.KeyPress();
+            if (_mouseDown)
+                Pipeline.OnMouseMove(mouseInfo, keyInfo);
+            if (ImGuiController.ApplicationHasFocus)
+                Pipeline.OnMouseWheel(mouseInfo, keyInfo);
+
+            Pipeline._context.Camera.Controller.KeyPress(keyInfo);
+        }
+
+        private KeyEventInfo CreateKeyState()
+        {
+            var keyInfo = new KeyEventInfo();
+            keyInfo.KeyShift = ImGui.GetIO().KeyShift;
+            keyInfo.KeyCtrl = ImGui.GetIO().KeyCtrl;
+            keyInfo.KeyAlt = ImGui.GetIO().KeyAlt;
+            return keyInfo;
         }
 
         private MouseEventInfo CreateMouseState()

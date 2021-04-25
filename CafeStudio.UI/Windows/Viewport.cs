@@ -253,7 +253,7 @@ namespace CafeStudio.UI
 
             if (ImGui.IsAnyMouseDown() && !_mouseDown)
             {
-                Pipeline.OnMouseDown(mouseInfo);
+                Pipeline.OnMouseDown(mouseInfo, keyInfo);
                 _mouseDown = true;
             }
 
@@ -266,16 +266,20 @@ namespace CafeStudio.UI
             }
 
             if (_mouseDown)
-                Pipeline.OnMouseMove(mouseInfo);
+                Pipeline.OnMouseMove(mouseInfo, keyInfo);
             if (ImGuiController.ApplicationHasFocus)
-                Pipeline.OnMouseWheel(mouseInfo);
+                Pipeline.OnMouseWheel(mouseInfo, keyInfo);
 
             Pipeline._context.Camera.Controller.KeyPress(keyInfo);
         }
 
         private KeyEventInfo CreateKeyState()
         {
-            return new KeyEventInfo();
+            var keyInfo = new KeyEventInfo();
+            keyInfo.KeyShift = ImGui.GetIO().KeyShift;
+            keyInfo.KeyCtrl = ImGui.GetIO().KeyCtrl;
+            keyInfo.KeyAlt = ImGui.GetIO().KeyAlt;
+            return keyInfo;
         }
 
         private MouseEventInfo CreateMouseState()
