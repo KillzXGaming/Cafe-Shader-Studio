@@ -34,7 +34,7 @@ namespace CafeShaderStudio
 
         private void RenderPathUI(string label, ref string path, bool isValid)
         {
-            bool clicked = ImGui.Button($"  -  #{label}");
+            bool clicked = ImGui.Button($"  -  ##{label}");
 
             ImGui.SameLine();
             if (!isValid)
