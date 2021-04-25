@@ -1,0 +1,104 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+    <Platforms>AnyCPU;x64;x86</Platforms>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <OutputPath>C:\Users\Nathan\Documents\GitHub\SuperBMD\Cafe-Shader-Studio\CafeShaderStudio\bin\Debug\net5.0\Plugins</OutputPath>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x86'">
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <OutputPath>C:\Users\Nathan\source\repos\CafeShaderStudio\CafeShaderStudio\bin\Debug\net5.0\Plugins\</OutputPath>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x86'">
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.Drawing.Common" Version="5.0.2" />
+    <PackageReference Include="System.Resources.Extensions" Version="6.0.0-preview.1.21102.12" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\CafeStudio.UI\CafeStudio.UI.csproj" />
+    <ProjectReference Include="..\GLFrameworkEngine\GLFrameworkEngine.csproj" />
+    <ProjectReference Include="..\RedStarLibrary\RedStarLibrary.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="BfresLibrary">
+      <HintPath>Lib\BfresLibrary.dll</HintPath>
+    </Reference>
+    <Reference Include="BfshaLibrary">
+      <HintPath>Lib\BfshaLibrary.dll</HintPath>
+    </Reference>
+    <Reference Include="ImGui.NET">
+      <HintPath>..\CafeShaderStudio\Lib\ImGui.NET.dll</HintPath>
+    </Reference>
+    <Reference Include="LZ4">
+      <HintPath>..\CafeShaderStudio\Lib\LZ4.dll</HintPath>
+    </Reference>
+    <Reference Include="LZ4.Frame">
+      <HintPath>..\CafeShaderStudio\Lib\LZ4.Frame.dll</HintPath>
+    </Reference>
+    <Reference Include="OpenTK">
+      <HintPath>..\CafeShaderStudio\Lib\OpenTK.dll</HintPath>
+    </Reference>
+    <Reference Include="Ryujinx.Common">
+      <HintPath>..\CafeShaderStudio\Lib\Ryujinx.Common.dll</HintPath>
+    </Reference>
+    <Reference Include="Ryujinx.Graphics.Shader">
+      <HintPath>..\CafeShaderStudio\Lib\Ryujinx.Graphics.Shader.dll</HintPath>
+    </Reference>
+    <Reference Include="Syroot.BinaryData">
+      <HintPath>..\CafeShaderStudio\Lib\Syroot.BinaryData.dll</HintPath>
+    </Reference>
+    <Reference Include="Syroot.Maths">
+      <HintPath>..\CafeShaderStudio\Lib\Syroot.Maths.dll</HintPath>
+    </Reference>
+    <Reference Include="Syroot.NintenTools.NSW.Bntx">
+      <HintPath>Lib\Syroot.NintenTools.NSW.Bntx.dll</HintPath>
+    </Reference>
+    <Reference Include="Toolbox.Core">
+      <HintPath>..\CafeShaderStudio\Lib\Toolbox.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="TrackStudioLibrary">
+      <HintPath>..\CafeShaderStudio\Lib\TrackStudioLibrary.dll</HintPath>
+    </Reference>
+    <Reference Include="ZstdNet">
+      <HintPath>..\CafeShaderStudio\Lib\ZstdNet.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Properties\Resources.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+</Project>

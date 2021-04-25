@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "CafeShaderStudio": {
+      "commandName": "Project",
+      "nativeDebugging": true
+    }
+  }
+}

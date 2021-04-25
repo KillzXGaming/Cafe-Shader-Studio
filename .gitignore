@@ -1,0 +1,16 @@
+.vs/
+bin/
+obj/
+*Google.FlatBuffers
+*NodeEditorWinforms-master
+*GL_EditorFramework-master
+*SuperBMD-master
+*SuperBMD-link
+*.resources
+BrawlboxHelper/BrawlHelperTest2.cs
+BrawlboxHelper/BrawlHelperTest2.zip
+Switch_Toolbox_StreamOverhaul.zip
+Toolbox/Lib.zip
+yuzu-glsl-decompiler
+AnimSetupPrevious.zip
+AnimSetupNew.zip

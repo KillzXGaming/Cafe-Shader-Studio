@@ -1,0 +1,42 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+    <Platforms>AnyCPU;x86</Platforms>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
+    <PackageReference Include="System.Dynamic.Runtime" Version="4.3.0" />
+    <PackageReference Include="System.Numerics.Vectors" Version="4.5.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\GLFrameworkEngine\GLFrameworkEngine.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="AampLibraryCSharp">
+      <HintPath>..\CafeShaderStudio\Lib\AampLibraryCSharp.dll</HintPath>
+    </Reference>
+    <Reference Include="ByamlExt">
+      <HintPath>..\CafeShaderStudio\Lib\ByamlExt.dll</HintPath>
+    </Reference>
+    <Reference Include="ImGui.NET">
+      <HintPath>..\CafeShaderStudio\Lib\ImGui.NET.dll</HintPath>
+    </Reference>
+    <Reference Include="OpenTK">
+      <HintPath>..\CafeShaderStudio\Lib\OpenTK.dll</HintPath>
+    </Reference>
+    <Reference Include="Syroot.BinaryData">
+      <HintPath>..\CafeShaderStudio\Lib\Syroot.BinaryData.dll</HintPath>
+    </Reference>
+    <Reference Include="Syroot.Maths">
+      <HintPath>..\CafeShaderStudio\Lib\Syroot.Maths.dll</HintPath>
+    </Reference>
+    <Reference Include="Toolbox.Core">
+      <HintPath>..\CafeShaderStudio\Lib\Toolbox.Core.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+</Project>
