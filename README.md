@@ -27,6 +27,8 @@ Keep in mind this is very WIP. Editing is limited to material editing. You can e
 
 ## Screenshots
 
+![image](https://user-images.githubusercontent.com/13475262/115976415-eba45100-a53b-11eb-9893-a6988c57e7d6.png)
+
 ![image](https://user-images.githubusercontent.com/13475262/115976191-66b83800-a539-11eb-8569-6d5a947c31f5.png)
 
 ## Credits
