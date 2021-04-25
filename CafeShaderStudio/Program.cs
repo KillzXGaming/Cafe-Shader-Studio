@@ -15,8 +15,6 @@ namespace CafeShaderStudio
         {
             InitResourceCreation();
 
-            RedStarLibrary.GlobalSettings.GamePath = @"G:\Games\nsw\SMO\romfs";
-            TrackStudioLibrary.Turbo.GlobalSettingsMK8.MarioKart8Path = @"G:\Games\0 - NSW\Mario_Kart_8_Deluxe\romfs";
             Runtime.DisplayBones = false;
 
             GraphicsMode mode = new GraphicsMode(new ColorFormat(32), 24, 8, 4, new ColorFormat(32), 2, false);

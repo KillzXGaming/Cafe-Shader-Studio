@@ -12,22 +12,32 @@ namespace CafeShaderStudio
     public class Config
     {
         public string SMOGamePath = "";
+        public string SM3DWGamePath = "";
+        public string MK8DGamePath = "";
+
+        [JsonIgnore]
         public bool HasValidSMOPath = false;
+        [JsonIgnore]
+        public bool HasValidSM3DWPath = false;
+        [JsonIgnore]
+        public bool HasValidMK8DPath = false;
 
         /// <summary>
         /// Renders the current configuration UI.
         /// </summary>
         public void RenderUI()
         {
-            RenderPathUI("Mario Odyssey Path", ref SMOGamePath);
+            RenderPathUI("Super Mario Odyssey Path", ref SMOGamePath, HasValidSMOPath);
+            RenderPathUI("Super Mario 3DW Path", ref SM3DWGamePath, HasValidSM3DWPath);
+            RenderPathUI("Mario Kart 8 Deluxe Path", ref MK8DGamePath, HasValidMK8DPath);
         }
 
-        private void RenderPathUI(string label, ref string path)
+        private void RenderPathUI(string label, ref string path, bool isValid)
         {
             bool clicked = ImGui.Button("  -  ");
 
             ImGui.SameLine();
-            if (!HasValidSMOPath)
+            if (!isValid)
             {
                 ImGui.PushStyleColor(ImGuiCol.FrameBg, new Vector4(0.5f, 0, 0, 1));
                 ImGui.InputText(label, ref path, 500, ImGuiInputTextFlags.ReadOnly);
@@ -77,6 +87,12 @@ namespace CafeShaderStudio
         {
             RedStarLibrary.GlobalSettings.GamePath = SMOGamePath;
             HasValidSMOPath = Directory.Exists($"{SMOGamePath}\\ShaderData");
+
+            BfresEditor.SM3DWShaderLoader.GamePath = SM3DWGamePath;
+            HasValidSM3DWPath = Directory.Exists($"{SM3DWGamePath}\\ShaderData");
+
+            TrackStudioLibrary.Turbo.GlobalSettingsMK8.MarioKartDX8Path = MK8DGamePath;
+            HasValidMK8DPath = File.Exists($"{SMOGamePath}\\Data\\objflow.byaml");
         }
     }
 }

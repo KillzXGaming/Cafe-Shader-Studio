@@ -11,7 +11,7 @@ namespace BfresEditor
 {
     public class SM3DWShaderLoader
     {
-        public static string GamePath = @"G:\NX\3DW\10028600EBDA000\Romfs";
+        public static string GamePath;
 
         public static BfshaLibrary.BfshaFile LoadShader(string archive)
         {

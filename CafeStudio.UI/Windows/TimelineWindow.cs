@@ -28,7 +28,8 @@ namespace CafeStudio.UI
             CurveEditor.BackColor = System.Drawing.Color.FromArgb(40, 40, 40, 40);
             AnimationPlayer.OnFrameChanged += delegate
             {
-                CurveEditor.CurrentFrame = (int)AnimationPlayer.CurrentFrame;
+                if (CurveEditor.CurrentFrame != (int)AnimationPlayer.CurrentFrame)
+                    CurveEditor.CurrentFrame = (int)AnimationPlayer.CurrentFrame;
             };
 
             CurveEditor.OnFrameChanged += delegate {
