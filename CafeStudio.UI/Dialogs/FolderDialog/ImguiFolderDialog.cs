@@ -16,7 +16,13 @@ namespace CafeStudio.UI
 
         public bool ShowDialog()
         {
-            var ofd = TinyFileDialog.SelectFolderDialog(Title, SelectedPath);
+            string ofd = null;
+
+            FolderBrowserEx.FolderBrowserDialog dialog = new FolderBrowserEx.FolderBrowserDialog() { Title = Title, InitialFolder = SelectedPath };
+            dialog.ShowDialog();
+            ofd = dialog.SelectedFolder;
+
+            //ofd = TinyFileDialog.SelectFolderDialog(Title, SelectedPath);
             if (!string.IsNullOrEmpty(ofd))
             {
                 this.SelectedPath = ofd;

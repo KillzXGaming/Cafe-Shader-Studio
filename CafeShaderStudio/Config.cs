@@ -42,9 +42,9 @@ namespace CafeShaderStudio
 
             if (clicked)
             {
-                var dialog = new FolderBrowserEx.FolderBrowserDialog();
-                if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK) {
-                    path = dialog.SelectedFolder;
+                var dialog = new ImguiFolderDialog();
+                if (dialog.ShowDialog()) {
+                    path = dialog.SelectedPath;
                     Save();
                 }
             }
