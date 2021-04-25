@@ -125,8 +125,12 @@ namespace CafeStudio.UI
 
             Util.CreateVertexBuffer("ImGui", out _vertexBuffer);
             Util.CreateElementBuffer("ImGui", out _indexBuffer);
-            GL.NamedBufferData(_vertexBuffer, _vertexBufferSize, IntPtr.Zero, BufferUsageHint.DynamicDraw);
-            GL.NamedBufferData(_indexBuffer, _indexBufferSize, IntPtr.Zero, BufferUsageHint.DynamicDraw);
+
+            GL.BindBuffer(BufferTarget.ArrayBuffer, _vertexBuffer);
+            GL.BufferData(BufferTarget.ArrayBuffer, _vertexBufferSize, IntPtr.Zero, BufferUsageHint.DynamicDraw);
+
+            GL.BindBuffer(BufferTarget.ElementArrayBuffer, _indexBuffer);
+            GL.BufferData(BufferTarget.ElementArrayBuffer, _indexBufferSize, IntPtr.Zero, BufferUsageHint.DynamicDraw);
 
             RecreateFontDeviceTexture();
 
@@ -339,7 +343,10 @@ void main()
                 if (vertexSize > _vertexBufferSize)
                 {
                     int newSize = (int)Math.Max(_vertexBufferSize * 1.5f, vertexSize);
-                    GL.NamedBufferData(_vertexBuffer, newSize, IntPtr.Zero, BufferUsageHint.DynamicDraw);
+
+                    GL.BindBuffer(BufferTarget.ArrayBuffer, _vertexBuffer);
+                    GL.BufferData(BufferTarget.ArrayBuffer, newSize, IntPtr.Zero, BufferUsageHint.DynamicDraw);
+
                     _vertexBufferSize = newSize;
 
                     Console.WriteLine($"Resized dear imgui vertex buffer to new size {_vertexBufferSize}");
@@ -349,7 +356,10 @@ void main()
                 if (indexSize > _indexBufferSize)
                 {
                     int newSize = (int)Math.Max(_indexBufferSize * 1.5f, indexSize);
-                    GL.NamedBufferData(_indexBuffer, newSize, IntPtr.Zero, BufferUsageHint.DynamicDraw);
+
+                    GL.BindBuffer(BufferTarget.ElementArrayBuffer, _indexBuffer);
+                    GL.BufferData(BufferTarget.ElementArrayBuffer, newSize, IntPtr.Zero, BufferUsageHint.DynamicDraw);
+
                     _indexBufferSize = newSize;
 
                     Console.WriteLine($"Resized dear imgui index buffer to new size {_indexBufferSize}");
@@ -389,10 +399,12 @@ void main()
             {
                 ImDrawListPtr cmd_list = draw_data.CmdListsRange[n];
 
-                GL.NamedBufferSubData(_vertexBuffer, IntPtr.Zero, cmd_list.VtxBuffer.Size * Unsafe.SizeOf<ImDrawVert>(), cmd_list.VtxBuffer.Data);
+                GL.BindBuffer(BufferTarget.ArrayBuffer, _vertexBuffer);
+                GL.BufferSubData(BufferTarget.ArrayBuffer, IntPtr.Zero, cmd_list.VtxBuffer.Size * Unsafe.SizeOf<ImDrawVert>(), cmd_list.VtxBuffer.Data);
                 Util.CheckGLError($"Data Vert {n}");
 
-                GL.NamedBufferSubData(_indexBuffer, IntPtr.Zero, cmd_list.IdxBuffer.Size * sizeof(ushort), cmd_list.IdxBuffer.Data);
+                GL.BindBuffer(BufferTarget.ElementArrayBuffer, _indexBuffer);
+                GL.BufferSubData(BufferTarget.ElementArrayBuffer, IntPtr.Zero, cmd_list.IdxBuffer.Size * sizeof(ushort), cmd_list.IdxBuffer.Data);
                 Util.CheckGLError($"Data Idx {n}");
 
                 int vtx_offset = 0;
