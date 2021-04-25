@@ -255,8 +255,8 @@ namespace GLFrameworkEngine
         {
             if (Mode == CameraMode.Inspect)
                 Controller = new InspectCameraController(this);
-            else if (Mode == CameraMode.Walk)
-                Controller = new WalkCameraController(this);
+         //   else if (Mode == CameraMode.Walk)
+          //      Controller = new WalkCameraController(this);
             else
                 throw new Exception($"Invalid camera mode! {Mode}");
         }
@@ -305,7 +305,7 @@ namespace GLFrameworkEngine
 
         public enum CameraMode
         {
-            Walk,
+        //    Walk,
             Inspect,
         }
     }
