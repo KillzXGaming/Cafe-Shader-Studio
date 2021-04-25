@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
+using System.Numerics;
 using System.Threading.Tasks;
 using ImGuiNET;
 using CurveEditorLibrary;
@@ -75,7 +75,9 @@ namespace CafeStudio.UI
                 }
             }
 
-            if (ImGui.BeginChild("timeline_child1"))
+            var size = ImGui.GetWindowSize();
+            var pos = ImGui.GetCursorPosY();
+            if (ImGui.BeginChild("timeline_child1", new Vector2(size.X, size.Y - pos - 5), false, ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoScrollWithMouse))
             {
                 DrawCurveTimeline();
             }
@@ -98,7 +100,7 @@ namespace CafeStudio.UI
                 CurveEditor.FrameCount = (int)AnimationPlayer.FrameCount;
 
             var backgroundColor = ImGui.GetStyle().Colors[(int)ImGuiCol.MenuBarBg];
-            CurveEditor.SetShaderParameter("backgroundColor", new OpenTK.Vector4(backgroundColor.X, backgroundColor.Y, backgroundColor.Z, 1.0f));
+            CurveEditor.BGColor = new Vector4(backgroundColor.X, backgroundColor.Y, backgroundColor.Z, 1.0f);
 
             if (ImGui.IsWindowHovered() && ImGui.IsWindowFocused() || _mouseDown)
                 UpdateCurveEvents();
@@ -106,11 +108,13 @@ namespace CafeStudio.UI
                 onEnter = true;
 
             CurveEditor.Render();
- 
+
             var id = CurveEditor.GetTextureID();
             ImGui.Image((IntPtr)id, viewerSize,
                 new System.Numerics.Vector2(0, 1),
                 new System.Numerics.Vector2(1, 0));
+
+
 
             ImGui.SetCursorPos(pos);
             CurveEditor.DrawText();
