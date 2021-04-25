@@ -3,7 +3,7 @@
   <PropertyGroup>
     
     <OutputType>Exe</OutputType>
-    <TargetFramework>net5.0</TargetFramework>
+    <TargetFramework>net5.0-windows</TargetFramework>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <Platforms>AnyCPU;x64;x86</Platforms>
   </PropertyGroup>
@@ -307,6 +307,7 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="FolderBrowserEx" Version="1.0.1" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
   </ItemGroup>
   <ItemGroup>
