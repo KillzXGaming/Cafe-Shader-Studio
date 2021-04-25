@@ -34,7 +34,7 @@
   
   <ItemGroup>
     <Reference Include="BfshaLibrary">
-      <HintPath>..\BfresEditor.WPF\Lib\BfshaLibrary.dll</HintPath>
+      <HintPath>..\BfresEditor\Lib\BfshaLibrary.dll</HintPath>
     </Reference>
     <Reference Include="ImGui.NET, Version=1.78.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -313,10 +313,7 @@
       <Project>{520999fb-ca7b-4458-8b56-5146205272ac}</Project>
       <Name>AGraphicsLibrary</Name>
     </ProjectReference>
-    <ProjectReference Include="..\BfresEditor.WPF\BfresEditor.csproj">
-      <Project>{0effbf91-8690-4dbf-85a3-15e11f6399ac}</Project>
-      <Name>BfresEditor</Name>
-    </ProjectReference>
+    <ProjectReference Include="..\BfresEditor\BfresEditor.csproj" />
     <ProjectReference Include="..\CafeStudio.UI\CafeStudio.UI.csproj">
       <Project>{1eda9b52-1778-40fe-9f7a-9ec65364640d}</Project>
       <Name>CafeStudio.UI</Name>

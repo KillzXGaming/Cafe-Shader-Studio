@@ -5,7 +5,7 @@ VisualStudioVersion = 16.0.31112.23
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CafeShaderStudio", "CafeShaderStudio\CafeShaderStudio.csproj", "{3AF6235C-82F1-4076-AB6E-F520D9B66DFB}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BfresEditor", "BfresEditor.WPF\BfresEditor.csproj", "{0EFFBF91-8690-4DBF-85A3-15E11F6399AC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BfresEditor", "BfresEditor\BfresEditor.csproj", "{0EFFBF91-8690-4DBF-85A3-15E11F6399AC}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GLFrameworkEngine", "GLFrameworkEngine\GLFrameworkEngine.csproj", "{35C8DB46-F713-4D4A-9987-5574BBD1BF5E}"
 EndProject

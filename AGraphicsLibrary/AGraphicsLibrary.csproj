@@ -34,7 +34,7 @@
       <HintPath>..\CafeShaderStudio\Lib\AampLibraryCSharp.dll</HintPath>
     </Reference>
     <Reference Include="BfresLibrary">
-      <HintPath>..\BfresEditor.WPF\Lib\BfresLibrary.dll</HintPath>
+      <HintPath>..\BfresEditor\Lib\BfresLibrary.dll</HintPath>
     </Reference>
     <Reference Include="OpenTK">
       <HintPath>..\CafeShaderStudio\Lib\OpenTK.dll</HintPath>
