@@ -11,6 +11,8 @@ namespace CafeStudio.UI
 {
     public class TimelineWindow
     {
+        public bool IsActive => AnimationPlayer.IsPlaying;
+
         AnimationPlayer AnimationPlayer { get; set; }
         AnimationControl CurveEditor { get; set; }
         private bool _mouseDown;
@@ -104,6 +106,7 @@ namespace CafeStudio.UI
                 onEnter = true;
 
             CurveEditor.Render();
+ 
             var id = CurveEditor.GetTextureID();
             ImGui.Image((IntPtr)id, viewerSize,
                 new System.Numerics.Vector2(0, 1),

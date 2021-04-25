@@ -340,6 +340,12 @@ namespace CafeShaderStudio
         {
             base.OnRenderFrame(e);
 
+            if (!this.Focused && !TimelineWindow.IsActive)
+            {
+                System.Threading.Thread.Sleep(1);
+                return;
+            }
+
             _controller.Update(this, (float)e.Time);
 
             ImGuiWindowFlags window_flags = ImGuiWindowFlags.NoDocking;
