@@ -222,14 +222,14 @@ namespace BfresEditor
                 RenderMesh(control, mesh);
             }
 
-        /*    GL.BindTexture(TextureTarget.Texture2D, 0);
+            GL.BindTexture(TextureTarget.Texture2D, 0);
             GL.Enable(EnableCap.DepthTest);
             GL.Disable(EnableCap.TextureCubeMapSeamless);
             GL.Disable(EnableCap.AlphaTest);
             GL.Disable(EnableCap.Blend);
             GL.Enable(EnableCap.CullFace);
             GL.CullFace(CullFaceMode.Back);
-            GL.UseProgram(0);*/
+            GL.UseProgram(0);
 
             if (meshes.Any(x => x.UseColorBufferPass))
                 ScreenBufferTexture.FilterScreen(control);
