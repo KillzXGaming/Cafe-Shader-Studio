@@ -27,9 +27,11 @@ Keep in mind this is very WIP. Editing is limited to material editing. You can e
 
 ## Screenshots
 
+![image](https://user-images.githubusercontent.com/13475262/116014206-24a6f900-a602-11eb-8a34-31d07576909f.png)
+
 ![image](https://user-images.githubusercontent.com/13475262/115976415-eba45100-a53b-11eb-9893-a6988c57e7d6.png)
 
-![image](https://user-images.githubusercontent.com/13475262/115976191-66b83800-a539-11eb-8569-6d5a947c31f5.png)
+![image](https://user-images.githubusercontent.com/13475262/116013454-41d9c880-a5fe-11eb-9661-63671f92a7ce.png)
 
 ## Credits
 - KillzXGaming - main developer.
