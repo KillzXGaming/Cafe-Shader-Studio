@@ -25,6 +25,9 @@ Make sure you have [net 5.0 or higher](https://dotnet.microsoft.com/download/dot
 
 Keep in mind this is very WIP. Editing is limited to material editing. You can export/import materials as json for more direct editing (though keep in mind if the file swapped uses a different shader file, then the bfres will need to be reopened.  
 
+## Notes
+**If a material is red (for a game with supported shader viewing) that means it failed to find the shader. This means your model has a skin count not supported by the shader, or the shader option combination and/or render state combination is not supported by the shader.**
+
 ## Screenshots
 
 ![image](https://user-images.githubusercontent.com/13475262/116014206-24a6f900-a602-11eb-8a34-31d07576909f.png)
