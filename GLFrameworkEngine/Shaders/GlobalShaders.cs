@@ -60,9 +60,8 @@ namespace GLFrameworkEngine
         {
             if (!Shaders.ContainsKey(key)) {
                 Shaders.Add(key, LoadShader(path));
+                Shaders[key].Link();
             }
-
-            Shaders[key].Link();
             return Shaders[key];
         }
 
