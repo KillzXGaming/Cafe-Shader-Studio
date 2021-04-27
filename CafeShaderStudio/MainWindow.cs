@@ -241,7 +241,7 @@ namespace CafeShaderStudio
 
             if (fileFormat is IRenderableFile)
                 AddDrawable(fileFormat);
-            if (fileFormat is IArchiveFile)
+            else if (fileFormat is IArchiveFile)
             {
                 foreach (var file in (((IArchiveFile)fileFormat).Files))
                 {
@@ -251,6 +251,17 @@ namespace CafeShaderStudio
                         AddDrawable(bfres);
                     }
                 }
+            }
+            else if (fileFormat is ITextureContainer)
+            {
+                foreach (var tex in ((ITextureContainer)fileFormat).TextureList)
+                    Runtime.TextureCache.Add(tex);
+            }
+            else if (fileFormat is Toolbox.Core.ViewModels.NodeBase)
+            {
+                var wrappers = ObjectWrapperFileLoader.OpenFormat(fileFormat);
+                if (wrappers != null)
+                    Outliner.Nodes.Add(wrappers);
             }
 
             string dir = System.IO.Path.GetDirectoryName(fileName);
@@ -389,7 +400,8 @@ namespace CafeShaderStudio
             dock_id = ImGui.GetID("##DockspaceRoot");
 
             LoadFileMenu();
-            LoadWorkspaces();
+             LoadWorkspaces();
+
 
             GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
             GL.Viewport(0, 0, Width, Height);
@@ -506,6 +518,21 @@ namespace CafeShaderStudio
 
                 ImGui.Checkbox("Wireframe", ref Toolbox.Core.Runtime.RenderSettings.Wireframe);
                 ImGui.Checkbox("WireframeOverlay", ref Toolbox.Core.Runtime.RenderSettings.WireframeOverlay);
+                ImGui.EndMenu();
+            }
+
+            if (ImGui.BeginMenu($"Shading: [{Runtime.DebugRendering}]"))
+            {
+                foreach (var mode in Enum.GetValues(typeof(Runtime.DebugRender)))
+                {
+                    bool isSelected = (Runtime.DebugRender)mode == Runtime.DebugRendering;
+                    if (ImGui.Selectable(mode.ToString(), isSelected))
+                    {
+                        Runtime.DebugRendering = (Runtime.DebugRender)mode;
+                    }
+                    if (isSelected)
+                        ImGui.SetItemDefaultFocus();
+                }
                 ImGui.EndMenu();
             }
 
@@ -844,6 +871,8 @@ namespace CafeShaderStudio
 
             foreach (var render in Pipeline.SceneObjects)
                 render.Dispose();
+            foreach (var tex in Runtime.TextureCache)
+                tex.RenderableTex?.Dispose();
 
             TimelineWindow.Reset();
             Outliner.ActiveFileFormat = null;
@@ -854,6 +883,7 @@ namespace CafeShaderStudio
             Pipeline.SceneObjects.Clear();
             Pipeline._context.Scene.PickableObjects.Clear();
             DataCache.ModelCache.Clear();
+            Runtime.TextureCache.Clear();
 
             GC.Collect();
         }
