@@ -87,7 +87,7 @@ namespace CafeStudio.UI
                 CurrentAnimations.Clear();
             StartFrame = 0;
             CurrentFrame = 0;
-            AnimationPlayerState = AnimPlayerState.Stop;
+            Stop();
 
             ResetModels();
         }

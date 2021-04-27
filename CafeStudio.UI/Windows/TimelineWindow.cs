@@ -47,8 +47,9 @@ namespace CafeStudio.UI
         }
 
         public void Reset() {
+            CurveEditor.CurrentFrame = 0;
+            CurveEditor.FrameCount = 1;
             AnimationPlayer.Reset(true);
-            AnimationPlayer.ResetModels();
         }
 
         public void AddAnimation(STAnimation animation, bool reset = true) {
