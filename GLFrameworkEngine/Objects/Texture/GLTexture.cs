@@ -125,6 +125,9 @@ namespace GLFrameworkEngine
                 int mipLevel = 0;
 
                 bool loadAsBitmap = !IsPower2(width, height) && texture.IsBCNCompressed() && false;
+                if (texture.IsASTC())
+                    loadAsBitmap = true;
+
                 if (loadAsBitmap || parameters.UseSoftwareDecoder)
                 {
                     var bitmap = texture.GetDecodedSurface(i, mipLevel);
