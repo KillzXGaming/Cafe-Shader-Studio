@@ -74,11 +74,11 @@ namespace BfresEditor
         {
             MaterialData = mesh.Material;
 
+            control.UseSRBFrameBuffer = true;
+
             var bfresMaterial = (FMAT)this.MaterialData;
             var bfresMesh = (BfresMeshAsset)mesh;
             var meshBone = ParentModel.Skeleton.Bones[bfresMesh.BoneIndex];
-
-            var programID = shader.program;
 
             //Set materials
             var transform = meshBone.Transform;
@@ -171,6 +171,13 @@ namespace BfresEditor
 
             if (textures.ContainsKey(name))
                 return BindGLTexture(textures[name], textureMap, shader);
+
+
+            foreach (var tex in Runtime.TextureCache)
+            {
+                if (tex.Name == name)
+                    return BindGLTexture(tex, textureMap, shader);
+            }
 
             foreach (var model in DataCache.ModelCache.Values)
             {

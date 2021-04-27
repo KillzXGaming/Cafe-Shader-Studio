@@ -81,6 +81,8 @@ namespace BfresEditor
                             mesh.Material.ShaderArchive,
                             mesh.Material.ShaderModel);
 
+                        Console.WriteLine($"customRender {customRender} Has Bfsha {bfsha != null}");
+
                         if (bfsha == null)
                             break;
 
@@ -229,7 +231,6 @@ namespace BfresEditor
             GL.Disable(EnableCap.Blend);
             GL.Enable(EnableCap.CullFace);
             GL.CullFace(CullFaceMode.Back);
-            GL.UseProgram(0);
 
             if (meshes.Any(x => x.UseColorBufferPass))
                 ScreenBufferTexture.FilterScreen(control);
@@ -430,7 +431,7 @@ namespace BfresEditor
             }
             else //Draw default if not using game shader rendering.
             {
-                if (control.CurrentShader != BfresRender.DefaultShader)
+                if (!control.IsShaderActive(BfresRender.DefaultShader))
                     control.CurrentShader = BfresRender.DefaultShader;
 
                 var mtxMdl = this.ParentRender.Transform.TransformMatrix;

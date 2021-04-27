@@ -124,8 +124,7 @@ namespace BfresEditor
 
         static void InitTextures()
         {
-           CubeMapTextureID = GLTextureCubeArray.FromDDS(
-                new DDS(new MemoryStream(Resources.CubemapHDR)));
+            CubeMapTextureID = GLTextureCubeArray.FromDDS(new DDS($"Resources\\CubemapHDR.dds"));
 
             DiffuseCubeTextureID = GLTextureCube.FromDDS(
                 new DDS(new MemoryStream(Resources.CubemapLightmap)),

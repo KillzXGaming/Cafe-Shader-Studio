@@ -163,7 +163,7 @@ namespace BfresEditor
         {
             //Reflective cubemap
            var cubemap = GLTextureCubeArray.FromDDS(
-                new DDS(new MemoryStream(Resources.CubemapHDR)));
+                new DDS($"Resources\\CubemapHDR.dds"));
 
             CubemapManager.InitDefault(cubemap);
 
@@ -343,7 +343,7 @@ namespace BfresEditor
                     };
                 }
             }
-
+                
             var mem = new MemoryStream();
             using (var writer = new Toolbox.Core.IO.FileWriter(mem))
             {
@@ -457,9 +457,6 @@ namespace BfresEditor
                 writer.SeekBegin(656);
                 writer.Write(0.55f);
                 writer.Write(1);
-
-                for (int i = 0; i < 200; i++)
-                    writer.Write(new Vector4(1));
 
                 writer.SeekBegin(1024);
                 //Cubemap params

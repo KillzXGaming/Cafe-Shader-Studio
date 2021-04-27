@@ -127,21 +127,6 @@
   <data name="brdf" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\brdf.dds;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
-  <data name="CubemapDefault" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\CubemapDefault.dds;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="cubemapEquat" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\cubemapEquat.dds;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="CubemapHDR" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\CubemapHDR.dds;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="CubemapHDR2" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\CubemapHDR2.dds;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="CubemapIrradianceDefault" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\CubemapIrradianceDefault.dds;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
   <data name="CubemapLightmap" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\CubemapLightmap.dds;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>

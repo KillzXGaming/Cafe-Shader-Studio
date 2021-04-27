@@ -67,8 +67,7 @@ namespace BfresEditor
         static void InitTextures()
         {
             //Cube maps
-            CubemapTexture = GLTexture2D.FromGeneric(
-                new DDS(new System.IO.MemoryStream(Properties.Resources.cubemapEquat)), null);
+            CubemapTexture = GLTexture2D.FromGeneric(new DDS($"Resources\\CubemapEquat.dds"), null);
 
             CubemapTexture.Bind();
             CubemapTexture.MagFilter = TextureMagFilter.Linear;

@@ -52,7 +52,6 @@ namespace BfresEditor
                 case "back": mat.CullState = FMAT.CullMode.Front; break;
                 case "both": mat.CullState = FMAT.CullMode.None; break;
                 case "none": mat.CullState = FMAT.CullMode.Both; break;
-
             }
         }
 
@@ -108,8 +107,7 @@ namespace BfresEditor
         {
            SMOCubemapLoader.LoadCubemap();
 
-            MaterialLightCube = GLTextureCube.FromDDS(
-                   new DDS(new MemoryStream(Resources.CubemapHDR2)), false, true);
+            MaterialLightCube = GLTextureCube.FromDDS(new DDS($"Resources\\CubemapHDR2.dds"), false, true);
 
             MaterialLightSphere = GLTexture2D.FromBitmap(Resources.black);
             DirectionalLightTexture = GLTexture2D.FromGeneric(
@@ -141,7 +139,7 @@ namespace BfresEditor
                 SetScreenTextureBuffer(shader, control);
         }
 
-        public override void LoadUniformBlock(GLContext control, ShaderProgram shader, int index, UniformBlock block, string name, GenericPickableMesh mesh)
+        public override void LoadUniformBlock(GLContext control, ShaderProgram shader, int index,UniformBlock block, string name, GenericPickableMesh mesh)
         {
             var bfresMaterial = (FMAT)this.MaterialData;
             var bfresMesh = (BfresMeshAsset)mesh;
@@ -308,7 +306,6 @@ namespace BfresEditor
                 writer.Write(cProjViewInvNoPos[0]);
                 writer.Write(cProjViewInvNoPos[1]);
                 writer.Write(cProjViewInvNoPos[2]);
-
 
                 writer.Write(16.66667f); // vec4[20].x
                 writer.Write(1.0f); //Exposure used for the half texture

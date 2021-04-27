@@ -118,7 +118,7 @@ namespace BfresEditor
         {
             //Cube maps
             DiffuseCubemapTextureID = GLTextureCube.FromDDS(
-                new DDS(new MemoryStream(Resources.CubemapIrradianceDefault)));
+                new DDS($"Resources\\CubemapIrradianceDefault.dds"));
 
             DiffuseCubemapTextureID.Bind();
             DiffuseCubemapTextureID.MagFilter = TextureMagFilter.Linear;
@@ -129,8 +129,7 @@ namespace BfresEditor
             GL.TexParameter(DiffuseCubemapTextureID.Target, TextureParameterName.TextureMaxLevel, 0);
             DiffuseCubemapTextureID.Unbind();
 
-            SpecularCubemapTextureID = GLTextureCube.FromDDS(
-                new DDS(new MemoryStream(Resources.CubemapDefault)));
+            SpecularCubemapTextureID = GLTextureCube.FromDDS(new DDS($"Resources\\CubemapDefault.dds"));
 
             SpecularCubemapTextureID.Bind();
             SpecularCubemapTextureID.MagFilter = TextureMagFilter.Linear;
@@ -166,14 +165,15 @@ namespace BfresEditor
             var bfresMaterial = (FMAT)this.MaterialData;
             var bfresMesh = (BfresMeshAsset)mesh;
             var meshBone = ParentModel.Skeleton.Bones[bfresMesh.BoneIndex];
-
+            var bfshaBlock = ShaderModel.UniformBlocks[index];
+           
             switch (name)
             {
                 case "shape":
                     SetShapeBlock(bfresMesh, meshBone.Transform, block);
                     break;
                 case "bone":
-                    SetBoneMatrixBlock(this.ParentModel.Skeleton, bfresMesh.SkinCount > 1, block, 150);
+                    SetBoneMatrixBlock(this.ParentModel.Skeleton, bfresMesh.SkinCount > 1, block, bfshaBlock.Size / 48);
                     break;
                 case "view":
                     SetViewportUniforms(control.Camera, block);

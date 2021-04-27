@@ -71,11 +71,9 @@ namespace CafeStudio.UI
 
             animation.CanPlay = true;
 
-            FrameCount = animation.FrameCount;
+            FrameCount = Math.Max(animation.FrameCount, 1);
             StartFrame = animation.StartFrame;
             CurrentFrame = StartFrame;
-
-            groupName = System.IO.Path.GetFileNameWithoutExtension(groupName);
 
             CurrentAnimations.Add(animation);
 

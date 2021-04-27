@@ -93,56 +93,6 @@ namespace BfresEditor.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
-        internal static byte[] CubemapDefault {
-            get {
-                object obj = ResourceManager.GetObject("CubemapDefault", resourceCulture);
-                return ((byte[])(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Byte[].
-        /// </summary>
-        internal static byte[] cubemapEquat {
-            get {
-                object obj = ResourceManager.GetObject("cubemapEquat", resourceCulture);
-                return ((byte[])(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Byte[].
-        /// </summary>
-        internal static byte[] CubemapHDR {
-            get {
-                object obj = ResourceManager.GetObject("CubemapHDR", resourceCulture);
-                return ((byte[])(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Byte[].
-        /// </summary>
-        internal static byte[] CubemapHDR2 {
-            get {
-                object obj = ResourceManager.GetObject("CubemapHDR2", resourceCulture);
-                return ((byte[])(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Byte[].
-        /// </summary>
-        internal static byte[] CubemapIrradianceDefault {
-            get {
-                object obj = ResourceManager.GetObject("CubemapIrradianceDefault", resourceCulture);
-                return ((byte[])(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Byte[].
-        /// </summary>
         internal static byte[] CubemapLightmap {
             get {
                 object obj = ResourceManager.GetObject("CubemapLightmap", resourceCulture);

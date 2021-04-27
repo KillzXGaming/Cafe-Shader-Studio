@@ -27,7 +27,6 @@ namespace BfresEditor
             using (var reader = new FileReader(stream, true)) {
                 return reader.CheckSignature(4, "FRES");
             }
-        
         }
 
         public object PropertyDisplay => ResFile;
@@ -59,14 +58,15 @@ namespace BfresEditor
             ResFile = new ResFile(stream);
             ReloadWrappers(ResFile);
 
-
-
             Renderer = new BfresRender();
             ((BfresRender)Renderer).Load(this);
 
             Tag = this;
         }
 
+        /// <summary>
+        /// Updates the shader list stored in the file as embedded.
+        /// </summary>
         public void UpdateExternalShaderFiles()
         {
             if (ShaderFiles.Count > 0)
@@ -83,6 +83,7 @@ namespace BfresEditor
             }
         }
 
+        //Check if the file is a switch binary file
         private bool IsSwitchBinary(byte[] data)
         {
             using (var reader = new FileReader(data))
@@ -97,6 +98,7 @@ namespace BfresEditor
             ResFile.Save(stream);
         }
 
+        //Apply wrapper linked data to the resfile instance
         private void SaveWrappers()
         {
             ResFile.Models.Clear();

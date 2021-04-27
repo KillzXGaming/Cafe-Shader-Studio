@@ -123,8 +123,7 @@ namespace BfresEditor
         static void InitTextures()
         {
             //Reflective cubemap
-            CubeMapTextureID = GLTextureCubeArray.FromDDS(
-                new DDS(new MemoryStream(Resources.CubemapHDR)));
+            CubeMapTextureID = GLTextureCubeArray.FromDDS(new DDS($"Resources\\CubemapHDR.dds"));
 
             CubemapManager.InitDefault(CubeMapTextureID);
 

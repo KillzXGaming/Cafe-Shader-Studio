@@ -310,7 +310,8 @@ namespace BfresEditor
             foreach (var file in GlobalShaderCache.ShaderFiles.Values)
             {
                 if (file is BfshaLibrary.BfshaFile) {
-                    if (((BfshaLibrary.BfshaFile)file).Name == shaderFile) {
+                    Console.WriteLine($"BFSHA {((BfshaLibrary.BfshaFile)file).Name}");
+                    if (((BfshaLibrary.BfshaFile)file).Name.Contains(shaderFile)) {
                         return (BfshaLibrary.BfshaFile)file;
                     }
                 }

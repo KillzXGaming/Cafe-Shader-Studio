@@ -198,6 +198,11 @@ namespace BfresEditor
             if (!ModelInFustrum(control) || !IsVisible)
                 return;
 
+            if (Runtime.DebugRendering != Runtime.DebugRender.Default)
+                control.CurrentShader = GlobalShaders.GetShader("DEBUG");
+            else if (control.CurrentShader != BfresRender.DefaultShader)
+                control.CurrentShader = BfresRender.DefaultShader;
+
             Transform.UpdateMatrix();
             foreach (BfresModelAsset model in Models)
                 if (model.IsVisible)
