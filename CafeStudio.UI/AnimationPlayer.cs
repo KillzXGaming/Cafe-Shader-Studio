@@ -65,7 +65,7 @@ namespace CafeStudio.UI
 
             if (reset)
             {
-                Reset();
+                ResetModels();
                 CurrentAnimations.Clear();
             }
 
