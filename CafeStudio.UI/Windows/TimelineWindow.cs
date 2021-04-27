@@ -47,6 +47,7 @@ namespace CafeStudio.UI
         }
 
         public void Reset() {
+            AnimationPlayer.Reset(true);
             AnimationPlayer.ResetModels();
         }
 
