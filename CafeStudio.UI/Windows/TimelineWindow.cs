@@ -33,7 +33,8 @@ namespace CafeStudio.UI
             };
 
             CurveEditor.OnFrameChanged += delegate {
-                AnimationPlayer.SetFrame(CurveEditor.CurrentFrame);
+                if (AnimationPlayer.CurrentFrame != CurveEditor.CurrentFrame)
+                    AnimationPlayer.SetFrame(CurveEditor.CurrentFrame);
             };
             CurveEditor.OnFrameCountChanged += delegate {
                 AnimationPlayer.FrameCount = CurveEditor.FrameCount;
