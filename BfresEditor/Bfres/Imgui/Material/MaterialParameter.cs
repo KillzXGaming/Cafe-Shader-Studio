@@ -26,20 +26,29 @@ namespace BfresEditor
                 "edge_alpha_scale","edge_alpha_width", "edge_alpha_pow", "edge_light_sharpness", });
 
             CustomCategory.Add("Alpha", new string[] { "transparency", "alphat_out_start", "alphat_out_end", "gsys_alpha_test_ref_value" });
-            CustomCategory.Add("Bloom", new string[] { "bloom_intensity",  });
+            CustomCategory.Add("Bloom", new string[] { "bloom_intensity", });
             CustomCategory.Add("Bake", new string[] { "d_shadow_bake_l_cancel_rate", "gsys_bake_st0", "gsys_bake_st1",
                 "gsys_bake_light_scale", "gsys_bake_light_scale1", "gsys_bake_light_scal2" });
             CustomCategory.Add("Fog", new string[] { "fog_emission_intensity", "fog_emission_effect",
                 "fog_edge_power","fog_edge_width", "fog_edge_color", "fog_emission_color", });
             CustomCategory.Add("Emission", new string[] { "emission_intensity", "emission_color", });
             CustomCategory.Add("Specular", new string[] { "specular_aniso_power", "shiny_specular_intensity", "specular_intensity",
-            "specular_roughness", "specular_fresnel_i", "specular_fresnel_s", "specular_fresnel_m", "shiny_specular_sharpness", 
+            "specular_roughness", "specular_fresnel_i", "specular_fresnel_s", "specular_fresnel_m", "shiny_specular_sharpness",
                 "shiny_specular_fresnel", "specular_color", "shiny_specular_color", });
+        }
+
+        public static void Reset()
+        {
+            OriginalValues.Clear();
         }
 
         static List<int> selectedIndices = new List<int>();
 
         static bool limitUniformsUsedByShaderCode = true;
+
+        static float columnSize1;
+        static float columnSize2;
+        static float columnSize3;
 
         public static void Render(FMAT material)
         {
@@ -48,7 +57,8 @@ namespace BfresEditor
 
 
             TegraShaderDecoder.ShaderInfo shaderInfo = null;
-            if (material.MaterialAsset is BfshaRenderer) {
+            if (material.MaterialAsset is BfshaRenderer)
+            {
                 shaderInfo = ((BfshaRenderer)material.MaterialAsset).GLShaderInfo;
             }
 
@@ -66,34 +76,25 @@ namespace BfresEditor
             if (ImGui.BeginChild("PARAM_LIST"))
             {
                 int index = 0;
-                foreach (var param in material.ShaderParams.Values) {
+                foreach (var param in material.ShaderParams.Values)
+                {
 
                     if (limitUniformsUsedByShaderCode && shaderInfo != null &&
                         !shaderInfo.UsedVertexStageUniforms.Contains(param.Name) &&
                         !shaderInfo.UsedPixelStageUniforms.Contains(param.Name))
                         continue;
 
-                    LoadParamColumns(param, index++);
+                    if (material.AnimatedParams.ContainsKey(param.Name))
+                    {
+                        ImGui.PushStyleColor(ImGuiCol.FrameBg, new Vector4(0, 0.5f, 0, 1));
+                        LoadParamColumns(material.AnimatedParams[param.Name], index++, true);
+                        ImGui.PopStyleColor();
+                    }
+                    else
+                        LoadParamColumns(param, index++);
                 }
             }
             ImGui.EndChild();
-
-          /*    foreach (var category in CustomCategory)
-              {
-                if (ImGui.TreeNodeEx(category.Key))
-                {
-                    foreach (var prm in category.Value)
-                      {
-                          if (material.ShaderParams.ContainsKey(prm))
-                          {
-                            var ind = material.ShaderParams.Keys.ToList().IndexOf(prm);
-                            LoadParamColumns(material.ShaderParams[prm], ind);
-                        }
-                    }
-                    ImGui.TreePop();
-                }
-            }*/
-
         }
 
         static void LoadHeaders()
@@ -103,19 +104,22 @@ namespace BfresEditor
             {
 
             }
+            columnSize1 = ImGui.GetColumnWidth();
             ImGui.NextColumn();
             if (ImGui.Selectable("Value"))
             {
             }
+            columnSize2 = ImGui.GetColumnWidth();
             ImGui.NextColumn();
             if (ImGui.Selectable("Colors (If Used)"))
             {
             }
+            columnSize3 = ImGui.GetColumnWidth();
             ImGui.Separator();
             ImGui.Columns(1);
         }
 
-        static void LoadParamColumns(ShaderParam param, int index)
+        static void LoadParamColumns(ShaderParam param, int index, bool animated = false)
         {
             ImGui.Columns(3);
 
@@ -126,9 +130,11 @@ namespace BfresEditor
                 {
                     LoadParamUI(param, $"##{param.Name}", drag);
 
-                    if (OriginalValues[param.Name] != param.DataValue) {
+                    if (OriginalValues[param.Name] != param.DataValue)
+                    {
                         ImGui.SameLine();
-                        if (ImGui.Button("Reset")) {
+                        if (ImGui.Button("Reset"))
+                        {
                             param.DataValue = OriginalValues[param.Name];
                         }
                     }
@@ -137,16 +143,31 @@ namespace BfresEditor
             }
             else
             {
-                if (ImGui.Selectable(param.Name, selectedIndices.Contains(index)))
+                if (animated)
+                {
+                    ImGui.PushStyleColor(ImGuiCol.Border, new Vector4(0, 0.5f, 0, 1));
+                    ImGui.PushStyleVar(ImGuiStyleVar.FrameBorderSize, 1);
+                }
+
+                ImGui.SetColumnWidth(0, columnSize1);
+                ImGui.SetColumnWidth(1, columnSize2);
+                ImGui.SetColumnWidth(2, columnSize3);
+
+                if (ImGui.Selectable(param.Name, selectedIndices.Contains(index), ImGuiSelectableFlags.SpanAllColumns))
                 {
                     selectedIndices.Clear();
                     selectedIndices.Add(index);
                 }
 
-
                 ImGui.NextColumn();
                 ImGui.Text(GetDataString(param));
                 ImGui.NextColumn();
+
+                if (animated)
+                {
+                    ImGui.PopStyleColor();
+                    ImGui.PopStyleVar();
+                }
 
                 if (param.Type == ShaderParamType.Float4)
                 {
