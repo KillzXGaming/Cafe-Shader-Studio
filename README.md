@@ -23,6 +23,8 @@ Currently supports shader viewing in:
 ## Using
 Make sure you have [net 5.0 or higher](https://dotnet.microsoft.com/download/dotnet/5.0). Download the releases zip file and run the exe. 
 
+If you are on Linux, the application should be usable with this command `dotnet CafeShaderStudio.dll` in the program directory.
+
 Keep in mind this is very WIP. Editing is limited to material editing. You can export/import materials as json for more direct editing (though keep in mind if the file swapped uses a different shader file, then the bfres will need to be reopened.  
 
 ## Notes
