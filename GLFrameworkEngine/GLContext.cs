@@ -61,7 +61,11 @@ namespace GLFrameworkEngine
         }
 
         public void OnMouseMove(MouseEventInfo e) {
-            CurrentMousePoint = new Vector2(e.X, e.Y);
+            CurrentMousePoint = new Vector2(e.X, Height - e.Y);
+        }
+
+        public bool IsShaderActive(ShaderProgram shader) {
+            return shader.program == CurrentShader.program;
         }
 
         private ShaderProgram shader;
