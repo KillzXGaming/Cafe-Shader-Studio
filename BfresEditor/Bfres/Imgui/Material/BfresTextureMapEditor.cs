@@ -19,6 +19,11 @@ namespace BfresEditor
 
         static bool dialogOpened = false;
 
+        public static void Reset()
+        {
+            SelectedIndices.Clear();
+        }
+
         public static void Render(FMAT material, UVViewport UVViewport, bool onLoad)
         {
             float width = ImGui.GetWindowWidth();

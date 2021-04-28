@@ -14,7 +14,7 @@ namespace BfresEditor
 
         static Dictionary<string, string> LoadedOptions = new Dictionary<string, string>();
 
-        static void Reset()
+        public static void Reset()
         {
             LoadedOptions.Clear();
         }

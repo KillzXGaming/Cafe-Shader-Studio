@@ -40,6 +40,7 @@ namespace BfresEditor
                 onLoad = true;
                 MaterialParameter.Reset();
                 MaterialOptions.Reset();
+                BfresTextureMapEditor.Reset();
                 UVViewport.Reset();
             }
 
