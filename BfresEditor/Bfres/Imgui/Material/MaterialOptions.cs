@@ -14,11 +14,18 @@ namespace BfresEditor
 
         static Dictionary<string, string> LoadedOptions = new Dictionary<string, string>();
 
-        public static void Render(FMAT material)
+        static void Reset()
         {
             LoadedOptions.Clear();
-            foreach (var op in material.ShaderOptions)
-                LoadedOptions.Add(op.Key, op.Value);
+        }
+
+        public static void Render(FMAT material)
+        {
+            if (LoadedOptions.Count == 0)
+            {
+                foreach (var op in material.ShaderOptions)
+                    LoadedOptions.Add(op.Key, op.Value);
+            }
 
             bool isValid = true;
 

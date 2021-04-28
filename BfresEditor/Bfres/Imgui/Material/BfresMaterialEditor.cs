@@ -38,6 +38,8 @@ namespace BfresEditor
             if (activeMaterial != material)
             {
                 onLoad = true;
+                MaterialParameter.Reset();
+                MaterialOptions.Reset();
                 UVViewport.Reset();
             }
 

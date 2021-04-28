@@ -172,12 +172,12 @@ namespace BfresEditor
                 if (param.Type == ShaderParamType.Float4)
                 {
                     if (param.Name.Contains("color") || param.Name.Contains("Color"))
-                        ImGuiHelper.InputFloatsFromColor4Button("", param, "DataValue", ImGuiColorEditFlags.AlphaPreviewHalf);
+                        ImGuiHelper.InputFloatsFromColor4Button("", param, "DataValue", ImGuiColorEditFlags.AlphaPreviewHalf | ImGuiColorEditFlags.HDR);
                 }
                 else if (param.Type == ShaderParamType.Float3)
                 {
                     if (param.Name.Contains("color") || param.Name.Contains("Color"))
-                        ImGuiHelper.InputFloatsFromColor3Button("", param, "DataValue");
+                        ImGuiHelper.InputFloatsFromColor3Button("", param, "DataValue", ImGuiColorEditFlags.HDR);
                 }
 
                 ImGui.NextColumn();
