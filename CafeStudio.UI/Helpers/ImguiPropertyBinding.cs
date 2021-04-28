@@ -129,27 +129,27 @@ namespace CafeStudio.UI
             }
         }
 
-        public static void InputFloatsFromColor3Button(string label, object obj, string properyName, bool drag = false)
+        public static void InputFloatsFromColor3Button(string label, object obj, string properyName, ImGuiColorEditFlags flags = ImGuiColorEditFlags.None)
         {
             var input = obj.GetType().GetProperty(properyName);
             var inputValue = (float[])input.GetValue(obj);
             var vec = new Vector4(inputValue[0], inputValue[1], inputValue[2], 1.0f);
 
             float size = ImGui.GetFontSize();
-            if (ImGui.ColorButton(label, vec, ImGuiColorEditFlags.None, new Vector2(size, size)))
+            if (ImGui.ColorButton(label, vec, flags, new Vector2(size, size)))
             {
                 input.SetValue(obj, new float[3] { vec.X, vec.Y, vec.Z });
             }
         }
 
-        public static void InputFloatsFromColor4Button(string label, object obj, string properyName, bool drag = false)
+        public static void InputFloatsFromColor4Button(string label, object obj, string properyName, ImGuiColorEditFlags flags = ImGuiColorEditFlags.None)
         {
             var input = obj.GetType().GetProperty(properyName);
             var inputValue = (float[])input.GetValue(obj);
             var vec = new Vector4(inputValue[0], inputValue[1], inputValue[2], inputValue[3]);
 
             float size = ImGui.GetFontSize();
-            if (ImGui.ColorButton(label, vec, ImGuiColorEditFlags.None, new Vector2(size, size)))
+            if (ImGui.ColorButton(label, vec, flags, new Vector2(size, size)))
             {
                 input.SetValue(obj, new float[4] { vec.X, vec.Y, vec.Z, vec.W });
             }
@@ -185,12 +185,12 @@ namespace CafeStudio.UI
             }
         }
 
-        public static void InputFloatsFromColor4(string label, object obj, string properyName)
+        public static void InputFloatsFromColor4(string label, object obj, string properyName, ImGuiColorEditFlags flags = ImGuiColorEditFlags.None)
         {
             var input = obj.GetType().GetProperty(properyName);
             var inputValue = (float[])input.GetValue(obj);
             var vec = new Vector4(inputValue[0], inputValue[1], inputValue[2], inputValue[3]);
-            if (ImGui.ColorEdit4(label, ref vec, ImGuiColorEditFlags.HDR | ImGuiColorEditFlags.Float))
+            if (ImGui.ColorEdit4(label, ref vec, flags | ImGuiColorEditFlags.HDR | ImGuiColorEditFlags.Float))
             {
                 input.SetValue(obj, new float[4] { vec.X, vec.Y, vec.Z, vec.W });
             }

@@ -172,7 +172,7 @@ namespace BfresEditor
                 if (param.Type == ShaderParamType.Float4)
                 {
                     if (param.Name.Contains("color") || param.Name.Contains("Color"))
-                        ImGuiHelper.InputFloatsFromColor4Button("", param, "DataValue");
+                        ImGuiHelper.InputFloatsFromColor4Button("", param, "DataValue", ImGuiColorEditFlags.AlphaPreviewHalf);
                 }
                 else if (param.Type == ShaderParamType.Float3)
                 {
@@ -213,7 +213,7 @@ namespace BfresEditor
                 case ShaderParamType.Float4:
                     {
                         if (param.Name.Contains("color") || param.Name.Contains("Color"))
-                            ImGuiHelper.InputFloatsFromColor4(label, param, "DataValue");
+                            ImGuiHelper.InputFloatsFromColor4(label, param, "DataValue", ImGuiColorEditFlags.AlphaBar | ImGuiColorEditFlags.AlphaPreviewHalf);
                         else
                             ImGuiHelper.InputFloatsFromVector4(label, param, "DataValue", drag);
                     }
