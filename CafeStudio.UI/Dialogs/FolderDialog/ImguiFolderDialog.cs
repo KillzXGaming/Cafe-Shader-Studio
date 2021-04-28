@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Toolbox.Core;
 
@@ -18,11 +18,17 @@ namespace CafeStudio.UI
         {
             string ofd = null;
 
-            FolderBrowserEx.FolderBrowserDialog dialog = new FolderBrowserEx.FolderBrowserDialog() { Title = Title, InitialFolder = SelectedPath };
-            dialog.ShowDialog();
-            ofd = dialog.SelectedFolder;
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                FolderBrowserEx.FolderBrowserDialog dialog = new FolderBrowserEx.FolderBrowserDialog() { Title = Title, InitialFolder = SelectedPath };
+                dialog.ShowDialog();
+                ofd = dialog.SelectedFolder;
+            }
+            else
+            {
+                ofd = TinyFileDialog.SelectFolderDialog(Title, SelectedPath);
+            }
 
-            //ofd = TinyFileDialog.SelectFolderDialog(Title, SelectedPath);
             if (!string.IsNullOrEmpty(ofd))
             {
                 this.SelectedPath = ofd;
