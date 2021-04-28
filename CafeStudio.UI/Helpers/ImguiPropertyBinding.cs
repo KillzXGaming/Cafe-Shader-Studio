@@ -9,6 +9,20 @@ namespace CafeStudio.UI
 {
     public partial class ImGuiHelper
     {
+        public static bool InputFromInt(string label, object obj, string properyName, int step = 1, bool drag = true)
+        {
+            var input = obj.GetType().GetProperty(properyName);
+            var inputValue = (int)input.GetValue(obj);
+
+            bool edited = drag ? ImGui.DragInt(label, ref inputValue, step) :
+                                 ImGui.InputInt(label, ref inputValue, step);
+            if (edited)
+            {
+                input.SetValue(obj, (int)inputValue);
+            }
+            return edited;
+        }
+
         public static bool InputFromUint(string label, object obj, string properyName, int step = 1, bool drag = true)
         {
             var input = obj.GetType().GetProperty(properyName);

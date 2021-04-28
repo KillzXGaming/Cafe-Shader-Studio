@@ -192,6 +192,21 @@ namespace BfresEditor
         {
             switch (param.Type)
             {
+                case ShaderParamType.Bool:
+                    {
+                        ImGuiHelper.InputFromBoolean(label, param, "DataValue");
+                    }
+                    break;
+                case ShaderParamType.Int:
+                    {
+                        ImGuiHelper.InputFromInt(label, param, "DataValue", 1, drag);
+                    }
+                    break;
+                case ShaderParamType.UInt:
+                    {
+                        ImGuiHelper.InputFromUint(label, param, "DataValue", 1, drag);
+                    }
+                    break;
                 case ShaderParamType.Float:
                     {
                         ImGuiHelper.InputFromFloat(label, param, "DataValue", drag);
