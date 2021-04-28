@@ -45,7 +45,6 @@ namespace GLFrameworkEngine
             Shaders.Add("BLOOM_EXTRACT_AGL", LoadShader("BloomExtractAGL"));
             Shaders.Add("LIGHTPREPASS", LoadShader("LightPrepass"));
             Shaders.Add("PROBE", LoadShader("ProbeCubemap"));
-            Shaders.Add("BFRES_LOW", LoadShader("BFRES/BfresLow"));
             Shaders.Add("CUBEMAP_FILTER", LoadShader("CubemapFilter"));
             Shaders.Add("IRRADIANCE_CUBEMAP", LoadShader("IrradianceCubemap"));
             Shaders.Add("SHADOWPREPASS", LoadShader("ShadowPrepass"));
