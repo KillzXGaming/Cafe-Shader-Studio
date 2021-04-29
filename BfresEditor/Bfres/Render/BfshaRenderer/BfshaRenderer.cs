@@ -39,7 +39,7 @@ namespace BfresEditor
     /// This includes methods to help load some block data automatically.
     /// </summary>
     [Serializable]
-    public class BfshaRenderer : BfresMaterialAsset
+    public class BfshaRenderer : ShaderRenderBase
     {
         private ShaderProgram shaderProgram;
 
@@ -52,13 +52,13 @@ namespace BfresEditor
         /// <summary>
         /// Determines to enable SRGB or not when drawn to the final framebuffer.
         /// </summary>
-        public virtual bool UseSRGB { get; } = true;
+        public override bool UseSRGB { get; } = true;
 
         /// <summary>
         /// Determines if the current material has a valid program.
         /// If the model fails to find a program in ReloadProgram, it will fail to load the shader.
         /// </summary>
-        public virtual bool HasValidProgram => ProgramPasses.Count > 0;
+        public override bool HasValidProgram => ProgramPasses.Count > 0;
 
         /// <summary>
         /// The program index of the active ProgramPasses program.
@@ -87,16 +87,10 @@ namespace BfresEditor
         /// The material can also be used for shader specific render information to check.
         /// </summary>
         /// <returns></returns>
-        public virtual bool UseRenderer(FMAT material, string archive, string model)
+        public override bool UseRenderer(FMAT material, string archive, string model)
         {
             return false;
         }
-
-        /// <summary>
-        /// A list of uniform blocks to store the current block data.
-        /// Blocks are obtained using GetBlock() and added if one does not exist.
-        /// </summary>
-        public static Dictionary<string, UniformBlock> UniformBlocks = new Dictionary<string, UniformBlock>();
 
         /// <summary>
         /// A list of blocks which are cached to not update after the next frame.
@@ -113,6 +107,24 @@ namespace BfresEditor
         public BfshaRenderer(BfshaLibrary.ShaderModel shaderModel)
         {
             ShaderModel = shaderModel;
+        }
+
+        /// <summary>
+        /// Loads the material renderer for the first time.
+        /// </summary>
+        /// <returns></returns>
+        public override void TryLoadShader(BFRES bfres, FMDL fmdl, FSHP mesh, BfresMeshAsset meshAsset)
+        {
+            var bfsha = TryLoadShaderArchive(bfres,
+                mesh.Material.ShaderArchive,
+                mesh.Material.ShaderModel);
+
+            if (bfsha == null)
+                return;
+
+            var shaderModel = bfsha.ShaderModels.FirstOrDefault(x => x.Name == mesh.Material.ShaderModel);
+            if (shaderModel != null)
+                OnLoad(shaderModel, fmdl, mesh, meshAsset);
         }
 
         /// <summary>
@@ -168,7 +180,7 @@ namespace BfresEditor
         /// Reloads the program passes to render onto.
         /// If the program pass list is empty, the material will not load and display a red error handling material.
         /// </summary>
-        public virtual void ReloadProgram(BfresMeshAsset mesh)
+        public override void ReloadProgram(BfresMeshAsset mesh)
         {
 
         }
@@ -176,7 +188,7 @@ namespace BfresEditor
         /// <summary>
         /// Mesh loading info for loading additional data like hardcoded vertex attributes.
         /// </summary>
-        public virtual void LoadMesh(BfresMeshAsset mesh)
+        public override void LoadMesh(BfresMeshAsset mesh)
         {
 
         }
@@ -184,7 +196,7 @@ namespace BfresEditor
         /// <summary>
         /// Reloads render info and state settings into the materials blend state for rendering.
         /// </summary>
-        public virtual void ReloadRenderState(BfresMeshAsset mesh)
+        public override void ReloadRenderState(BfresMeshAsset mesh)
         {
 
         }
@@ -334,7 +346,7 @@ namespace BfresEditor
         /// <summary>
         /// Checks if the program needs to be reloaded from a change in shader pass.
         /// </summary>
-        public void CheckProgram(GLContext control, BfresMeshAsset mesh, int pass = 0)
+        public override void CheckProgram(GLContext control, BfresMeshAsset mesh, int pass = 0)
         {
             if (ProgramPasses.Count == 0) {
                 return;

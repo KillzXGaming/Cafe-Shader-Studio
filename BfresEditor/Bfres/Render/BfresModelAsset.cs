@@ -71,24 +71,13 @@ namespace BfresEditor
 
                 foreach (var customRender in BfshaRenders)
                 {
-                    var materialRender = (BfshaRenderer)Activator.CreateInstance(customRender);
+                    var materialRender = (ShaderRenderBase)Activator.CreateInstance(customRender);
                     if (materialRender.UseRenderer(
-                         mesh.Material,
-                        mesh.Material.ShaderArchive,
-                        mesh.Material.ShaderModel))
+                        mesh.Material,
+                       mesh.Material.ShaderArchive,
+                       mesh.Material.ShaderModel))
                     {
-                        var bfsha = materialRender.TryLoadShaderArchive(bfres,
-                            mesh.Material.ShaderArchive,
-                            mesh.Material.ShaderModel);
-
-                        Console.WriteLine($"customRender {customRender} Has Bfsha {bfsha != null}");
-
-                        if (bfsha == null)
-                            break;
-
-                        var shaderModel = bfsha.ShaderModels.FirstOrDefault(x => x.Name == mesh.Material.ShaderModel);
-                        if (shaderModel != null)
-                            materialRender.OnLoad(shaderModel, ResModel, mesh, meshAsset);
+                        materialRender.TryLoadShader(bfres, ResModel, mesh, meshAsset);
                         break;
                     }
                 }
@@ -425,8 +414,8 @@ namespace BfresEditor
                 DrawDebug(control,mesh);
                 return;
             }
-            else if (mesh.MaterialAsset is BfshaRenderer) {
-                DrawBfshaRender(control, mesh, stage);
+            else if (mesh.MaterialAsset is ShaderRenderBase) {
+                DrawCustomShaderRender(control, mesh, stage);
                 return;
             }
             else //Draw default if not using game shader rendering.
@@ -444,9 +433,9 @@ namespace BfresEditor
             }
         }
 
-        private void DrawBfshaRender(GLContext control, BfresMeshAsset mesh, int stage = 0)
+        private void DrawCustomShaderRender(GLContext control, BfresMeshAsset mesh, int stage = 0)
         {
-            var materialAsset = ((BfshaRenderer)mesh.MaterialAsset);
+            var materialAsset = ((ShaderRenderBase)mesh.MaterialAsset);
             if (!materialAsset.HasValidProgram)
             {
                 //Draw the mesh as solid color
@@ -464,8 +453,7 @@ namespace BfresEditor
             if (control.CurrentShader != materialAsset.Shader)
                 control.CurrentShader = materialAsset.Shader;
 
-            if (materialAsset.ProgramPasses.Count > 0)
-                mesh.MaterialAsset.Render(control, materialAsset.Shader, mesh);
+            mesh.MaterialAsset.Render(control, materialAsset.Shader, mesh);
 
             //Draw the mesh
             mesh.vao.Enable(materialAsset.Shader);
