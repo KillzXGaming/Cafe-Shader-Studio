@@ -24,6 +24,7 @@ namespace GLFrameworkEngine
             texture.PixelType = pixelType;
             texture.Width = size; texture.Height = size;
             texture.Target = TextureTarget.TextureCubeMap;
+
             texture.Bind();
             texture.WrapR = TextureWrapMode.ClampToEdge;
             texture.WrapS = TextureWrapMode.ClampToEdge;
@@ -32,9 +33,13 @@ namespace GLFrameworkEngine
             texture.MagFilter = TextureMagFilter.Linear;
             texture.MipCount = numMips;
 
+            //Allocate mip data
+            if (texture.MipCount > 1)
+                texture.GenerateMipmaps();
+
             for (int i = 0; i < 6; i++)
             {
-                for (int j = 0; j < numMips; j++)
+                for (int j = 0; j < texture.MipCount; j++)
                 {
                     var width = CalculateMipDimension(texture.Width, j);
                     var height = CalculateMipDimension(texture.Height, j);

@@ -29,6 +29,13 @@ namespace GLFrameworkEngine
         }
         private int _mipCount = 1;
 
+        public int ArrayCount
+        {
+            get { return _arrayCount; }
+            set { _arrayCount = Math.Max(value, 1); }
+        }
+        private int _arrayCount = 1;
+
         public PixelInternalFormat PixelInternalFormat { get; internal set; }
         public PixelFormat PixelFormat { get; internal set; }
         public PixelType PixelType { get; internal set; }

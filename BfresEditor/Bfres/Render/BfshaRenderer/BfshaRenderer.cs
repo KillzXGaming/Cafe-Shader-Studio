@@ -166,7 +166,7 @@ namespace BfresEditor
 
         /// <summary>
         /// Reloads the program passes to render onto.
-        /// If the program pass list is empty, the material will not load.
+        /// If the program pass list is empty, the material will not load and display a red error handling material.
         /// </summary>
         public virtual void ReloadProgram(BfresMeshAsset mesh)
         {
@@ -201,6 +201,7 @@ namespace BfresEditor
             control.UseSRBFrameBuffer = UseSRGB;
 
             var programID = shader.program;
+
             //Get the existing uniform block instances from the shader (emulator specific value)
             var extraBlock = GetBlock("Extra");
             extraBlock.Add(new Vector2(1));

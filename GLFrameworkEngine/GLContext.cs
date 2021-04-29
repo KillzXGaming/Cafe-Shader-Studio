@@ -65,7 +65,7 @@ namespace GLFrameworkEngine
         }
 
         public bool IsShaderActive(ShaderProgram shader) {
-            return shader.program == CurrentShader.program;
+            return shader != null && shader.program == CurrentShader.program;
         }
 
         private ShaderProgram shader;

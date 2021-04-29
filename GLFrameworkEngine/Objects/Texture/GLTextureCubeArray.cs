@@ -14,7 +14,7 @@ namespace GLFrameworkEngine
             Target = TextureTarget.TextureCubeMapArray;
         }
 
-        public static GLTextureCubeArray CreateEmptyCubemap(int size,
+        public static GLTextureCubeArray CreateEmptyCubemap(int size, int arrayCount, int mipCount,
             PixelInternalFormat pixelInternalFormat = PixelInternalFormat.Rgba8,
             PixelFormat pixelFormat = PixelFormat.Rgba,
             PixelType pixelType = PixelType.UnsignedByte)
@@ -22,14 +22,28 @@ namespace GLFrameworkEngine
             GLTextureCubeArray texture = new GLTextureCubeArray();
             texture.PixelFormat = pixelFormat;
             texture.PixelType = pixelType;
+            texture.PixelInternalFormat = pixelInternalFormat;
             texture.Width = size; texture.Height = size;
             texture.Target = TextureTarget.TextureCubeMapArray;
             texture.MinFilter = TextureMinFilter.LinearMipmapLinear;
             texture.MagFilter = TextureMagFilter.Linear;
+            texture.MipCount = mipCount;
+            texture.ArrayCount = arrayCount;
             texture.Bind();
 
-            GL.TexImage3D(texture.Target, 0, pixelInternalFormat, texture.Width, texture.Height, 6, 0,
-                pixelFormat, pixelType, IntPtr.Zero);
+            //Allocate mip data
+            if (texture.MipCount > 1)
+                texture.GenerateMipmaps();
+
+            for (int mip = 0; mip < texture.MipCount; mip++)
+            {
+                int mipWidth = (int)(texture.Width * Math.Pow(0.5, mip));
+                int mipHeight = (int)(texture.Height * Math.Pow(0.5, mip));
+
+                GL.TexImage3D(texture.Target, 0, texture.PixelInternalFormat,
+                    mipWidth, mipHeight, texture.ArrayCount * 6, mip,
+                      texture.PixelFormat, texture.PixelType, IntPtr.Zero);
+            }
 
             texture.UpdateParameters();
             texture.Unbind();
@@ -98,10 +112,8 @@ namespace GLFrameworkEngine
 
             Bind();
 
-            int arrayCount = 1;
-
             int size = this.Width;
-            for (int i = 0; i < 6 * arrayCount; i++)
+            for (int i = 0; i < 6 * ArrayCount; i++)
             {
                 var surface = new STGenericTexture.Surface();
                 surfaces.Add(surface);
@@ -111,7 +123,7 @@ namespace GLFrameworkEngine
                     int mipSize = (int)(size * Math.Pow(0.5, m));
                     byte[] outputRaw = new byte[mipSize * mipSize * 4];
                     GL.GetTextureSubImage(this.ID, m, 0, 0, i, Width, Height, 1,
-                      PixelFormat.Bgra, PixelType.UnsignedByte, outputRaw.Length, outputRaw);
+                      PixelFormat.Rgba, PixelType.UnsignedByte, outputRaw.Length, outputRaw);
 
                     surface.mipmaps.Add(outputRaw);
                 }
@@ -123,8 +135,9 @@ namespace GLFrameworkEngine
             dds.MainHeader.Depth = 1;
             dds.MainHeader.MipCount = (uint)this.MipCount;
             dds.MainHeader.PitchOrLinearSize = (uint)surfaces[0].mipmaps[0].Length;
+            dds.ArrayCount = (uint)this.ArrayCount * 6;
 
-            dds.SetFlags(TexFormat.RGBA8_UNORM, arrayCount > 1, true);
+            dds.SetFlags(TexFormat.RGBA8_UNORM, ArrayCount > 6, true);
 
             if (dds.IsDX10)
             {
@@ -132,7 +145,7 @@ namespace GLFrameworkEngine
                     dds.Dx10Header = new DDS.DX10Header();
 
                 dds.Dx10Header.ResourceDim = 3;
-                dds.Dx10Header.ArrayCount = (uint)arrayCount;
+                dds.Dx10Header.ArrayCount = (uint)ArrayCount * 6;
             }
 
             dds.Save(fileName, surfaces);

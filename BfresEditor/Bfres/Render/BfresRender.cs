@@ -275,7 +275,17 @@ namespace BfresEditor
             foreach (BfresModelAsset model in Models) {
                 foreach (var mesh in model.Meshes)
                 {
-                    if (!mesh.RenderInCubeMap && !mesh.IsCubeMap)
+                    if (!mesh.RenderInCubeMap && !mesh.IsCubeMap && mesh.Pass != Pass.OPAQUE || mesh.IsDepthShadow)
+                        continue;
+
+                    var material = (FMAT)mesh.Shape.Material;
+                    mesh.Material = material;
+                    ((BfresMaterialAsset)mesh.MaterialAsset).ParentRenderer = this;
+
+                    model.RenderMesh(control, mesh);
+                }
+                foreach (var mesh in model.Meshes) {
+                    if (!mesh.RenderInCubeMap && !mesh.IsCubeMap && mesh.Pass != Pass.TRANSPARENT || mesh.IsDepthShadow)
                         continue;
 
                     var material = (FMAT)mesh.Shape.Material;

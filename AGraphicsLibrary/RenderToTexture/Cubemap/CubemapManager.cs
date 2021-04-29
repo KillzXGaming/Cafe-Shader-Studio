@@ -24,7 +24,7 @@ namespace AGraphicsLibrary
         //Keep things simple and use single mips for now then generate later
         public const int MAX_MIP_LEVEL = 1;
 
-        public const bool SAVE_TO_DISK = false;
+        public const bool SAVE_TO_DISK = true;
 
         public CubemapManager()
         {
@@ -43,38 +43,12 @@ namespace AGraphicsLibrary
             if (CubeMapTexture != null)
                 CubeMapTexture.Dispose();
 
-            CubeMapTexture = new GLTextureCubeArray();
-            CubeMapTexture.Bind();
-            GL.TexParameter(CubeMapTexture.Target, TextureParameterName.TextureBaseLevel, 0);
-            GL.TexParameter(CubeMapTexture.Target, TextureParameterName.TextureMaxLevel, 13);
-            GL.TexParameter(CubeMapTexture.Target, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Linear);
-            GL.TexParameter(CubeMapTexture.Target, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.LinearMipmapLinear);
-            GL.TexParameter(CubeMapTexture.Target, TextureParameterName.TextureWrapS, (int)TextureWrapMode.ClampToEdge);
-            GL.TexParameter(CubeMapTexture.Target, TextureParameterName.TextureWrapT, (int)TextureWrapMode.ClampToEdge);
-            GL.TexParameter(CubeMapTexture.Target, TextureParameterName.TextureWrapR, (int)TextureWrapMode.ClampToEdge);
-            GL.TexParameter(CubeMapTexture.Target, TextureParameterName.TextureMinLod, 0.0f);
-            GL.TexParameter(CubeMapTexture.Target, TextureParameterName.TextureMaxLod, 14.0f);
-            GL.TexParameter(CubeMapTexture.Target, TextureParameterName.TextureLodBias, 0.0f);
-
-            CubeMapTexture.Width = CUBEMAP_SIZE;
-            CubeMapTexture.Height = CUBEMAP_SIZE;
-
-            //Generate a fixed 8 cubemap array
-            for (int mip = 0; mip < MAX_MIP_LEVEL; mip++)
-            {
-                int mipWidth = (int)(CUBEMAP_SIZE * Math.Pow(0.5, mip));
-                int mipHeight = (int)(CUBEMAP_SIZE * Math.Pow(0.5, mip));
-
-                GL.TexImage3D(CubeMapTexture.Target, 0, PixelInternalFormat.Rgba16f,
-                    mipWidth, mipHeight, MAX_LAYER_COUNT * 6, mip,
-                    PixelFormat.Rgba, PixelType.Float, IntPtr.Zero);
-            }
-
-            CubeMapTexture.Unbind();
-
+            CubeMapTexture = GLTextureCubeArray.CreateEmptyCubemap(CUBEMAP_SIZE, MAX_LAYER_COUNT, MAX_MIP_LEVEL,
+    PixelInternalFormat.Rgba16f, PixelFormat.Rgba, PixelType.Float);
+   
             GLTextureCube cubemapTexture = GLTextureCube.CreateEmptyCubemap(
-                CUBEMAP_UPSCALE_SIZE, PixelInternalFormat.Rgba16f, PixelFormat.Rgba, PixelType.Float, MAX_MIP_LEVEL);
-  
+                CUBEMAP_UPSCALE_SIZE, PixelInternalFormat.Rgba16f, PixelFormat.Rgba, PixelType.Float, 9);
+
             //Get a list of cubemaps in the scene
             //The lighting engine has cube map objects with the object placement to draw
             var lightingEngine = LightingEngine.LightSettings;
@@ -97,22 +71,28 @@ namespace AGraphicsLibrary
 
                 GenerateCubemap(context, cubemapTexture, camera, targetModels, MAX_MIP_LEVEL);
 
+                cubemapTexture.Bind();
+                cubemapTexture.GenerateMipmaps();
+                cubemapTexture.Unbind();
+
                 //HDR encode and output into the array
-                CubemapHDREncodeRT.CreateCubemap(context, cubemapTexture, CubeMapTexture, layer, MAX_MIP_LEVEL, false, true);
+                CubemapHDREncodeRT.CreateCubemap(cubemapTexture, CubeMapTexture, layer, MAX_MIP_LEVEL, false, true);
 
                 if (SAVE_TO_DISK)
-                {
                     cubemapTexture.SaveDDS(cubeMap.Name + "default.dds");
-                    CubeMapTexture.SaveDDS(cubeMap.Name + "hdr.dds");
-                }
-       
+
                 layer++;    
             }
+
+            cubemapTexture.Dispose();
 
             //Just generate mips to keep things easier
             CubeMapTexture.Bind();
             CubeMapTexture.GenerateMipmaps();
             CubeMapTexture.Unbind();
+
+            if (SAVE_TO_DISK)
+                CubeMapTexture.SaveDDS("Cubemap_Array_HDR.dds");
         }
 
         static void GenerateCubemap(GLContext control, GLTextureCube texture,
@@ -122,7 +102,7 @@ namespace AGraphicsLibrary
 
             int size = CUBEMAP_UPSCALE_SIZE;
 
-            Framebuffer frameBuffer = new Framebuffer(FramebufferTarget.Framebuffer);
+            Framebuffer frameBuffer = new Framebuffer(FramebufferTarget.Framebuffer, size, size, PixelInternalFormat.Rgba16f);
             frameBuffer.SetDrawBuffers(DrawBuffersEnum.ColorAttachment0);
             frameBuffer.Bind();
 
@@ -132,7 +112,7 @@ namespace AGraphicsLibrary
                 int mipWidth = (int)(size * Math.Pow(0.5, mip));
                 int mipHeight = (int)(size * Math.Pow(0.5, mip));
 
-                //frameBuffer.Resize(mipWidth, mipHeight);
+                frameBuffer.Resize(mipWidth, mipHeight);
                 GL.Viewport(0, 0, mipWidth, mipHeight);
 
                 for (int i = 0; i < 6; i++)
@@ -158,11 +138,10 @@ namespace AGraphicsLibrary
             if (errorcheck != FramebufferErrorCode.FramebufferComplete)
                 throw new Exception(errorcheck.ToString());
 
-            GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
-
             frameBuffer.Dispoe();
             frameBuffer.DisposeRenderBuffer();
 
+            GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
             GL.UseProgram(0);
         }
     }

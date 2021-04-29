@@ -11,8 +11,8 @@ namespace AGraphicsLibrary
 {
     public class CubemapHDREncodeRT
     {
-        public static void CreateCubemap(GLContext control, GLTextureCube cubemapInput,
-            GLTexture cubemapOutput, int layer, int numMips, bool srgbToLinear = true, bool flipImage = false)
+        public static void CreateCubemap(GLTextureCube cubemapInput, GLTexture cubemapOutput,
+            int layer, int numMips, bool srgbToLinear = true, bool flipImage = false)
         {
             int size = cubemapOutput.Width;
 
@@ -48,6 +48,7 @@ namespace AGraphicsLibrary
             GL.ActiveTexture(TextureUnit.Texture0 + 1);
             cubemapInput.Bind();
             cubemapFilter.SetInt("cubemapTexture", 1);
+
             cubemapFilter.SetMatrix4x4("projection", ref projection);
             cubemapFilter.SetFloat("range", 1024.0f);
             cubemapFilter.SetFloat("scale", 4.0f);
@@ -86,7 +87,7 @@ namespace AGraphicsLibrary
 
                     cubemapFilter.SetMatrix4x4("view", ref captureViews[i]);
 
-                    GL.ClearColor(0,0,0,1);
+                    GL.ClearColor(1, 0, 0, 1);
                     GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
                     RenderTools.DrawCube();
                 }
