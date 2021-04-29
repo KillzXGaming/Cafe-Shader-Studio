@@ -46,25 +46,43 @@ namespace GLFrameworkEngine
             return glTexture;
         }
 
-        public static GLTextureCubeArray FromDDS(DDS dds) {
-            var surfaces = dds.GetSurfaces(0, false, 6);
-
+        public static GLTextureCubeArray FromDDS(DDS dds)
+        {
             int size = (int)dds.Width;
-            var imageSize = (size * size);
 
             GLTextureCubeArray texture = new GLTextureCubeArray();
             texture.Width = size;
             texture.Height = size;
             texture.Bind();
 
+            var format = dds.Platform.OutputFormat;
+
+            var surfaces = dds.GetSurfaces();
             List<byte[]> cubemapSurfaces = new List<byte[]>();
-            for (int i = 0; i < surfaces.Count; i++)
-                cubemapSurfaces.Add(surfaces[i].mipmaps[0]);
+            for (int a = 0; a < surfaces.Count; a++)
+                cubemapSurfaces.Add(surfaces[a].mipmaps[0]);
+
+            int depth = surfaces.Count;
+            Console.WriteLine($"depth {depth}");
 
             byte[] buffer = ByteUtils.CombineArray(cubemapSurfaces.ToArray());
 
-            GL.CompressedTexImage3D<byte>(texture.Target,
-            0, InternalFormat.CompressedRgbaS3tcDxt5Ext, size, size, 6, 0, (int)imageSize * 6, buffer);
+            for (int j = 0; j < dds.MipCount; j++)
+            {
+                int mipWidth = CalculateMipDimension(texture.Width, j);
+                int mipHeight = CalculateMipDimension(texture.Height, j);
+
+                if (dds.IsBCNCompressed())
+                {
+                    var internalFormat = GLFormatHelper.ConvertCompressedFormat(format, true);
+                    GLTextureDataLoader.LoadCompressedImage(texture.Target, mipWidth, mipHeight, depth, internalFormat, buffer, j);
+                }
+                else
+                {
+                    var formatInfo = GLFormatHelper.ConvertPixelFormat(format);
+                    GLTextureDataLoader.LoadImage(texture.Target, mipWidth, mipHeight, depth, formatInfo, buffer, j);
+                }
+            }
 
             GL.TexParameter(texture.Target, TextureParameterName.TextureBaseLevel, 0);
             GL.TexParameter(texture.Target, TextureParameterName.TextureMaxLevel, 13);
@@ -92,7 +110,7 @@ namespace GLFrameworkEngine
                 {
                     int mipSize = (int)(size * Math.Pow(0.5, m));
                     byte[] outputRaw = new byte[mipSize * mipSize * 4];
-                    GL.GetTextureSubImage(this.ID, m, 0,0,i, Width, Height, 1,
+                    GL.GetTextureSubImage(this.ID, m, 0, 0, i, Width, Height, 1,
                       PixelFormat.Bgra, PixelType.UnsignedByte, outputRaw.Length, outputRaw);
 
                     surface.mipmaps.Add(outputRaw);

@@ -117,24 +117,30 @@ namespace GLFrameworkEngine
             if (Target == TextureTarget.Texture3D || Target == TextureTarget.Texture2DArray) {
                 numSurfaces = (int)Math.Max(1, texture.Depth);
             }
+            if (Target == TextureTarget.TextureCubeMap || Target == TextureTarget.TextureCubeMapArray) {
+                numSurfaces = (int)Math.Max(1, texture.ArrayCount);
+            }
 
             for (int i = 0; i < numSurfaces; i++)
             {
                 var surface = texture.GetDeswizzledSurface(i, 0);
-                int depth = i + 1;
+                int depth = 1;
                 int mipLevel = 0;
 
                 bool loadAsBitmap = !IsPower2(width, height) && texture.IsBCNCompressed() && false;
-                if (texture.IsASTC())
+                if (texture.IsASTC() || parameters.FlipY)
                     loadAsBitmap = true;
 
                 if (loadAsBitmap || parameters.UseSoftwareDecoder)
                 {
-                    var bitmap = texture.GetDecodedSurface(i, mipLevel);
+                    var rgbaData = texture.GetDecodedSurface(i, mipLevel);
+                    if (parameters.FlipY)
+                        rgbaData = FlipVertical(width, height, rgbaData);
+
                     var formatInfo = GLFormatHelper.ConvertPixelFormat(TexFormat.RGBA8_UNORM);
                     if (texture.IsSRGB) formatInfo.InternalFormat = PixelInternalFormat.Srgb8Alpha8;
 
-                    GLTextureDataLoader.LoadImage(Target, width, height, depth, formatInfo, bitmap, mipLevel);
+                    GLTextureDataLoader.LoadImage(Target, width, height, depth, formatInfo, rgbaData, mipLevel);
                 }
                 else if (texture.IsBCNCompressed())
                 {
@@ -175,6 +181,30 @@ namespace GLFrameworkEngine
 
         internal static bool IsPow2(int Value){
             return Value != 0 && (Value & (Value - 1)) == 0;
+        }
+
+        private static byte[] FlipVertical(int Width, int Height, byte[] Input)
+        {
+            byte[] FlippedOutput = new byte[Width * Height * 4];
+
+            int Stride = Width * 4;
+            for (int Y = 0; Y < Height; Y++)
+            {
+                int IOffs = Stride * Y;
+                int OOffs = Stride * (Height - 1 - Y);
+
+                for (int X = 0; X < Width; X++)
+                {
+                    FlippedOutput[OOffs + 0] = Input[IOffs + 0];
+                    FlippedOutput[OOffs + 1] = Input[IOffs + 1];
+                    FlippedOutput[OOffs + 2] = Input[IOffs + 2];
+                    FlippedOutput[OOffs + 3] = Input[IOffs + 3];
+
+                    IOffs += 4;
+                    OOffs += 4;
+                }
+            }
+            return FlippedOutput;
         }
     }
 }

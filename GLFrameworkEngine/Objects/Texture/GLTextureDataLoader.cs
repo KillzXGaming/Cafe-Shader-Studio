@@ -20,6 +20,7 @@ namespace GLFrameworkEngine
                     break;
                 case TextureTarget.Texture2DArray:
                 case TextureTarget.Texture3D:
+                case TextureTarget.TextureCubeMapArray:
                     LoadCompressedImage3D(target, mipLevel, depth, width, height, format, data);
                     break;
             }
@@ -35,7 +36,32 @@ namespace GLFrameworkEngine
                     break;
                 case TextureTarget.Texture2DArray:
                 case TextureTarget.Texture3D:
+                case TextureTarget.TextureCubeMapArray:
                     LoadImage3D(target, mipLevel, depth, width, height, format, data);
+                    break;
+            }
+        }
+
+        public static void LoadCompressedImageCubemap(TextureTarget target, int width, int height,
+           InternalFormat format, List<byte[]> data, int mipLevel = 0)
+        {
+            switch (target)
+            {
+                case TextureTarget.TextureCubeMap:
+                    for (int i = 0; i < 6; i++)
+                        LoadCompressedImageCubemap2D(mipLevel, i, width, height, format, data[i]);
+                    break;
+            }
+        }
+
+        public static void LoadImageCubemap(TextureTarget target, int width, int height, 
+                GLFormatHelper.PixelFormatInfo format, List<byte[]> data, int mipLevel = 0)
+        {
+            switch (target)
+            {
+                case TextureTarget.TextureCubeMap:
+                    for (int i = 0; i < 6; i++)
+                        LoadImageCubemap2D(mipLevel, i, width, height, format, data[i]);
                     break;
             }
         }
@@ -53,6 +79,7 @@ namespace GLFrameworkEngine
                     break;
                 case TextureTarget.Texture2DArray:
                 case TextureTarget.Texture3D:
+                case TextureTarget.TextureCubeMapArray:
                     LoadImage3D(target, mipLevel, depth, width, height, format, data.Scan0);
                     break;
             }
@@ -73,7 +100,7 @@ namespace GLFrameworkEngine
             int imageSize = GLFormatHelper.CalculateImageSize(width, height, format);
 
             GL.CompressedTexImage3D(target, mipLevel,
-                format, width, height, depth, 0, imageSize, data);
+                format, width, height, depth, 0, imageSize * depth, data);
         }
 
         static void LoadImage2D(int mipLevel, int width, int height, GLFormatHelper.PixelFormatInfo formatInfo, byte[] data)
@@ -92,13 +119,26 @@ namespace GLFrameworkEngine
         {
             GL.TexImage3D(target, mipLevel, formatInfo.InternalFormat, width, height, depth, 0,
               formatInfo.Format, formatInfo.Type, data);
-
         }
 
         static void LoadImage3D(TextureTarget target, int mipLevel, int depth, int width, int height, GLFormatHelper.PixelFormatInfo formatInfo, IntPtr data)
         {
             GL.TexImage3D(target, mipLevel, formatInfo.InternalFormat, width, height, depth, 0,
                  formatInfo.Format, formatInfo.Type, data);
+        }
+
+        static void LoadImageCubemap2D(int mipLevel, int array, int width, int height, GLFormatHelper.PixelFormatInfo formatInfo, byte[] data)
+        {
+            GL.TexImage2D(TextureTarget.TextureCubeMapPositiveX + array, mipLevel, formatInfo.InternalFormat, width, height, 0,
+                  formatInfo.Format, formatInfo.Type, data);
+        }
+
+        static void LoadCompressedImageCubemap2D(int mipLevel, int array, int width, int height, InternalFormat format, byte[] data)
+        {
+            int imageSize = GLFormatHelper.CalculateImageSize(width, height, format);
+
+            GL.CompressedTexImage2D(TextureTarget.TextureCubeMapPositiveX + array, mipLevel,
+                format, width, height, 0, imageSize, data);
         }
     }
 }

@@ -122,7 +122,7 @@ namespace BfresEditor
         static void InitTextures()
         {
             //Cube maps
-            PrefilterCubeArrayTextureID = GLTextureCubeArray.FromDDS(new DDS($"Resources\\CubemapIrradianceDefault.dds"));
+            PrefilterCubeArrayTextureID = GLTextureCubeArray.FromDDS(new DDS($"Resources\\CubemapPrefilter.dds"));
             DynamicReflectionTextureID = GLTextureCubeArray.FromDDS(new DDS($"Resources\\CubemapHDR.dds"));
 
             DiffuseLightmapTextureID = GLTextureCube.FromDDS(
