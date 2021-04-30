@@ -188,7 +188,12 @@ namespace CafeShaderStudio
                 foreach (var file in Directory.GetFiles("GlobalShaders"))
                 {
                     if (!GlobalShaderCache.ShaderFiles.ContainsKey(file))
-                        GlobalShaderCache.ShaderFiles.Add(file, new BfshaLibrary.BfshaFile(file));
+                    {
+                        if (file.EndsWith(".bfsha"))
+                            GlobalShaderCache.ShaderFiles.Add(file, new BfshaLibrary.BfshaFile(file));
+                        if (file.EndsWith(".sharcfb"))
+                            GlobalShaderCache.ShaderFiles.Add(file, new BfresEditor.SHARCFB(file));
+                    }
                 }
 
                 initGlobalShaders = true;
@@ -884,6 +889,7 @@ namespace CafeShaderStudio
             Pipeline._context.Scene.PickableObjects.Clear();
             DataCache.ModelCache.Clear();
             Runtime.TextureCache.Clear();
+            BfresEditor.BfresRender.ClearShaderCache();
 
             GC.Collect();
         }

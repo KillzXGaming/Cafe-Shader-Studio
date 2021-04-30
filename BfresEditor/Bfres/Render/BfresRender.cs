@@ -311,5 +311,16 @@ namespace BfresEditor
             Models.Clear();
             Textures.Clear();
         }
+
+        public static void ClearShaderCache()
+        {
+            foreach (var shader in CafeShaderDecoder.GLShaderPrograms)
+                shader.Value.Program.Dispose();
+            foreach (var shader in TegraShaderDecoder.GLShaderPrograms)
+                shader.Value.Dispose();
+
+            CafeShaderDecoder.GLShaderPrograms.Clear();
+            TegraShaderDecoder.GLShaderPrograms.Clear();
+        }
     }
 }
