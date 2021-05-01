@@ -48,6 +48,17 @@ namespace BfresEditor
             public float ColorHemiLowerMaxRot { get; set; }
             public float ColorHemiUpperMaxRot { get; set; }
 
+            public float ColorHemiLowerMaxRotDegrees
+            {
+                get { return ColorHemiLowerMaxRot * STMath.Rad2Deg; }
+                set { ColorHemiLowerMaxRot = value * STMath.Deg2Rad; }
+            }
+            public float ColorHemiUpperMaxRotDegrees
+            {
+                get { return ColorHemiUpperMaxRot * STMath.Rad2Deg; }
+                set { ColorHemiUpperMaxRot = value * STMath.Deg2Rad; }
+            }
+
             public Vector3 Direction { get; set; }
             public Vector4 DirectionalColor { get; set; }
 
@@ -66,14 +77,21 @@ namespace BfresEditor
 
         public void RenderUI()
         {
-            if (ImGui.CollapsingHeader("General")) {
-                var colorFlags = ImGuiColorEditFlags.HDR | ImGuiColorEditFlags.Float;
+            if (ImGui.CollapsingHeader("General")) { LoadLightingUI(LightingData.General); }
+            if (ImGui.CollapsingHeader("Land")) { LoadLightingUI(LightingData.Land); }
+            if (ImGui.CollapsingHeader("BG")) { LoadLightingUI(LightingData.BG); }
+        }
 
-                ImGuiHelper.InputTKVector4Color4("Upper Color", LightingData.General, "ColorHemiUpper", colorFlags);
-                ImGuiHelper.InputTKVector4Color4("Lower Color", LightingData.General, "ColorHemiLower", colorFlags);
-                ImGuiHelper.InputTKVector4Color4("Direction Color", LightingData.General, "DirectionalColor", colorFlags);
-                ImGuiHelper.InputTKVector3("Direction", LightingData.General, "Direction");
-            }
+        private void LoadLightingUI(LightingObj lighting)
+        {
+            var colorFlags = ImGuiColorEditFlags.HDR | ImGuiColorEditFlags.Float;
+
+            ImGuiHelper.InputTKVector4Color4("Upper Color", lighting, "ColorHemiUpper", colorFlags);
+            ImGuiHelper.InputTKVector4Color4("Lower Color", lighting, "ColorHemiLower", colorFlags);
+            ImGuiHelper.InputTKVector4Color4("Direction Color", lighting, "DirectionalColor", colorFlags);
+            ImGuiHelper.InputTKVector3("Direction", lighting, "Direction");
+            ImGuiHelper.InputFromFloat("Lower Angle", lighting, "ColorHemiLowerMaxRotDegrees");
+            ImGuiHelper.InputFromFloat("Upper Angle", lighting, "ColorHemiUpperMaxRotDegrees");
         }
 
         public override void LoadMesh(BfresMeshAsset mesh)
