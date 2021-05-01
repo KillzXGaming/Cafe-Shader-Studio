@@ -262,7 +262,7 @@ namespace BfresEditor
             UniformBlock block, string name, GenericPickableMesh mesh)
         {
          
-        }
+        }   
 
         /// <summary>
         /// A helper method to auto map commonly used render info settings to options.
