@@ -228,6 +228,27 @@ namespace GLFrameworkEngine
             RotationX = 0;
             RotationY = 0;
             TargetDistance = 0;
+            UpdateMatrices();
+        }
+
+        /// <summary>
+        /// Resets the viewport camera transform values.
+        /// </summary>
+        public void ResetViewportTransform()
+        {
+            RotationX = 0;
+            RotationY = 0;
+            if (Mode == CameraMode.Inspect)
+            {
+                TargetPosition = new OpenTK.Vector3(0, 1, 0);
+                TargetDistance = 5;
+            }
+            else
+            {
+                TargetPosition = new OpenTK.Vector3(0, 1, 5);
+                TargetDistance = 0;
+            }
+            UpdateMatrices();
         }
 
         /// <summary>
@@ -281,7 +302,8 @@ namespace GLFrameworkEngine
         {
             if (IsOrthographic)
             {
-                float scale = (Distance + TargetDistance) / 1000.0f;
+                //Make sure the scale isn't negative or it would invert the viewport
+                float scale = Math.Max((Distance + TargetDistance) / 1000.0f, 0.000001f);
                 return Matrix4.CreateOrthographicOffCenter(-(Width * scale), Width * scale, -(Height * scale), Height * scale, -100000, 100000);
             }
             else

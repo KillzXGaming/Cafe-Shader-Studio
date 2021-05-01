@@ -44,7 +44,7 @@ namespace CafeStudio.UI
             _camera = new Camera();
             _context.Camera = _camera;
             _context.ScreenBuffer = ScreenBuffer;
-            _context.Camera.TargetPosition = new OpenTK.Vector3(0, 1, 5);
+            _context.Camera.ResetViewportTransform();
         }
 
         public void InitBuffers()

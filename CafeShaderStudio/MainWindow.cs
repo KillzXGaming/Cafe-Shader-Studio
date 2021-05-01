@@ -554,9 +554,7 @@ namespace CafeShaderStudio
             {
                 if (ImGui.Button("Reset Transform"))
                 {
-                    Pipeline._context.Camera.ResetTransform();
-                    Pipeline._context.Camera.TargetPosition = new OpenTK.Vector3(0, 1, 5);
-                    Pipeline._context.Camera.UpdateMatrices();
+                    Pipeline._context.Camera.ResetViewportTransform();
                 }
 
                 ImGuiHelper.ComboFromEnum<Camera.FaceDirection>("Direction", Pipeline._context.Camera, "Direction");
