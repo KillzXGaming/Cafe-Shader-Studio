@@ -308,18 +308,12 @@ namespace BfresEditor
 
                 writer.SeekBegin(480);
 
-                writer.Write(LightingData.General.ColorHemiUpperMaxRot);
-                writer.Write(new Vector3(0));
-                writer.Write(LightingData.Land.ColorHemiUpperMaxRot);
-                writer.Write(new Vector3(0));
-                writer.Write(LightingData.BG.ColorHemiUpperMaxRot);
-                writer.Write(new Vector3(0));
-                writer.Write(LightingData.General.ColorHemiLower);
-                writer.Write(new Vector3(0));
-                writer.Write(LightingData.Land.ColorHemiLower);
-                writer.Write(new Vector3(0));
-                writer.Write(LightingData.BG.ColorHemiLower);
-                writer.Write(new Vector3(0));
+                writer.Write(new Vector4(LightingData.General.ColorHemiUpperMaxRot, 0, 0, 0));
+                writer.Write(new Vector4(LightingData.Land.ColorHemiUpperMaxRot, 0, 0, 0));
+                writer.Write(new Vector4(LightingData.BG.ColorHemiUpperMaxRot, 0, 0, 0));
+                writer.Write(new Vector4(LightingData.General.ColorHemiLowerMaxRot, 0, 0, 0));
+                writer.Write(new Vector4(LightingData.Land.ColorHemiLowerMaxRot, 0, 0, 0));
+                writer.Write(new Vector4(LightingData.BG.ColorHemiLowerMaxRot, 0, 0, 0));
             }
 
             block.Buffer.Clear();
