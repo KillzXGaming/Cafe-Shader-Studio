@@ -10,6 +10,8 @@ using GLFrameworkEngine;
 using System.IO;
 using BfresEditor.Properties;
 using MapStudio.Rendering;
+using ImGuiNET;
+using CafeStudio.UI;
 
 namespace BfresEditor
 {
@@ -21,6 +23,57 @@ namespace BfresEditor
             Normals = 1,
             HalfTone = 3,
             Depth = 4,
+        }
+
+        public class LightingTable
+        {
+            public LightingObj General = new LightingObj();
+            public LightingObj Land = new LightingObj();
+            public LightingObj BG = new LightingObj();
+
+            public LightingTable()
+            {
+                General.ColorHemiUpper = new Vector4(1, 1, 1, 1.5f);
+                General.ColorHemiLower = new Vector4(1.5f, 0.84f, 0.385f, 1.5f);
+                General.Direction = new Vector3(-0.2620026f, -0.6427876f, -0.7198464f);
+                General.DirectionalColor = new Vector4(3.0f, 3.43f, 3.5f, 3.5f);
+            }
+        }
+
+        public class LightingObj
+        {
+            public Vector4 ColorHemiUpper { get; set; }
+            public Vector4 ColorHemiLower { get; set; }
+
+            public float ColorHemiLowerMaxRot { get; set; }
+            public float ColorHemiUpperMaxRot { get; set; }
+
+            public Vector3 Direction { get; set; }
+            public Vector4 DirectionalColor { get; set; }
+
+            public LightingObj()
+            {
+                ColorHemiUpper = new Vector4(0, 0, 0, 1.0f);
+                ColorHemiLower = new Vector4(0, 0, 0, 1.0f);
+                ColorHemiLowerMaxRot = -1.5708f;
+                ColorHemiUpperMaxRot = 1.5708f;
+                Direction = new Vector3(-0.5773503f, -0.5773503f, -0.5773503f);
+                DirectionalColor = new Vector4(1);
+            }
+        }
+
+        public static LightingTable LightingData = new LightingTable();
+
+        public void RenderUI()
+        {
+            if (ImGui.CollapsingHeader("General")) {
+                var colorFlags = ImGuiColorEditFlags.HDR | ImGuiColorEditFlags.Float;
+
+                ImGuiHelper.InputTKVector4Color4("Upper Color", LightingData.General, "ColorHemiUpper", colorFlags);
+                ImGuiHelper.InputTKVector4Color4("Lower Color", LightingData.General, "ColorHemiLower", colorFlags);
+                ImGuiHelper.InputTKVector4Color4("Direction Color", LightingData.General, "DirectionalColor", colorFlags);
+                ImGuiHelper.InputTKVector3("Direction", LightingData.General, "Direction");
+            }
         }
 
         public override void LoadMesh(BfresMeshAsset mesh)
@@ -207,13 +260,55 @@ namespace BfresEditor
         private void SetFogUniforms(UniformBlock block)
         {
             block.Buffer.Clear();
-            block.Add(new Vector4(0));
+            block.Add(new Vector4(1, 1, 1, -10000.0f));
+            block.Add(new Vector4(-20000.0f, 0, 1, 0));
         }
 
         private void SetLightUniforms(UniformBlock block)
         {
+            var mem = new System.IO.MemoryStream();
+            using (var writer = new Toolbox.Core.IO.FileWriter(mem))
+            {
+                writer.SeekBegin(0);
+                writer.Write(LightingData.General.ColorHemiUpper);
+                writer.Write(LightingData.Land.ColorHemiUpper);
+                writer.Write(LightingData.BG.ColorHemiUpper);
+                writer.Write(LightingData.General.ColorHemiLower);
+                writer.Write(LightingData.Land.ColorHemiLower);
+                writer.Write(LightingData.BG.ColorHemiLower);
+
+                writer.Write(LightingData.General.Direction);
+                writer.Write(0);
+                writer.Write(LightingData.Land.Direction);
+                writer.Write(0);
+                writer.Write(LightingData.BG.Direction);
+                writer.Write(0);
+
+                writer.Write(LightingData.General.DirectionalColor);
+                writer.Write(LightingData.Land.DirectionalColor);
+                writer.Write(LightingData.BG.DirectionalColor);
+
+                writer.SeekBegin(480);
+
+                writer.Write(LightingData.General.ColorHemiUpperMaxRot);
+                writer.Write(LightingData.Land.ColorHemiUpperMaxRot);
+                writer.Write(LightingData.BG.ColorHemiUpperMaxRot);
+
+                writer.Write(LightingData.General.ColorHemiLower);
+                writer.Write(LightingData.Land.ColorHemiLower);
+                writer.Write(LightingData.BG.ColorHemiLower);
+            }
+
             block.Buffer.Clear();
-            block.Add(Properties.Resources.LightingTable);
+            block.Buffer.AddRange(mem.ToArray());
+        }
+
+        private void WriteColor(Toolbox.Core.IO.FileWriter writer, System.Numerics.Vector4 col)
+        {
+            writer.Write(col.X);
+            writer.Write(col.Y);
+            writer.Write(col.Z);
+            writer.Write(col.W);
         }
 
         public override void SetShapeBlock(BfresMeshAsset mesh, Matrix4 transform, UniformBlock block)
