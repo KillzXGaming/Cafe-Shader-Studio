@@ -215,7 +215,7 @@ namespace CafeShaderStudio
             if (!initGlobalShaders) 
                 return;
 
-            if (fileName.EndsWith(".byaml"))
+            if (fileName.EndsWith(".byaml") && MapLoader.HasValidPath)
             {
                 MapLoader.LoadMuunt(fileName);
 
@@ -315,18 +315,22 @@ namespace CafeShaderStudio
                 LightingEngine.LightSettings = lightingEngine;
                 LightingEngine.LightSettings.UpdateColorCorrectionTable();
 
-                //Create a list of models that can render onto cubemaps
-                List<GenericRenderer> cubemapRenderModels = new List<GenericRenderer>();
-                foreach (BfresRender model in Pipeline.SceneObjects)
-                    if (model.IsSkybox) //Only load skybox (VR) map objects. Todo this should be improved.
-                        cubemapRenderModels.Add(model);
+                if (MapLoader.HasValidPath)
+                {
+                    //Create a list of models that can render onto cubemaps
+                    List<GenericRenderer> cubemapRenderModels = new List<GenericRenderer>();
+                    foreach (BfresRender model in Pipeline.SceneObjects)
+                        if (model.IsSkybox) //Only load skybox (VR) map objects. Todo this should be improved.
+                            cubemapRenderModels.Add(model);
 
-                //Load the main models (which in this case would be the course model)
-                foreach (var model in Pipeline.Files)
-                    cubemapRenderModels.Add(model.Renderer);
+                    //Load the main models (which in this case would be the course model)
+                    foreach (var model in Pipeline.Files)
+                        cubemapRenderModels.Add(model.Renderer);
 
-                //Generate cubemaps in the scene.
-                LightingEngine.LightSettings.UpdateCubemap(cubemapRenderModels);
+                    //Generate cubemaps in the scene.
+                    LightingEngine.LightSettings.UpdateCubemap(cubemapRenderModels);
+                }
+
                 //Generate light maps (area based lighting from directional and hemi lighting)
                 for (int i = 0; i < 8; i++)
                     LightingEngine.LightSettings.UpdateLightmap(Pipeline._context, i);

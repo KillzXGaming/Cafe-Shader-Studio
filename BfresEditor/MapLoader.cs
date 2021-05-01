@@ -11,6 +11,8 @@ namespace BfresEditor
 {
     public class MapLoader
     {
+        public static bool HasValidPath => File.Exists($"{GlobalSettingsMK8.MarioKart8Path}\\Data\\objflow.byaml");
+
         public static List<GenericRenderer> Renders = new List<GenericRenderer>();
 
         //Only loads skybox for loading into rendered cubemaps
