@@ -281,7 +281,7 @@ namespace GLFrameworkEngine
         {
             if (IsOrthographic)
             {
-                float scale = -(Distance + TargetDistance) / 1000.0f;
+                float scale = (Distance + TargetDistance) / 1000.0f;
                 return Matrix4.CreateOrthographicOffCenter(-(Width * scale), Width * scale, -(Height * scale), Height * scale, -100000, 100000);
             }
             else
