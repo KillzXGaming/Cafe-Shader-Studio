@@ -309,12 +309,17 @@ namespace BfresEditor
                 writer.SeekBegin(480);
 
                 writer.Write(LightingData.General.ColorHemiUpperMaxRot);
+                writer.Write(new Vector3(0));
                 writer.Write(LightingData.Land.ColorHemiUpperMaxRot);
+                writer.Write(new Vector3(0));
                 writer.Write(LightingData.BG.ColorHemiUpperMaxRot);
-
+                writer.Write(new Vector3(0));
                 writer.Write(LightingData.General.ColorHemiLower);
+                writer.Write(new Vector3(0));
                 writer.Write(LightingData.Land.ColorHemiLower);
+                writer.Write(new Vector3(0));
                 writer.Write(LightingData.BG.ColorHemiLower);
+                writer.Write(new Vector3(0));
             }
 
             block.Buffer.Clear();
