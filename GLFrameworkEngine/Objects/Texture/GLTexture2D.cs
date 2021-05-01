@@ -37,8 +37,10 @@ namespace GLFrameworkEngine
             return texture;
         }
 
-        public static GLTexture2D FromGeneric(STGenericTexture texture, ImageParameters parameters)
+        public static GLTexture2D FromGeneric(STGenericTexture texture, ImageParameters parameters = null)
         {
+            if (parameters == null) parameters = new ImageParameters();
+
             GLTexture2D glTexture = new GLTexture2D();
             glTexture.Target = TextureTarget.Texture2D;
             glTexture.Width = (int)texture.Width;

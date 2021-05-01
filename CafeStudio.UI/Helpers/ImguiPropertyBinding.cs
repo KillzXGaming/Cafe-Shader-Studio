@@ -143,6 +143,44 @@ namespace CafeStudio.UI
             }
         }
 
+        public static void InputTKVector3(string label, object obj, string properyName)
+        {
+            var input = obj.GetType().GetProperty(properyName);
+            var inputValue = (OpenTK.Vector3)input.GetValue(obj);
+            var vec = new Vector3(inputValue[0], inputValue[1], inputValue[2]);
+
+            float size = ImGui.GetFontSize();
+            if (ImGui.DragFloat3(label, ref vec))
+            {
+                input.SetValue(obj, new OpenTK.Vector3(vec.X, vec.Y, vec.Z));
+            }
+        }
+
+        public static void InputTKVector4(string label, object obj, string properyName)
+        {
+            var input = obj.GetType().GetProperty(properyName);
+            var inputValue = (OpenTK.Vector4)input.GetValue(obj);
+            var vec = new Vector4(inputValue[0], inputValue[1], inputValue[2], inputValue[3]);
+
+            float size = ImGui.GetFontSize();
+            if (ImGui.DragFloat4(label, ref vec)) {
+                input.SetValue(obj, new OpenTK.Vector4(vec.X, vec.Y, vec.Z, vec.W));
+            }
+        }
+
+        public static void InputTKVector4Color4(string label, object obj, string properyName, ImGuiColorEditFlags flags = ImGuiColorEditFlags.None)
+        {
+            var input = obj.GetType().GetProperty(properyName);
+            var inputValue = (OpenTK.Vector4)input.GetValue(obj);
+            var vec = new Vector4(inputValue[0], inputValue[1], inputValue[2], inputValue[3]);
+
+            float size = ImGui.GetFontSize();
+            if (ImGui.ColorEdit4(label, ref vec, flags))
+            {
+                input.SetValue(obj, new OpenTK.Vector4(vec.X, vec.Y, vec.Z, vec.W));
+            }
+        }
+
         public static void InputFloatsFromColor3Button(string label, object obj, string properyName, ImGuiColorEditFlags flags = ImGuiColorEditFlags.None)
         {
             var input = obj.GetType().GetProperty(properyName);
@@ -172,6 +210,7 @@ namespace CafeStudio.UI
         public static void InputFloatsFromVector4(string label, object obj, string properyName, bool drag = false)
         {
             var input = obj.GetType().GetProperty(properyName);
+
             var inputValue = (float[])input.GetValue(obj);
             var vec = new Vector4(inputValue[0], inputValue[1], inputValue[2], inputValue[3]);
 
