@@ -106,7 +106,7 @@ namespace GLFrameworkEngine
             GL.BindBuffer(BufferTarget.UniformBuffer, ID);
         }
 
-        public void RenderBuffer(int programID, string name)
+        public void RenderBuffer(int programID, string name, int binding = -1)
         {
             var index = GL.GetUniformBlockIndex(programID, name);
             if (index == -1)
@@ -114,9 +114,10 @@ namespace GLFrameworkEngine
 
             Bind();
 
-            int bindingPoint = index;
-            GL.UniformBlockBinding(programID, index, bindingPoint);
-            GL.BindBufferBase(BufferRangeTarget.UniformBuffer, index, ID);
+            binding = binding != -1 ? binding : index;
+
+            GL.UniformBlockBinding(programID, index, binding);
+            GL.BindBufferBase(BufferRangeTarget.UniformBuffer, binding, ID);
 
             UpdateBufferData();
         }

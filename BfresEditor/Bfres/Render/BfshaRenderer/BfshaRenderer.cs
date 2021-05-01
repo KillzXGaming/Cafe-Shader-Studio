@@ -79,7 +79,7 @@ namespace BfresEditor
         /// Shader information from the decoded shader.
         /// This is used to store constants and source information.
         /// </summary>
-        public TegraShaderDecoder.ShaderInfo GLShaderInfo { get; set; }
+        public override ShaderInfo GLShaderInfo { get; set; }
 
         /// <summary>
         /// Determines when to use this renderer for the given material.
@@ -214,11 +214,6 @@ namespace BfresEditor
 
             var programID = shader.program;
 
-            //Get the existing uniform block instances from the shader (emulator specific value)
-            var extraBlock = GetBlock("Extra");
-            extraBlock.Add(new Vector2(1));
-            extraBlock.RenderBuffer(programID, "Extra");
-
             //Set constants saved from shader code to the first uniform block of each stage
             LoadVertexShaderConstantBlock(programID);
             LoadPixelShaderConstantBlock(programID);
@@ -233,6 +228,7 @@ namespace BfresEditor
             SetTextureUniforms(shader, MaterialData);
             SetRenderState(bfresMaterial);
 
+            int binding = 2;
             for (int i = 0; i < ShaderModel.UniformBlocks.Count; i++)
             {
                 string name = ShaderModel.UniformBlockDict.GetKey(i);
@@ -254,7 +250,7 @@ namespace BfresEditor
                     LoadUniformBlock(control, shader, i, shaderBlock, name, mesh);
                 }
 
-                RenderBlock(shaderBlock, programID, vertLocation, fragLocation);
+                RenderBlock(shaderBlock, programID, vertLocation, fragLocation, binding++);
             }
         }
 
@@ -287,7 +283,7 @@ namespace BfresEditor
 
             var firstBlock = GetBlock("vp_c1");
             firstBlock.Add(GLShaderInfo.VertexConstants);
-            firstBlock.RenderBuffer(programID, "vp_c1");
+            firstBlock.RenderBuffer(programID, "vp_c1", 0);
         }
 
         /// <summary>
@@ -301,7 +297,7 @@ namespace BfresEditor
 
             var firstBlock = GetBlock("fp_c1");
             firstBlock.Add(GLShaderInfo.PixelConstants);
-            firstBlock.RenderBuffer(programID, "fp_c1");
+            firstBlock.RenderBuffer(programID, "fp_c1", 1);
         }
 
 
@@ -509,19 +505,20 @@ namespace BfresEditor
             block.Buffer.AddRange(mem.ToArray());
         }
 
-        private void RenderBlock(UniformBlock block, int programID, int vertexLocation, int fragmentLocation)
+        private void RenderBlock(UniformBlock block, int programID, int vertexLocation, int fragmentLocation, int binding)
         {
             if (vertexLocation != -1)
-                block.RenderBuffer(programID, $"vp_c{vertexLocation + 3}");
+                block.RenderBuffer(programID, $"vp_c{vertexLocation + 3}", binding);
 
             if (fragmentLocation != -1)
-                block.RenderBuffer(programID, $"fp_c{fragmentLocation + 3}");
+                block.RenderBuffer(programID, $"fp_c{fragmentLocation + 3}", binding);
         }
 
         private UniformBlock GetBlock(string name, bool reset = true)
         {
-            if (!UniformBlocks.ContainsKey(name))
+            if (!UniformBlocks.ContainsKey(name))  {
                 UniformBlocks.Add(name, new UniformBlock());
+            }
 
             if (reset)
                 UniformBlocks[name].Buffer.Clear();
