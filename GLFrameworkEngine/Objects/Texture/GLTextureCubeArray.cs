@@ -94,6 +94,9 @@ namespace GLFrameworkEngine
                 else
                 {
                     var formatInfo = GLFormatHelper.ConvertPixelFormat(format);
+                    if (dds.Platform.OutputFormat == TexFormat.RGBA8_UNORM)
+                        formatInfo.Format = PixelFormat.Rgba;
+
                     GLTextureDataLoader.LoadImage(texture.Target, mipWidth, mipHeight, depth, formatInfo, buffer, j);
                 }
             }
