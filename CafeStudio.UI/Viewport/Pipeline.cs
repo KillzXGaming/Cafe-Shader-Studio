@@ -44,7 +44,7 @@ namespace CafeStudio.UI
             _camera = new Camera();
             _context.Camera = _camera;
             _context.ScreenBuffer = ScreenBuffer;
-            _context.Camera.Translation = new OpenTK.Vector3(0, 1, -5);
+            _context.Camera.TargetPosition = new OpenTK.Vector3(0, 1, 5);
         }
 
         public void InitBuffers()
@@ -101,7 +101,7 @@ namespace CafeStudio.UI
 
             GL.Enable(EnableCap.DepthTest);
 
-            _context.Camera.UpdateTransform();
+            _context.Camera.UpdateMatrices();
 
             DrawModels();
             GL.UseProgram(0);
@@ -125,11 +125,10 @@ namespace CafeStudio.UI
             GL.BindFramebuffer(FramebufferTarget.DrawFramebuffer, FinalBuffer.ID);
             GL.BlitFramebuffer(0, 0, Width, Height, 0, 0, Width, Height, ClearBufferMask.DepthBufferBit, BlitFramebufferFilter.Nearest);
 
-
+                
             _background.Draw(_context, Pass.OPAQUE);
             _floor.Draw(_context, Pass.OPAQUE);
             _context.Scene.DrawSelection(_context);
-
 
             FinalBuffer.Unbind();
         }
@@ -151,7 +150,7 @@ namespace CafeStudio.UI
             _context.Height = this.Height;
             _context.Camera.Width = this.Width;
             _context.Camera.Height = this.Height;
-            _context.Camera.UpdateTransform();
+            _context.Camera.UpdateMatrices();
         }
 
         public void PickScene(MouseEventInfo e, bool selectAction)
@@ -192,9 +191,9 @@ namespace CafeStudio.UI
 
         private void DrawModels()
         {
-          /*  if (AGraphicsLibrary.LightingEngine.LightSettings.ColorCorrectionTable == null ||
-                AGraphicsLibrary.LightingEngine.LightSettings.UpdateColorCorrection)
-                AGraphicsLibrary.LightingEngine.LightSettings.UpdateColorCorrectionTable();*/
+            /*  if (AGraphicsLibrary.LightingEngine.LightSettings.ColorCorrectionTable == null ||
+                  AGraphicsLibrary.LightingEngine.LightSettings.UpdateColorCorrection)
+                  AGraphicsLibrary.LightingEngine.LightSettings.UpdateColorCorrectionTable();*/
 
             //  DrawGBuffer();
 
