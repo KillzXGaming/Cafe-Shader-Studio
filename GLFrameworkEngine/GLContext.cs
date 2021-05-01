@@ -19,7 +19,6 @@ namespace GLFrameworkEngine
 
         public static float PreviewScale { get; set; } = 1.0f;
 
-
         /// <summary>
         /// Gets or sets the mouse position after a mouse down event.
         /// </summary>

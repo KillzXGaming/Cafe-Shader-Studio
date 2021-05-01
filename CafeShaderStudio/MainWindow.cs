@@ -528,7 +528,7 @@ namespace CafeShaderStudio
                 if (ImGui.Checkbox("Mesh Picking", ref Pipeline._context.ColorPicker.EnablePicking))
                 {
                     if (!Pipeline._context.ColorPicker.EnablePicking)
-                        Pipeline._context.Scene.PickableObjects.Clear();
+                        Pipeline._context.Scene.ResetSelected();
                 }
                 ImGui.Checkbox("Wireframe", ref Toolbox.Core.Runtime.RenderSettings.Wireframe);
                 ImGui.Checkbox("WireframeOverlay", ref Toolbox.Core.Runtime.RenderSettings.WireframeOverlay);
