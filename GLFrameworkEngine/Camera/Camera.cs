@@ -446,9 +446,9 @@ namespace GLFrameworkEngine
                 }
                 else
                 {
-                    if (!k.IsKeyDown('y'))
+                    if (!k.IsKeyDown("y"))
                         _camera.RotationX += movement.Y * rotFactorX;
-                    if (!k.IsKeyDown('x'))
+                    if (!k.IsKeyDown("x"))
                         _camera.RotationY += movement.X * rotFactorY;
 
                     //Reset direction
@@ -493,6 +493,11 @@ namespace GLFrameworkEngine
             if (e.IsKeyDown(KeyController.View3D.MOVE_RIGHT))
                 vec.X += movement;
 
+            if (e.IsKeyDown(KeyController.View3D.MOVE_DOWN))
+                vec.Y -= movement;
+            else if (e.IsKeyDown(KeyController.View3D.MOVE_UP))
+                vec.Y += movement;
+
             float UP = 0;
 
             _camera.TargetPosition += Vector3.Transform(_camera.InverseRotationMatrix, vec) + Vector3.UnitY * UP;
@@ -532,9 +537,9 @@ namespace GLFrameworkEngine
                 }
                 else
                 {
-                    if (!k.IsKeyDown('y'))
+                    if (!k.IsKeyDown("y"))
                         _camera.RotationX += movement.Y * rotFactorX;
-                    if (!k.IsKeyDown('x'))
+                    if (!k.IsKeyDown("x"))
                         _camera.RotationY += movement.X * rotFactorY;
 
                     //Reset direction

@@ -942,13 +942,14 @@ namespace CafeShaderStudio
             keyInfo.KeyCtrl = ImGui.GetIO().KeyCtrl;
             keyInfo.KeyAlt = ImGui.GetIO().KeyAlt;
 
-            if (Keyboard.GetState().IsKeyDown(Key.W)) keyInfo.KeyChars.Add('w');
-            if (Keyboard.GetState().IsKeyDown(Key.A)) keyInfo.KeyChars.Add('a');
-            if (Keyboard.GetState().IsKeyDown(Key.S)) keyInfo.KeyChars.Add('s');
-            if (Keyboard.GetState().IsKeyDown(Key.D)) keyInfo.KeyChars.Add('d');
-            if (Keyboard.GetState().IsKeyDown(Key.X)) keyInfo.KeyChars.Add('x');
-            if (Keyboard.GetState().IsKeyDown(Key.Y)) keyInfo.KeyChars.Add('y');
-            if (Keyboard.GetState().IsKeyDown(Key.Z)) keyInfo.KeyChars.Add('z');
+            if (Keyboard.GetState().IsKeyDown(Key.W)) keyInfo.KeyChars.Add("w");
+            if (Keyboard.GetState().IsKeyDown(Key.A)) keyInfo.KeyChars.Add("a");
+            if (Keyboard.GetState().IsKeyDown(Key.S)) keyInfo.KeyChars.Add("s");
+            if (Keyboard.GetState().IsKeyDown(Key.D)) keyInfo.KeyChars.Add("d");
+            if (Keyboard.GetState().IsKeyDown(Key.X)) keyInfo.KeyChars.Add("x");
+            if (Keyboard.GetState().IsKeyDown(Key.Y)) keyInfo.KeyChars.Add("y");
+            if (Keyboard.GetState().IsKeyDown(Key.Z)) keyInfo.KeyChars.Add("z");
+            if (Keyboard.GetState().IsKeyDown(Key.Space)) keyInfo.KeyChars.Add("space");
 
             return keyInfo;
         }

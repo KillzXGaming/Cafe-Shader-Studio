@@ -11,9 +11,11 @@ namespace GLFrameworkEngine
 
     public class VIEWPORT3D
     {
-        public char MOVE_FORWARD = 'w';
-        public char MOVE_BACK = 's';
-        public char MOVE_LEFT = 'a';
-        public char MOVE_RIGHT = 'd';
+        public string MOVE_FORWARD = "w";
+        public string MOVE_BACK = "s";
+        public string MOVE_LEFT = "a";
+        public string MOVE_RIGHT = "d";
+        public string MOVE_UP = "space";
+        public string MOVE_DOWN = "ctrl+space";
     }
 }
