@@ -161,7 +161,7 @@ namespace AGraphicsLibrary
 
         public CubemapCamera(Vector3 center, float znear = 1, float zfar = 500000)
         {
-            Translation = center;
+            TargetPosition = center;
             ZNear = znear;
             ZFar = zfar;
             FovDegrees = 90.0f;
@@ -218,7 +218,7 @@ namespace AGraphicsLibrary
 
         private void updateViewMatrix()
         {
-            Vector3 position = new Vector3(-Translation.X, -Translation.Y, -Translation.Z);
+            Vector3 position = new Vector3(-TargetPosition.X, -TargetPosition.Y, -TargetPosition.Z);
 
             viewMatrix = Matrix4.Identity;
             viewMatrix *= Matrix4.CreateTranslation(position);

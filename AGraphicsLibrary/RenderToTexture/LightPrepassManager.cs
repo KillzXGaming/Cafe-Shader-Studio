@@ -107,7 +107,7 @@ namespace AGraphicsLibrary
 
             shader.SetMatrix4x4("mtxProjInv", ref projectionMatrixInverse);
             shader.SetMatrix4x4("mtxViewInv", ref viewMatrixInverse);
-            shader.SetVector3("cameraPosition", camera.Translation);
+            shader.SetVector3("cameraPosition", camera.TargetPosition);
 
             
             float projectionA = camera.ZFar / (camera.ZFar - camera.ZNear);

@@ -91,10 +91,10 @@ namespace CafeStudio.UI
                 if (ImGui.BeginMenu("Camera")) {
 
                     if (ImGui.Button("Reset Transform")) {
-                        Pipeline._context.Camera.Translation = new OpenTK.Vector3(0, 1, -5);
+                        Pipeline._context.Camera.TargetPosition = new OpenTK.Vector3(0, 1, -5);
                         Pipeline._context.Camera.RotationX = 0;
                         Pipeline._context.Camera.RotationY = 0;
-                        Pipeline._context.Camera.UpdateTransform();
+                        Pipeline._context.Camera.UpdateMatrices();
                     }
                     ImGuiHelper.InputFromBoolean("Orthographic", Pipeline._context.Camera, "IsOrthographic");
 

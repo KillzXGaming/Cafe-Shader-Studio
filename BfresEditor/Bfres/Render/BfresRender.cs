@@ -169,7 +169,7 @@ namespace BfresEditor
             InFustrum = UpdateModelFustrum(control);
             if (!Name.Contains("course")) //Draw distance map objects
                 InFustrum = InFustrum && this.IsInRange(renderDistance, renderDistanceSquared,
-                                control.Camera.Translation);
+                                control.Camera.TargetPosition);
 
             return InFustrum;
         }

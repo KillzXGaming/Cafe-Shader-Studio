@@ -141,7 +141,7 @@ namespace GLFrameworkEngine
             var rotation = Transform.Rotation;
             var invRotation = rotation.Inverted();
 
-            Vector3 dirToCamera = (position - context.Camera.Translation).Normalized();
+            Vector3 dirToCamera = (position - context.Camera.TargetPosition).Normalized();
 
             Vector3 axisB = GetSelectedAxisVector3(axis);
             Vector3 axisA = Vector3.Cross(axisB, dirToCamera);
@@ -161,7 +161,7 @@ namespace GLFrameworkEngine
                 if (axis.HasFlag(GLScene.Axis.Z))
                     newPos += Vector3.Transform(Vector3.UnitZ, rotation) * localDelta.Z;
 
-                Vector3 newPosDirToCamera = (newPos - context.Camera.Translation).Normalized();
+                Vector3 newPosDirToCamera = (newPos - context.Camera.TargetPosition).Normalized();
                 float dot = Math.Abs(Vector3.Dot(planeNormal, newPosDirToCamera));
 
                 if (dot < 0.02f)

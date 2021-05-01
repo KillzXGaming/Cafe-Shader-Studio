@@ -27,7 +27,7 @@ namespace GLFrameworkEngine
         public CameraRenderAsset()
         {
             Camera = new Camera();
-            Camera.UpdateTransform();
+            Camera.UpdateMatrices();
 
             Renderer = new CameraRenderer();
             Renderer.Camera = Camera;

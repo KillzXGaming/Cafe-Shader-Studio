@@ -109,15 +109,15 @@ namespace GLFrameworkEngine
         /// </summary>
         public bool LockRotation { get; set; } = false;
 
-        internal Vector3 _translation;
+        internal Vector3 _targetPosition;
 
         /// <summary>
         /// The position of the camera in world space.
         /// </summary>
-        public Vector3 Translation
+        public Vector3 TargetPosition
         {
-            get { return _translation; }
-            set { _translation = value; }
+            get { return _targetPosition; }
+            set { _targetPosition = value; }
         }
 
         /// <summary>
@@ -135,10 +135,22 @@ namespace GLFrameworkEngine
         /// </summary>
         public float Distance
         {
-            get { return Math.Abs(_translation.Z); }
-            set {
-                _translation.Z = value;
+            get { return Math.Abs(_targetPosition.Z); }
+            set
+            {
+                _targetPosition.Z = value;
             }
+        }
+
+        internal float _targetDistance;
+
+        /// <summary>
+        /// The distance to the camera target
+        /// </summary>
+        public float TargetDistance
+        {
+            get { return _targetDistance; }
+            set { _targetDistance = value; }
         }
 
         protected Matrix4 projectionMatrix;
@@ -208,14 +220,25 @@ namespace GLFrameworkEngine
         public float Depth { get; set; }
 
         /// <summary>
+        /// Resets the camera transform values.
+        /// </summary>
+        public void ResetTransform()
+        {
+            TargetPosition = new Vector3();
+            RotationX = 0;
+            RotationY = 0;
+            TargetDistance = 0;
+        }
+
+        /// <summary>
         /// Updates the view and projection matrices with current camera data.
         /// </summary>
-        public void UpdateTransform()
+        public void UpdateMatrices()
         {
             projectionMatrix = GetProjectionMatrix();
             viewMatrix = GetViewMatrix();
             ViewProjectionMatrix = viewMatrix * projectionMatrix;
-            invRotationMatrix = Matrix3.CreateRotationX(-RotationX) * 
+            invRotationMatrix = Matrix3.CreateRotationX(-RotationX) *
                                      Matrix3.CreateRotationY(-RotationY);
 
             CameraFustrum.UpdateCamera(this);
@@ -258,7 +281,7 @@ namespace GLFrameworkEngine
         {
             if (IsOrthographic)
             {
-                float scale = Distance / 1000.0f;
+                float scale = -(Distance + TargetDistance) / 1000.0f;
                 return Matrix4.CreateOrthographicOffCenter(-(Width * scale), Width * scale, -(Height * scale), Height * scale, -100000, 100000);
             }
             else
@@ -270,9 +293,10 @@ namespace GLFrameworkEngine
         /// </summary>
         public Matrix4 GetViewMatrix()
         {
-            var translationMatrix = Matrix4.CreateTranslation(Translation.X, -Translation.Y, Translation.Z);
+            var translationMatrix = Matrix4.CreateTranslation(-TargetPosition);
             var rotationMatrix = Matrix4.CreateRotationY(RotationY) * Matrix4.CreateRotationX(RotationX);
-            return rotationMatrix * translationMatrix;
+            var distanceMatrix = Matrix4.CreateTranslation(0, 0, -TargetDistance);
+            return translationMatrix * rotationMatrix * distanceMatrix;
         }
 
         public void FrameBoundingSphere(Vector4 boundingSphere)
@@ -297,7 +321,7 @@ namespace GLFrameworkEngine
             float distanceOffset = offset / minFov;
             translation.Z = -1 * (distance + distanceOffset);
 
-            Translation = translation;
+            TargetPosition = translation;
         }
 
         /// <summary>
@@ -310,12 +334,14 @@ namespace GLFrameworkEngine
 
             Vector2 normCoords = OpenGLHelper.NormMouseCoords(x, Height - y, Width, Height);
 
+            Vector3 cameraPosition = TargetPosition + invRotationMatrix.Row2 * Distance;
+
             vec.X = (normCoords.X * depth) * FactorX;
             vec.Y = (normCoords.Y * depth) * FactorY;
 
             vec.Z = depth - Distance;
 
-            return -Translation + Vector3.Transform(invRotationMatrix, vec);
+            return -cameraPosition + Vector3.Transform(invRotationMatrix, vec);
         }
 
         public Camera()
@@ -325,12 +351,16 @@ namespace GLFrameworkEngine
 
         private void UpdateMode()
         {
+            ResetTransform();
+
             if (Mode == CameraMode.Inspect)
                 Controller = new InspectCameraController(this);
-           // else if (Mode == CameraMode.Walk)
-           //     Controller = new WalkCameraController(this);
+            else if (Mode == CameraMode.Walk)
+                Controller = new WalkCameraController(this);
             else
                 throw new Exception($"Invalid camera mode! {Mode}");
+
+            UpdateMatrices();
         }
 
         private void UpdateDirection()
@@ -377,7 +407,7 @@ namespace GLFrameworkEngine
 
         public enum CameraMode
         {
-          //  Walk,
+            Walk,
             Inspect,
         }
     }
@@ -386,8 +416,8 @@ namespace GLFrameworkEngine
     {
         private Camera _camera;
 
-        private float rotFactorX => _camera.InvertRotationX ? -0.01f : 0.01f;
-        private float rotFactorY => _camera.InvertRotationY ? -0.01f : 0.01f;
+        private float rotFactorX => _camera.InvertRotationX ? -0.002f : 0.002f;
+        private float rotFactorY => _camera.InvertRotationY ? -0.002f : 0.002f;
 
         public WalkCameraController(Camera camera)
         {
@@ -401,7 +431,8 @@ namespace GLFrameworkEngine
             var position = new Vector2(e.X, e.Y);
             var movement = position - previousLocation;
 
-            if (e.RightButton == ButtonState.Pressed && !_camera.LockRotation)
+            if ((e.LeftButton == ButtonState.Pressed ||
+                e.RightButton == ButtonState.Pressed) && !_camera.LockRotation)
             {
                 if (k.KeyCtrl)
                 {
@@ -411,7 +442,7 @@ namespace GLFrameworkEngine
                     vec.Y = 0;
                     vec.Z = delta;
 
-                    _camera.Translation += Vector3.Transform(_camera.InverseRotationMatrix, vec);
+                    _camera.TargetPosition += Vector3.Transform(_camera.InverseRotationMatrix, vec);
                 }
                 else
                 {
@@ -442,21 +473,29 @@ namespace GLFrameworkEngine
             vec.Y = (normCoords.Y * delta) * _camera.FactorY;
             vec.Z = delta;
 
-            _camera.Translation += Vector3.Transform(_camera.InverseRotationMatrix, vec);
+            _camera.TargetPosition -= Vector3.Transform(_camera.InverseRotationMatrix, vec);
         }
 
         public void KeyPress(KeyEventInfo e)
         {
             float movement = 0.2f * _camera.KeyMoveSpeed;
+            Vector3 vec = Vector3.Zero;
+
+            if (e.KeyShift)
+                movement *= 2;
 
             if (e.IsKeyDown(KeyController.View3D.MOVE_FORWARD))
-                _camera._translation.Z += movement;
+                vec.Z -= movement;
             if (e.IsKeyDown(KeyController.View3D.MOVE_BACK))
-                _camera._translation.Z -= movement;
+                vec.Z += movement;
             if (e.IsKeyDown(KeyController.View3D.MOVE_LEFT))
-                _camera._translation.X += movement;
+                vec.X -= movement;
             if (e.IsKeyDown(KeyController.View3D.MOVE_RIGHT))
-                _camera._translation.X -= movement;
+                vec.X += movement;
+
+            float UP = 0;
+
+            _camera.TargetPosition += Vector3.Transform(_camera.InverseRotationMatrix, vec) + Vector3.UnitY * UP;
         }
     }
 
@@ -474,9 +513,9 @@ namespace GLFrameworkEngine
 
         public void MouseClick(MouseEventInfo e, KeyEventInfo k)
         {
-            if (k.KeyCtrl && e.RightButton == ButtonState.Pressed && _camera.Depth != _camera.ZFar) {
-
-                _camera.Translation = -_camera.CoordFor(e.X, e.Y, _camera.Depth);
+            if (k.KeyCtrl && e.RightButton == ButtonState.Pressed && _camera.Depth != _camera.ZFar)
+            {
+                _camera.TargetPosition = _camera.CoordFor(e.X, e.Y, _camera.Depth);
             }
         }
 
@@ -489,7 +528,7 @@ namespace GLFrameworkEngine
             {
                 if (k.KeyCtrl)
                 {
-                    _camera._translation.Z *= 1 - movement.Y * -5 * 0.001f;
+                    _camera._targetDistance *= 1 - movement.Y * -5 * 0.001f;
                 }
                 else
                 {
@@ -507,14 +546,16 @@ namespace GLFrameworkEngine
                 Pan(movement.X * _camera.PanSpeed, movement.Y * _camera.PanSpeed);
             }
 
-            _camera.UpdateTransform();
+            _camera.UpdateMatrices();
         }
 
         public void MouseWheel(MouseEventInfo e, KeyEventInfo k)
         {
             if (k.KeyCtrl)
             {
-                float delta = e.Delta * Math.Min(0.01f, _camera.Depth / 500f);
+                float delta = -e.Delta * Math.Min(0.1f, _camera.Depth / 500f);
+
+                delta *= _camera.TargetDistance;
 
                 Vector2 normCoords = OpenGLHelper.NormMouseCoords(e.X, e.Y, _camera.Width, _camera.Height);
 
@@ -522,7 +563,7 @@ namespace GLFrameworkEngine
                               _camera.InverseRotationMatrix.Row1 * normCoords.Y * delta * _camera.FactorY +
                               _camera.InverseRotationMatrix.Row2 * delta;
 
-                _camera.Translation += vec;
+                _camera.TargetPosition += vec;
             }
             else
             {
@@ -532,52 +573,43 @@ namespace GLFrameworkEngine
 
         public void KeyPress(KeyEventInfo e)
         {
-            float movement = 0.2f * _camera.KeyMoveSpeed;
 
-            if (e.IsKeyDown(KeyController.View3D.MOVE_FORWARD))
-                _camera._translation.Z += movement;
-            if (e.IsKeyDown(KeyController.View3D.MOVE_BACK))
-                _camera._translation.Z -= movement;
-            if (e.IsKeyDown(KeyController.View3D.MOVE_LEFT))
-                _camera._translation.X += movement;
-            if (e.IsKeyDown(KeyController.View3D.MOVE_RIGHT))
-                _camera._translation.X -= movement;
         }
 
         private void Pan(float xAmount, float yAmount, bool scaleByDistanceToOrigin = true)
         {
             // Find the change in normalized screen coordinates.
-            float deltaX = xAmount / _camera.Width;
+            float deltaX = -xAmount / _camera.Width;
             float deltaY = yAmount / _camera.Height;
 
             if (scaleByDistanceToOrigin)
             {
-                // Translate the camera based on the distance from the origin and field of view.
+                // Translate the camera based on the distance from the target and field of view.
                 // Objects will "follow" the mouse while panning.
-                _camera._translation.Y += deltaY * ((float)Math.Sin(_camera.Fov) * _camera._translation.Length);
-                _camera._translation.X += deltaX * ((float)Math.Sin(_camera.Fov) * _camera._translation.Length);
+                deltaY *= ((float)Math.Sin(_camera.Fov) * _camera._targetDistance);
+                deltaX *= ((float)Math.Sin(_camera.Fov) * _camera._targetDistance);
             }
-            else
-            {
-                // Regular panning.
-                _camera._translation.Y += deltaY;
-                _camera._translation.X += deltaX;
-            }
-            _camera.UpdateTransform();
+
+            Matrix3 mtx = _camera.InverseRotationMatrix;
+            // Regular panning.
+            _camera._targetPosition += mtx.Row1 * deltaY;
+            _camera._targetPosition += mtx.Row0 * deltaX;
+
+            _camera.UpdateMatrices();
         }
 
         private void Zoom(float amount, bool scaleByDistanceToOrigin)
         {
             // Increase zoom speed when zooming out. 
             float zoomScale = 1;
-            if (scaleByDistanceToOrigin)
-                zoomScale *= _camera.Distance;
+            if (scaleByDistanceToOrigin && _camera._targetDistance > 0)
+                zoomScale *= _camera._targetDistance;
             else
-                zoomScale = 200;
+                zoomScale = 1f;
 
-            _camera._translation.Z += amount * zoomScale;
+            _camera._targetDistance -= amount * zoomScale;
 
-            _camera.UpdateTransform();
+            _camera.UpdateMatrices();
         }
     }
 }

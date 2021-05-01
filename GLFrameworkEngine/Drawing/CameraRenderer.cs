@@ -20,14 +20,14 @@ namespace GLFrameworkEngine
         public CameraRenderer()
         {
             Camera = new Camera();
-            Camera.Translation = new Vector3();
+            Camera.TargetPosition = new Vector3();
             Camera.RotationX = 0;
             Camera.RotationY = 0;
             Camera.ZNear = 1.0f;
             Camera.ZFar = 100.0f;
             Camera.Width = 100;
             Camera.Height = 50;
-            Camera.UpdateTransform();
+            Camera.UpdateMatrices();
         }
 
         public void Init()
