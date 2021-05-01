@@ -481,17 +481,25 @@ namespace GLFrameworkEngine
 
         public void MouseWheel(MouseEventInfo e, KeyEventInfo k)
         {
-            float delta = (e.Delta * Math.Min(k.KeyShift ? 0.04f : 0.01f, _camera.Depth / 500f));
+            if (k.KeyShift)
+            {
+                float amount = e.Delta * 0.1f;
+                _camera.KeyMoveSpeed += amount;
+            }
+            else
+            {
+                float delta = (e.Delta * Math.Min(k.KeyShift ? 0.04f : 0.01f, _camera.Depth / 500f));
 
-            Vector3 vec;
+                Vector3 vec;
 
-            Vector2 normCoords = OpenGLHelper.NormMouseCoords(e.X, e.Y, _camera.Width, _camera.Height);
+                Vector2 normCoords = OpenGLHelper.NormMouseCoords(e.X, e.Y, _camera.Width, _camera.Height);
 
-            vec.X = (-normCoords.X * delta) * _camera.FactorX;
-            vec.Y = (normCoords.Y * delta) * _camera.FactorY;
-            vec.Z = delta;
+                vec.X = (-normCoords.X * delta) * _camera.FactorX;
+                vec.Y = (normCoords.Y * delta) * _camera.FactorY;
+                vec.Z = delta;
 
-            _camera.TargetPosition -= Vector3.Transform(_camera.InverseRotationMatrix, vec);
+                _camera.TargetPosition -= Vector3.Transform(_camera.InverseRotationMatrix, vec);
+            }
         }
 
         public void KeyPress(KeyEventInfo e)

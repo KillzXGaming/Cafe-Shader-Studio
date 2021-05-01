@@ -32,6 +32,10 @@ namespace CafeShaderStudio
         string selectedModel = "All Models";
         float status_delay = 0.5f;
         float status_start = 0.0f;
+        float camera_speed = 1.0f;
+
+        float camera_speed_delay = 0.5f;
+        float camera_speed_start_notify = 0.0f;
 
         bool initGlobalShaders = false;
         bool ForceFocused = false;
@@ -160,6 +164,8 @@ namespace CafeShaderStudio
             //Init rendering data
             TimelineWindow.OnLoad();
             Pipeline.InitBuffers();
+
+            camera_speed = Pipeline._camera.KeyMoveSpeed;
 
             InitDock();
             LoadRecentList();
@@ -393,15 +399,22 @@ namespace CafeShaderStudio
             //Set the adjustable global font scale
             ImGui.GetIO().FontGlobalScale = font_scale;
 
-            if (status_start > 0)
-            {
-                var dif = ImGui.GetTime() - status_start;
-                if (dif > status_delay)
-                {
-                    status = "";
-                    status_start = 0.0f;
-                }
+
+            //Check for the camera speed value and see if the value is changed
+            //Display a UI on the changed values if it's different
+            if (camera_speed != Pipeline._camera.KeyMoveSpeed) {
+                camera_speed_start_notify = (float)ImGui.GetTime();
+                camera_speed_delay = 3.0f;
             }
+
+            ShowNotifcation(ref status_start, ref status_delay, () =>
+            {
+                status = "";
+            });
+            ShowNotifcation(ref camera_speed_start_notify, ref camera_speed_delay, () =>
+            {
+                camera_speed = Pipeline._camera.KeyMoveSpeed;
+            });
 
             ImGui.Begin("WindowSpace", ref p_open, window_flags);
             ImGui.PopStyleVar(2);
@@ -421,6 +434,18 @@ namespace CafeShaderStudio
             if (ForceFocused) ForceFocused = false;
 
             SwapBuffers();
+        }
+
+        private void ShowNotifcation(ref float start, ref float delay, Action onNotifyEnd)
+        {
+            if (start > 0)
+            {
+                var dif = ImGui.GetTime() - start;
+                if (dif > delay) {
+                    onNotifyEnd?.Invoke();
+                    start = 0.0f;
+                }
+            }
         }
 
         private unsafe void LoadWorkspaces()
@@ -464,6 +489,13 @@ namespace CafeShaderStudio
 
                 ImGui.SetCursorPosX(pos.X + 20);
                 ImGui.Text($"Mode: {Pipeline._context.Camera.Mode}");
+
+                if (camera_speed_start_notify > 0)
+                {
+                    ImGui.SetCursorPosX(pos.X + 20);
+                    ImGui.Text($"Camera Speed {Pipeline._camera.KeyMoveSpeed}");
+                }
+
             }
             ImGui.EndChild();
         }
