@@ -299,7 +299,7 @@ namespace CafeShaderStudio
 
         private void TryLoadCourseDir(string folder)
         {
-            if (System.IO.File.Exists($"{folder}\\course_muunt.byaml"))
+            if (System.IO.File.Exists($"{folder}\\course_muunt.byaml") && MapLoader.HasValidPath)
             {
                 MapLoader.LoadSkybox($"{folder}\\course_muunt.byaml");
 
