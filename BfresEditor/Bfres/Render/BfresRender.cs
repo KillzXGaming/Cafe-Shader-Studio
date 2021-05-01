@@ -92,7 +92,7 @@ namespace BfresEditor
 
         public void UpdateProbeLighting(GLContext control)
         {
-            if (!UpdateProbeMap || TurboNXRender.DiffuseLightmapTextureID == null || Transform.Position == Vector3.Zero)
+            if (!UpdateProbeMap || TurboNXRender.DiffuseLightmapTexture == null || Transform.Position == Vector3.Zero)
                 return;
 
             if (DiffuseProbeTexture == null)
