@@ -15,6 +15,8 @@ namespace GLFrameworkEngine
 
         public Dictionary<uint, IPickable> ColorPassIDs = new Dictionary<uint, IPickable>();
 
+        public bool EnablePicking = false;
+
         public float NormalizedPickingDepth;
 
         private float Depth;
@@ -131,6 +133,7 @@ namespace GLFrameworkEngine
             var camera = context.Camera;
 
             GL.ReadPixels((int)position.X, (int)position.Y, 1, 1, PixelFormat.DepthComponent, PixelType.Float, ref Depth);
+
             //Get normalized depth for z depth
             if (Depth == 1.0f)
                 NormalizedPickingDepth = camera.ZFar;
