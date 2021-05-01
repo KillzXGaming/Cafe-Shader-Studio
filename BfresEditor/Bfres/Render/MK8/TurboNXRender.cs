@@ -154,9 +154,9 @@ namespace BfresEditor
             public Vector4 Color = new Vector4(0);
         }
 
-        public static GLTextureCube DiffuseLightmapTextureID;
-        static GLTexture2D ProjectionTextureID;
-        static GLTexture2D DepthShadowCascadeTextureID;
+        public static GLTextureCube DiffuseLightmapTexture;
+        static GLTexture2D ProjectionTexture;
+        static GLTexture2D DepthShadowCascadeTexture;
         static GLTexture2D NormalizedLinearDepth;
 
         static void InitTextures()
@@ -167,16 +167,16 @@ namespace BfresEditor
 
             CubemapManager.InitDefault(cubemap);
 
-            /*    CubeMapTextureID = GLTextureCubeArray.CreateEmptyCubemap(
+            /*    CubeMapTexture = GLTextureCubeArray.CreateEmptyCubemap(
                     4, PixelInternalFormat.Rgba, PixelFormat.Rgba, PixelType.UnsignedByte);
-                CubeMapTextureID.GenerateMipmaps();*/
+                CubeMapTexture.GenerateMipmaps();*/
 
-            //  CubeMapTextureID = GLTextureCubeArray.FromDDS(
+            //  CubeMapTexture = GLTextureCubeArray.FromDDS(
             // new DDS(new MemoryStream(Resources.ReflectionCubemap)));
 
             //Diffuse cubemap lighting
             //Map gets updated when an object moves using probe lighting.
-            DiffuseLightmapTextureID = GLTextureCube.FromDDS(
+            DiffuseLightmapTexture = GLTextureCube.FromDDS(
                 new DDS(new MemoryStream(Resources.CubemapLightmap)),
                 new DDS(new MemoryStream(Resources.CubemapLightmapShadow)));
 
@@ -193,10 +193,10 @@ namespace BfresEditor
             //Alpha - Usually gray
             LightingEngine.LightSettings.ShadowPrepassTexture = GLTexture2D.FromBitmap(Resources.white);
 
-            DepthShadowCascadeTextureID = GLTexture2D.FromBitmap(Resources.white);
+            DepthShadowCascadeTexture = GLTexture2D.FromBitmap(Resources.white);
 
             //Tire marks
-            ProjectionTextureID = GLTexture2D.FromBitmap(Resources.white);
+            ProjectionTexture = GLTexture2D.FromBitmap(Resources.white);
 
             //Depth information. Likely for shadows
             NormalizedLinearDepth = GLTexture2D.FromBitmap(Resources.black);
@@ -213,19 +213,19 @@ namespace BfresEditor
             GL.TexParameter(cubemap.Target, TextureParameterName.TextureWrapR, (int)TextureWrapMode.ClampToEdge);
             cubemap.Unbind();
 
-            DiffuseLightmapTextureID.Bind();
+            DiffuseLightmapTexture.Bind();
             GL.TexParameter(cubemap.Target, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Linear);
             GL.TexParameter(cubemap.Target, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.LinearMipmapLinear);
-            GL.TexParameter(DiffuseLightmapTextureID.Target, TextureParameterName.TextureBaseLevel, 0);
-            GL.TexParameter(DiffuseLightmapTextureID.Target, TextureParameterName.TextureMaxLevel, 2);
-            DiffuseLightmapTextureID.Unbind();
+            GL.TexParameter(DiffuseLightmapTexture.Target, TextureParameterName.TextureBaseLevel, 0);
+            GL.TexParameter(DiffuseLightmapTexture.Target, TextureParameterName.TextureMaxLevel, 2);
+            DiffuseLightmapTexture.Unbind();
 
             LightingEngine.LightSettings.InitTextures();
         }
 
         public override void Render(GLContext control, ShaderProgram shader, GenericPickableMesh mesh)
         {
-            if (DiffuseLightmapTextureID == null)
+            if (DiffuseLightmapTexture == null)
                 InitTextures();
 
             control.UseSRBFrameBuffer = true;
@@ -524,7 +524,7 @@ namespace BfresEditor
 
         void LoadLightingTextures(ShaderProgram shader, int id)
         {
-            if (DiffuseLightmapTextureID == null)
+            if (DiffuseLightmapTexture == null)
                 return;
 
             id++;
@@ -537,12 +537,12 @@ namespace BfresEditor
             else if (lightSettings.Lightmaps.ContainsKey(AreaIndex))
                 LoadTexture(shader, lightSettings.Lightmaps[AreaIndex], 11, id++);
             else
-                LoadTexture(shader, DiffuseLightmapTextureID, 11, id++);
+                LoadTexture(shader, DiffuseLightmapTexture, 11, id++);
 
             LoadTexture(shader, CubemapManager.CubeMapTexture, 12, id++);
             LoadTexture(shader, LightingEngine.LightSettings.ShadowPrepassTexture, 13, id++);
-            LoadTexture(shader, DepthShadowCascadeTextureID, 14, id++);
-            LoadTexture(shader, ProjectionTextureID, 15, id++);
+            LoadTexture(shader, DepthShadowCascadeTexture, 14, id++);
+            LoadTexture(shader, ProjectionTexture, 15, id++);
             LoadTexture(shader, lightSettings.LightPrepassTexture, 16, id++);
             LoadTexture(shader, NormalizedLinearDepth, 18, id++);
         }

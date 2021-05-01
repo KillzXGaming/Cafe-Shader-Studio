@@ -176,55 +176,55 @@ namespace BfresEditor
             return material.Material.RenderInfos.ContainsKey("shadingModel");
         }
 
-        static GLTexture2D ShadowDepthNearTextureID;
-        static GLTexture2D ShadowDepthFarTextureID;
-        static GLTexture2D ShadowDepthCharTextureID;
-        static GLTexture2D ColorBufferTextureID;
-        static GLTexture2D DepthBufferTextureID;
-        static GLTextureCube DiffuseCubemapTextureID;
-        static GLTextureCube SpecularCubemapTextureID;
+        static GLTexture2D ShadowDepthNearTexture;
+        static GLTexture2D ShadowDepthFarTexture;
+        static GLTexture2D ShadowDepthCharTexture;
+        static GLTexture2D ColorBufferTexture;
+        static GLTexture2D DepthBufferTexture;
+        static GLTextureCube DiffuseCubemapTexture;
+        static GLTextureCube SpecularCubemapTexture;
         static GLTexture2D HalfTone;
 
         static void InitTextures()
         {
             //Cube maps
-            DiffuseCubemapTextureID = GLTextureCube.FromDDS(
+            DiffuseCubemapTexture = GLTextureCube.FromDDS(
                 new DDS($"Resources\\CubemapIrradianceDefault.dds"));
 
-            DiffuseCubemapTextureID.Bind();
-            DiffuseCubemapTextureID.MagFilter = TextureMagFilter.Linear;
-            DiffuseCubemapTextureID.MinFilter = TextureMinFilter.Linear;
-            DiffuseCubemapTextureID.UpdateParameters();
+            DiffuseCubemapTexture.Bind();
+            DiffuseCubemapTexture.MagFilter = TextureMagFilter.Linear;
+            DiffuseCubemapTexture.MinFilter = TextureMinFilter.Linear;
+            DiffuseCubemapTexture.UpdateParameters();
 
-            GL.TexParameter(DiffuseCubemapTextureID.Target, TextureParameterName.TextureBaseLevel, 0);
-            GL.TexParameter(DiffuseCubemapTextureID.Target, TextureParameterName.TextureMaxLevel, 0);
-            DiffuseCubemapTextureID.Unbind();
+            GL.TexParameter(DiffuseCubemapTexture.Target, TextureParameterName.TextureBaseLevel, 0);
+            GL.TexParameter(DiffuseCubemapTexture.Target, TextureParameterName.TextureMaxLevel, 0);
+            DiffuseCubemapTexture.Unbind();
 
-            SpecularCubemapTextureID = GLTextureCube.FromDDS(new DDS($"Resources\\CubemapDefault.dds"));
+            SpecularCubemapTexture = GLTextureCube.FromDDS(new DDS($"Resources\\CubemapDefault.dds"));
 
-            SpecularCubemapTextureID.Bind();
-            SpecularCubemapTextureID.MagFilter = TextureMagFilter.Linear;
-            SpecularCubemapTextureID.MinFilter = TextureMinFilter.LinearMipmapLinear;
-            SpecularCubemapTextureID.UpdateParameters();
+            SpecularCubemapTexture.Bind();
+            SpecularCubemapTexture.MagFilter = TextureMagFilter.Linear;
+            SpecularCubemapTexture.MinFilter = TextureMinFilter.LinearMipmapLinear;
+            SpecularCubemapTexture.UpdateParameters();
 
-            GL.TexParameter(SpecularCubemapTextureID.Target, TextureParameterName.TextureBaseLevel, 0);
-            GL.TexParameter(SpecularCubemapTextureID.Target, TextureParameterName.TextureMaxLevel, 7);
-            SpecularCubemapTextureID.Unbind();
+            GL.TexParameter(SpecularCubemapTexture.Target, TextureParameterName.TextureBaseLevel, 0);
+            GL.TexParameter(SpecularCubemapTexture.Target, TextureParameterName.TextureMaxLevel, 7);
+            SpecularCubemapTexture.Unbind();
 
             //Shadows
-            ShadowDepthNearTextureID = GLTexture2D.FromBitmap(Resources.white);
-            ShadowDepthFarTextureID = GLTexture2D.FromBitmap(Resources.white);
-            ShadowDepthCharTextureID = GLTexture2D.FromBitmap(Resources.white);
+            ShadowDepthNearTexture = GLTexture2D.FromBitmap(Resources.white);
+            ShadowDepthFarTexture = GLTexture2D.FromBitmap(Resources.white);
+            ShadowDepthCharTexture = GLTexture2D.FromBitmap(Resources.white);
 
             //Extra
-            ColorBufferTextureID = GLTexture2D.FromBitmap(Resources.black);
-            DepthBufferTextureID = GLTexture2D.FromBitmap(Resources.black);
+            ColorBufferTexture = GLTexture2D.FromBitmap(Resources.black);
+            DepthBufferTexture = GLTexture2D.FromBitmap(Resources.black);
             HalfTone = GLTexture2D.FromBitmap(Resources.dot);
         }
 
         public override void Render(GLContext control, ShaderProgram shader, GenericPickableMesh mesh)
         {
-            if (DiffuseCubemapTextureID == null)
+            if (DiffuseCubemapTexture == null)
                 InitTextures();
 
             base.Render(control, shader, mesh);
@@ -429,15 +429,15 @@ namespace BfresEditor
         {
             id++;
 
-            BindTexture(shader, ShadowDepthNearTextureID, GetSamplerID("shadowMapNear"), id++);
-            BindTexture(shader, ShadowDepthFarTextureID, GetSamplerID("shadowMapFar"), id++);
-            BindTexture(shader, ShadowDepthFarTextureID, GetSamplerID("shadowMapDecoBg"), id++);
-            BindTexture(shader, ShadowDepthFarTextureID, GetSamplerID("shadowMapDecoLand"), id++);
-            BindTexture(shader, ShadowDepthCharTextureID, GetSamplerID("shadowMapChara"), id++);
-            BindTexture(shader, ColorBufferTextureID, GetSamplerID("refractionColorBuffer"), id++);
-            BindTexture(shader, DepthBufferTextureID, GetSamplerID("refractionDepthBuffer"), id++);
-            BindTexture(shader, DiffuseCubemapTextureID, GetSamplerID("diffuseEnv"), id++);
-            BindTexture(shader, SpecularCubemapTextureID, GetSamplerID("specularEnv"), id++);
+            BindTexture(shader, ShadowDepthNearTexture, GetSamplerID("shadowMapNear"), id++);
+            BindTexture(shader, ShadowDepthFarTexture, GetSamplerID("shadowMapFar"), id++);
+            BindTexture(shader, ShadowDepthFarTexture, GetSamplerID("shadowMapDecoBg"), id++);
+            BindTexture(shader, ShadowDepthFarTexture, GetSamplerID("shadowMapDecoLand"), id++);
+            BindTexture(shader, ShadowDepthCharTexture, GetSamplerID("shadowMapChara"), id++);
+            BindTexture(shader, ColorBufferTexture, GetSamplerID("refractionColorBuffer"), id++);
+            BindTexture(shader, DepthBufferTexture, GetSamplerID("refractionDepthBuffer"), id++);
+            BindTexture(shader, DiffuseCubemapTexture, GetSamplerID("diffuseEnv"), id++);
+            BindTexture(shader, SpecularCubemapTexture, GetSamplerID("specularEnv"), id++);
             BindTexture(shader, HalfTone, GetSamplerID("halftoneDot"), id++);
         }
 

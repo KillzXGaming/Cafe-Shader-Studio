@@ -98,60 +98,60 @@ namespace BfresEditor
         }
 
 
-        static GLTexture2D ProjectionTextureID;
-        static GLTexture2D StaticShadowTextureID;
-        static GLTexture2D DepthShadowCascadeTextureID;
+        static GLTexture2D ProjectionTexture;
+        static GLTexture2D StaticShadowTexture;
+        static GLTexture2D DepthShadowCascadeTexture;
 
-        static GLTextureCube DiffuseLightmapTextureID;
+        static GLTextureCube DiffuseLightmapTexture;
 
-        static GLTexture2D UserData0TextureID; 
-        static GLTextureCubeArray PrefilterCubeArrayTextureID;
-        static GLTexture2D BrdfTextureID;
-        static GLTexture2D UserData3TextureID;
-        static GLTexture2DArray TableTextureID;
-        static GLTexture2D UserData5TextureID; //Height or paint map (sampler2 in yuzu)
+        static GLTexture2D UserData0Texture; 
+        static GLTextureCubeArray PrefilterCubeArrayTexture;
+        static GLTexture2D BrdfTexture;
+        static GLTexture2D UserData3Texture;
+        static GLTexture2DArray TableTexture;
+        static GLTexture2D UserData5Texture; //Height or paint map (sampler2 in yuzu)
 
-        static GLTexture2D ColorBufferTextureID;
-        static GLTexture2D DepthBufferTextureID;
-        static GLTexture2D LightPPTextureID;
-        static GLTexture2DArray SSAOBufferTextureID;
+        static GLTexture2D ColorBufferTexture;
+        static GLTexture2D DepthBufferTexture;
+        static GLTexture2D LightPPTexture;
+        static GLTexture2DArray SSAOBufferTexture;
 
-        static GLTexture2D DepthShadowTextureID;
-        static GLTextureCubeArray DynamicReflectionTextureID;
+        static GLTexture2D DepthShadowTexture;
+        static GLTextureCubeArray DynamicReflectionTexture;
 
         static void InitTextures()
         {
             //Cube maps
-            PrefilterCubeArrayTextureID = GLTextureCubeArray.FromDDS(new DDS($"Resources\\CubemapPrefilter.dds"));
-            DynamicReflectionTextureID = GLTextureCubeArray.FromDDS(new DDS($"Resources\\CubemapHDR.dds"));
+            PrefilterCubeArrayTexture = GLTextureCubeArray.FromDDS(new DDS($"Resources\\CubemapPrefilter.dds"));
+            DynamicReflectionTexture = GLTextureCubeArray.FromDDS(new DDS($"Resources\\CubemapHDR.dds"));
 
-            DiffuseLightmapTextureID = GLTextureCube.FromDDS(
+            DiffuseLightmapTexture = GLTextureCube.FromDDS(
                 new DDS(new MemoryStream(Resources.CubemapLightmap)));
 
             //Shadows
-            DepthShadowTextureID = GLTexture2D.FromBitmap(Resources.white);
-            DepthShadowCascadeTextureID = GLTexture2D.FromBitmap(Resources.white);
-            StaticShadowTextureID = GLTexture2D.FromBitmap(Resources.white);
+            DepthShadowTexture = GLTexture2D.FromBitmap(Resources.white);
+            DepthShadowCascadeTexture = GLTexture2D.FromBitmap(Resources.white);
+            StaticShadowTexture = GLTexture2D.FromBitmap(Resources.white);
 
             //Extra
-            ProjectionTextureID = GLTexture2D.FromBitmap(Resources.white);
-            LightPPTextureID = GLTexture2D.FromBitmap(Resources.black);
+            ProjectionTexture = GLTexture2D.FromBitmap(Resources.white);
+            LightPPTexture = GLTexture2D.FromBitmap(Resources.black);
 
-            UserData0TextureID = GLTexture2D.FromBitmap(Resources.black);
-            BrdfTextureID = GLTexture2D.FromGeneric(
+            UserData0Texture = GLTexture2D.FromBitmap(Resources.black);
+            BrdfTexture = GLTexture2D.FromGeneric(
                 new DDS(new MemoryStream(Resources.brdf)), new ImageParameters());
-            UserData3TextureID = GLTexture2D.FromBitmap(Resources.black);
-            TableTextureID = GLTexture2DArray.FromBitmap(Resources.white);
-            UserData5TextureID = GLTexture2D.FromBitmap(Resources.black);
+            UserData3Texture = GLTexture2D.FromBitmap(Resources.black);
+            TableTexture = GLTexture2DArray.FromBitmap(Resources.white);
+            UserData5Texture = GLTexture2D.FromBitmap(Resources.black);
 
-            ColorBufferTextureID = GLTexture2D.FromBitmap(Resources.black);
-            DepthBufferTextureID = GLTexture2D.FromBitmap(Resources.black);
-            SSAOBufferTextureID = GLTexture2DArray.FromBitmap(Resources.white);
+            ColorBufferTexture = GLTexture2D.FromBitmap(Resources.black);
+            DepthBufferTexture = GLTexture2D.FromBitmap(Resources.black);
+            SSAOBufferTexture = GLTexture2DArray.FromBitmap(Resources.white);
         }
 
         public override void Render(GLContext control, ShaderProgram shader, GenericPickableMesh mesh)
         {
-            if (PrefilterCubeArrayTextureID == null)
+            if (PrefilterCubeArrayTexture == null)
                 InitTextures();
 
             base.Render(control, shader, mesh);
@@ -470,22 +470,22 @@ namespace BfresEditor
         {
             id++;
 
-            BindTexture(shader, ProjectionTextureID, 16, id++);
-            BindTexture(shader, StaticShadowTextureID, 17, id++);
-            BindTexture(shader, DepthShadowCascadeTextureID, 18, id++);
-            BindTexture(shader, PrefilterCubeArrayTextureID, 19, id++);
-            BindTexture(shader, BrdfTextureID, 20, id++);
-            BindTexture(shader, DiffuseLightmapTextureID, 21, id++);
-            BindTexture(shader, UserData0TextureID, 22, id++);
-            BindTexture(shader, UserData3TextureID, 23, id++);
-            BindTexture(shader, TableTextureID, 24, id++);
-            BindTexture(shader, UserData5TextureID, 25, id++);
-            BindTexture(shader, ColorBufferTextureID, 26, id++);
-            BindTexture(shader, DepthBufferTextureID, 27, id++);
-            BindTexture(shader, LightPPTextureID, 28, id++);
-            BindTexture(shader, SSAOBufferTextureID, 29, id++);
-            BindTexture(shader, DepthShadowTextureID, 30, id++);
-           // BindTexture(shader, DynamicReflectionTextureID, 31, id++);
+            BindTexture(shader, ProjectionTexture, 16, id++);
+            BindTexture(shader, StaticShadowTexture, 17, id++);
+            BindTexture(shader, DepthShadowCascadeTexture, 18, id++);
+            BindTexture(shader, PrefilterCubeArrayTexture, 19, id++);
+            BindTexture(shader, BrdfTexture, 20, id++);
+            BindTexture(shader, DiffuseLightmapTexture, 21, id++);
+            BindTexture(shader, UserData0Texture, 22, id++);
+            BindTexture(shader, UserData3Texture, 23, id++);
+            BindTexture(shader, TableTexture, 24, id++);
+            BindTexture(shader, UserData5Texture, 25, id++);
+            BindTexture(shader, ColorBufferTexture, 26, id++);
+            BindTexture(shader, DepthBufferTexture, 27, id++);
+            BindTexture(shader, LightPPTexture, 28, id++);
+            BindTexture(shader, SSAOBufferTexture, 29, id++);
+            BindTexture(shader, DepthShadowTexture, 30, id++);
+           // BindTexture(shader, DynamicReflectionTexture, 31, id++);
         }
 
         static void BindTexture(ShaderProgram shader, GLTexture texture, int slot, int id)

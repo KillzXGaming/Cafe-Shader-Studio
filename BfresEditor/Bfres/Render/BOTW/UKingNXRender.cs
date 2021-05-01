@@ -112,24 +112,24 @@ namespace BfresEditor
             public Vector4 Color = new Vector4(0);
         }
 
-        static GLTextureCubeArray CubeMapTextureID;
-        public static GLTextureCube DiffuseLightmapTextureID;
-        static GLTexture2D DepthShadowTextureID;
-        static GLTexture2D ProjectionTextureID;
-        static GLTexture2DArray LightPPTextureID;
-        static GLTexture2D DepthShadowCascadeTextureID;
+        static GLTextureCubeArray CubeMapTexture;
+        public static GLTextureCube DiffuseLightmapTexture;
+        static GLTexture2D DepthShadowTexture;
+        static GLTexture2D ProjectionTexture;
+        static GLTexture2DArray LightPPTexture;
+        static GLTexture2D DepthShadowCascadeTexture;
         static GLTexture2D NormalizedLinearDepth;
 
         static void InitTextures()
         {
             //Reflective cubemap
-            CubeMapTextureID = GLTextureCubeArray.FromDDS(new DDS($"Resources\\CubemapHDR.dds"));
+            CubeMapTexture = GLTextureCubeArray.FromDDS(new DDS($"Resources\\CubemapHDR.dds"));
 
-            CubemapManager.InitDefault(CubeMapTextureID);
+            CubemapManager.InitDefault(CubeMapTexture);
 
             //Diffuse cubemap lighting
             //Map gets updated when an object moves using probe lighting.
-            DiffuseLightmapTextureID = GLTextureCube.FromDDS(
+            DiffuseLightmapTexture = GLTextureCube.FromDDS(
                 new DDS(new MemoryStream(Resources.CubemapLightmap)),
                 new DDS(new MemoryStream(Resources.CubemapLightmapShadow)));
 
@@ -139,37 +139,37 @@ namespace BfresEditor
             //Green - Static shadows (course)
             //Blue - Soft shading (under kart, dynamic AO?)
             //Alpha - Usually gray
-            DepthShadowTextureID = GLTexture2D.FromBitmap(Resources.white);
+            DepthShadowTexture = GLTexture2D.FromBitmap(Resources.white);
 
-            DepthShadowCascadeTextureID = GLTexture2D.FromBitmap(Resources.white);
+            DepthShadowCascadeTexture = GLTexture2D.FromBitmap(Resources.white);
 
             //Tire marks
-            ProjectionTextureID = GLTexture2D.FromBitmap(Resources.white);
+            ProjectionTexture = GLTexture2D.FromBitmap(Resources.white);
 
             //Used for dynamic lights. Ie spot, point, kart lights
             //Dynamic lights are setup using the g buffer pass (normals) and depth information before material pass is drawn
             //Additional slices may be used for bloom intensity
-            LightPPTextureID = GLTexture2DArray.FromBitmap(Resources.black);
+            LightPPTexture = GLTexture2DArray.FromBitmap(Resources.black);
 
             //Depth information. Likely for shadows
             NormalizedLinearDepth = GLTexture2D.FromBitmap(Resources.black);
 
             //Adjust mip levels
 
-            CubeMapTextureID.Bind();
-            GL.TexParameter(CubeMapTextureID.Target, TextureParameterName.TextureBaseLevel, 0);
-            GL.TexParameter(CubeMapTextureID.Target, TextureParameterName.TextureMaxLevel, 13);
-            CubeMapTextureID.Unbind();
+            CubeMapTexture.Bind();
+            GL.TexParameter(CubeMapTexture.Target, TextureParameterName.TextureBaseLevel, 0);
+            GL.TexParameter(CubeMapTexture.Target, TextureParameterName.TextureMaxLevel, 13);
+            CubeMapTexture.Unbind();
 
-            DiffuseLightmapTextureID.Bind();
-            GL.TexParameter(DiffuseLightmapTextureID.Target, TextureParameterName.TextureBaseLevel, 0);
-            GL.TexParameter(DiffuseLightmapTextureID.Target, TextureParameterName.TextureMaxLevel, 2);
-            DiffuseLightmapTextureID.Unbind();
+            DiffuseLightmapTexture.Bind();
+            GL.TexParameter(DiffuseLightmapTexture.Target, TextureParameterName.TextureBaseLevel, 0);
+            GL.TexParameter(DiffuseLightmapTexture.Target, TextureParameterName.TextureMaxLevel, 2);
+            DiffuseLightmapTexture.Unbind();
         }
 
         public override void Render(GLContext control, ShaderProgram shader, GenericPickableMesh mesh)
         {
-            if (CubeMapTextureID == null)
+            if (CubeMapTexture == null)
                 InitTextures();
 
          //   control.ScreenBuffer.SetDrawBuffers(
@@ -438,15 +438,15 @@ namespace BfresEditor
 
         void LoadLightingTextures(ShaderProgram shader, int id)
         {
-            if (DiffuseLightmapTextureID == null)
+            if (DiffuseLightmapTexture == null)
                 return;
 
-            BindTexture(shader, DiffuseLightmapTextureID, 11, id++);
+            BindTexture(shader, DiffuseLightmapTexture, 11, id++);
             BindTexture(shader, CubemapManager.CubeMapTexture, 12, id++);
-            BindTexture(shader, DepthShadowTextureID, 13, id++);
-            BindTexture(shader, DepthShadowCascadeTextureID, 14, id++);
-            BindTexture(shader, ProjectionTextureID, 15, id++);
-            BindTexture(shader, LightPPTextureID, 16, id++);
+            BindTexture(shader, DepthShadowTexture, 13, id++);
+            BindTexture(shader, DepthShadowCascadeTexture, 14, id++);
+            BindTexture(shader, ProjectionTexture, 15, id++);
+            BindTexture(shader, LightPPTexture, 16, id++);
             BindTexture(shader, NormalizedLinearDepth, 18, id++);
         }
 
