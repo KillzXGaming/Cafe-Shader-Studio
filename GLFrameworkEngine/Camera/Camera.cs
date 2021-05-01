@@ -351,16 +351,12 @@ namespace GLFrameworkEngine
 
         private void UpdateMode()
         {
-            ResetTransform();
-
             if (Mode == CameraMode.Inspect)
                 Controller = new InspectCameraController(this);
             else if (Mode == CameraMode.Walk)
                 Controller = new WalkCameraController(this);
             else
                 throw new Exception($"Invalid camera mode! {Mode}");
-
-            UpdateMatrices();
         }
 
         private void UpdateDirection()
