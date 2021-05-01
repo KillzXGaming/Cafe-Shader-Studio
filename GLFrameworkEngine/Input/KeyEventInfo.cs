@@ -9,7 +9,7 @@ namespace GLFrameworkEngine
 {
     public class KeyEventInfo
     {
-        public char KeyChar { get; set; }
+        public List<char> KeyChars { get; set; } = new List<char>();
 
         public bool KeyShift { get; set; }
         public bool KeyCtrl { get; set; }
@@ -17,7 +17,7 @@ namespace GLFrameworkEngine
 
         public bool IsKeyDown(char key)
         {
-            return key == KeyChar;
+            return KeyChars.Contains(key);
         }
     }
 }

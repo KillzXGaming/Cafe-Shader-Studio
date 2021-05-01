@@ -22,6 +22,11 @@ namespace GLFrameworkEngine
         public float PanSpeed { get; set; } = 1.0f;
 
         /// <summary>
+        /// The move speed of the camera used when using key movements.
+        /// </summary>
+        public float KeyMoveSpeed { get; set; } = 10.0f;
+
+        /// <summary>
         /// The width of the camera fustrum.
         /// </summary>
         public int Width { get; set; }
@@ -178,9 +183,14 @@ namespace GLFrameworkEngine
         }
 
         /// <summary>
-        /// Inverts the camera rotation controls.
+        /// Inverts the camera rotation controls on the X axis.
         /// </summary>
-        public bool InvertRotation { get; set; } = false;
+        public bool InvertRotationX { get; set; } = false;
+
+        /// <summary>
+        /// Inverts the camera rotation controls on the Y axis.
+        /// </summary>
+        public bool InvertRotationY { get; set; } = false;
 
         /// <summary>
         /// The factor of the camera fustrum on the X axis.
@@ -241,6 +251,9 @@ namespace GLFrameworkEngine
             }
         }
 
+        /// <summary>
+        /// Gets the calculated projection matrix.
+        /// </summary>
         public Matrix4 GetProjectionMatrix()
         {
             if (IsOrthographic)
@@ -252,6 +265,9 @@ namespace GLFrameworkEngine
                 return Matrix4.CreatePerspectiveFieldOfView(Fov, AspectRatio, ZNear, ZFar);
         }
 
+        /// <summary>
+        /// Gets the calculated view matrix.
+        /// </summary>
         public Matrix4 GetViewMatrix()
         {
             var translationMatrix = Matrix4.CreateTranslation(Translation.X, -Translation.Y, Translation.Z);
@@ -284,11 +300,15 @@ namespace GLFrameworkEngine
             Translation = translation;
         }
 
+        /// <summary>
+        /// Gets the 3D coordinates for the given mouse XY coordinates and depth value.
+        /// </summary>
+        /// <returns></returns>
         public Vector3 CoordFor(int x, int y, float depth)
         {
             Vector3 vec;
 
-            Vector2 normCoords = OpenGLHelper.NormMouseCoords(x, y, Width, Height);
+            Vector2 normCoords = OpenGLHelper.NormMouseCoords(x, Height - y, Width, Height);
 
             vec.X = (normCoords.X * depth) * FactorX;
             vec.Y = (normCoords.Y * depth) * FactorY;
@@ -307,8 +327,8 @@ namespace GLFrameworkEngine
         {
             if (Mode == CameraMode.Inspect)
                 Controller = new InspectCameraController(this);
-         //   else if (Mode == CameraMode.Walk)
-          //      Controller = new WalkCameraController(this);
+           // else if (Mode == CameraMode.Walk)
+           //     Controller = new WalkCameraController(this);
             else
                 throw new Exception($"Invalid camera mode! {Mode}");
         }
@@ -357,15 +377,17 @@ namespace GLFrameworkEngine
 
         public enum CameraMode
         {
-        //    Walk,
+          //  Walk,
             Inspect,
         }
     }
 
-
     public class WalkCameraController : ICameraController
     {
         private Camera _camera;
+
+        private float rotFactorX => _camera.InvertRotationX ? -0.01f : 0.01f;
+        private float rotFactorY => _camera.InvertRotationY ? -0.01f : 0.01f;
 
         public WalkCameraController(Camera camera)
         {
@@ -381,22 +403,60 @@ namespace GLFrameworkEngine
 
             if (e.RightButton == ButtonState.Pressed && !_camera.LockRotation)
             {
-                _camera.RotationX += movement.Y / 100f;
-                _camera.RotationY += movement.X / 100f;
+                if (k.KeyCtrl)
+                {
+                    float delta = ((float)movement.Y * -5 * Math.Min(0.01f, _camera.Depth / 500f));
+                    Vector3 vec;
+                    vec.X = 0;
+                    vec.Y = 0;
+                    vec.Z = delta;
 
-                //Reset direction
-                _camera.Direction = Camera.FaceDirection.Any;
+                    _camera.Translation += Vector3.Transform(_camera.InverseRotationMatrix, vec);
+                }
+                else
+                {
+                    if (!k.IsKeyDown('y'))
+                        _camera.RotationX += movement.Y * rotFactorX;
+                    if (!k.IsKeyDown('x'))
+                        _camera.RotationY += movement.X * rotFactorY;
+
+                    //Reset direction
+                    _camera.Direction = Camera.FaceDirection.Any;
+                }
+            }
+            if (e.LeftButton == ButtonState.Pressed)
+            {
+
             }
         }
 
         public void MouseWheel(MouseEventInfo e, KeyEventInfo k)
         {
+            float delta = (e.Delta * Math.Min(k.KeyShift ? 0.04f : 0.01f, _camera.Depth / 500f));
 
+            Vector3 vec;
+
+            Vector2 normCoords = OpenGLHelper.NormMouseCoords(e.X, e.Y, _camera.Width, _camera.Height);
+
+            vec.X = (-normCoords.X * delta) * _camera.FactorX;
+            vec.Y = (normCoords.Y * delta) * _camera.FactorY;
+            vec.Z = delta;
+
+            _camera.Translation += Vector3.Transform(_camera.InverseRotationMatrix, vec);
         }
 
         public void KeyPress(KeyEventInfo e)
         {
+            float movement = 0.2f * _camera.KeyMoveSpeed;
 
+            if (e.IsKeyDown(KeyController.View3D.MOVE_FORWARD))
+                _camera._translation.Z += movement;
+            if (e.IsKeyDown(KeyController.View3D.MOVE_BACK))
+                _camera._translation.Z -= movement;
+            if (e.IsKeyDown(KeyController.View3D.MOVE_LEFT))
+                _camera._translation.X += movement;
+            if (e.IsKeyDown(KeyController.View3D.MOVE_RIGHT))
+                _camera._translation.X -= movement;
         }
     }
 
@@ -404,8 +464,8 @@ namespace GLFrameworkEngine
     {
         private Camera _camera;
 
-        private float rotFactorX => _camera.InvertRotation ? -0.01f : 0.01f;
-        private float rotFactorY => _camera.InvertRotation ? -0.01f : 0.01f;
+        private float rotFactorX => _camera.InvertRotationX ? -0.01f : 0.01f;
+        private float rotFactorY => _camera.InvertRotationY ? -0.01f : 0.01f;
 
         public InspectCameraController(Camera camera)
         {
@@ -472,13 +532,16 @@ namespace GLFrameworkEngine
 
         public void KeyPress(KeyEventInfo e)
         {
-            switch (e.KeyChar)
-            {
-                case 'w': break;
-                case 'a': break;
-                case 's': break;
-                case 'd': break;
-            }
+            float movement = 0.2f * _camera.KeyMoveSpeed;
+
+            if (e.IsKeyDown(KeyController.View3D.MOVE_FORWARD))
+                _camera._translation.Z += movement;
+            if (e.IsKeyDown(KeyController.View3D.MOVE_BACK))
+                _camera._translation.Z -= movement;
+            if (e.IsKeyDown(KeyController.View3D.MOVE_LEFT))
+                _camera._translation.X += movement;
+            if (e.IsKeyDown(KeyController.View3D.MOVE_RIGHT))
+                _camera._translation.X -= movement;
         }
 
         private void Pan(float xAmount, float yAmount, bool scaleByDistanceToOrigin = true)
