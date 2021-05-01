@@ -137,31 +137,5 @@ namespace GLFrameworkEngine
             GL.DeleteBuffer(ID);
             Buffer.Clear();
         }
-
-        int activeAttributeBlockCount;
-
-        static Dictionary<string, int> vertexBlocks = new Dictionary<string, int>();
-        static Dictionary<string, int> fragmentBlocks = new Dictionary<string, int>();
-
-        private void LoadUniorms(int program)
-        {
-            vertexBlocks.Clear();
-            fragmentBlocks.Clear();
-
-            GL.GetProgram(program, GetProgramParameterName.ActiveUniformBlocks, out activeAttributeBlockCount);
-            for (int i = 0; i < activeAttributeBlockCount; i++)
-            {
-                string name = GL.GetActiveUniformBlockName(program, i);
-                int index = GL.GetUniformBlockIndex(program, name);
-
-                // Overwrite existing blocks.
-                if (name.Contains("fp_"))
-                    fragmentBlocks[name] = index;
-                if (name.Contains("vp_"))
-                    vertexBlocks[name] = index;
-
-                Console.WriteLine($"SHADERBLOCK {name} {index}");
-            }
-        }
     }
 }

@@ -42,7 +42,6 @@ namespace GLFrameworkEngine
             return;
 
             Shaders.Add("BLOOM_EXTRACT", LoadShader("BloomExtract"));
-            Shaders.Add("BLOOM_EXTRACT_AGL", LoadShader("BloomExtractAGL"));
             Shaders.Add("LIGHTPREPASS", LoadShader("LightPrepass"));
             Shaders.Add("PROBE", LoadShader("ProbeCubemap"));
             Shaders.Add("CUBEMAP_FILTER", LoadShader("CubemapFilter"));
@@ -50,9 +49,6 @@ namespace GLFrameworkEngine
             Shaders.Add("SHADOWPREPASS", LoadShader("ShadowPrepass"));
 
             Shaders.Add("LUT_DISPLAY", LoadShader("LUT/LutDisplay"));
-
-
-
         }
 
         public static ShaderProgram GetShader(string key, string path)

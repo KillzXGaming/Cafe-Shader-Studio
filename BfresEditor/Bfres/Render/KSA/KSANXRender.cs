@@ -320,14 +320,6 @@ namespace BfresEditor
             block.Buffer.AddRange(mem.ToArray());
         }
 
-        private void WriteColor(Toolbox.Core.IO.FileWriter writer, System.Numerics.Vector4 col)
-        {
-            writer.Write(col.X);
-            writer.Write(col.Y);
-            writer.Write(col.Z);
-            writer.Write(col.W);
-        }
-
         public override void SetShapeBlock(BfresMeshAsset mesh, Matrix4 transform, UniformBlock block)
         {
             int numSkinning = (int)mesh.SkinCount;

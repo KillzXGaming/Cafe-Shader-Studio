@@ -24,7 +24,6 @@ namespace BfresEditor
 
         public static GLFrameworkEngine.ShaderProgram DefaultShader => GlobalShaders.GetShader("BFRES", "BFRES/Bfres");
         public static GLFrameworkEngine.ShaderProgram ShadowProgram => GlobalShaders.GetShader("BFRES", "BFRES/Picking");
-        public static GLFrameworkEngine.ShaderProgram LowQaulityProgram => GlobalShaders.GetShader("BFRES", "BFRES/BfresLow");
         private static GLFrameworkEngine.ShaderProgram PickingShaderCustom=> GlobalShaders.GetShader("BFRES", "BFRES/Shadow");
 
         //List for mesh picking
