@@ -155,11 +155,11 @@ namespace CafeStudio.UI
 
         public void PickScene(MouseEventInfo e, bool selectAction)
         {
+            if (!_context.ColorPicker.EnablePicking)
+                return;
+
             if (selectAction && !Keyboard.GetState().IsKeyDown(Key.ControlLeft))
-            {
-                foreach (var file in Files)
-                    file.Renderer.IsSelected = false;
-            }
+                _context.Scene.ResetSelected();
 
             OpenTK.Vector2 position = new OpenTK.Vector2(e.Position.X, _context.Height - e.Position.Y);
             var pickable = _context.Scene.FindPickableAtPosition(_context, position);

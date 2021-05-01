@@ -19,6 +19,25 @@ namespace GLFrameworkEngine
 
         public static float PreviewScale { get; set; } = 1.0f;
 
+
+        /// <summary>
+        /// Gets or sets the mouse position after a mouse down event.
+        /// </summary>
+        public Vector2 MouseOrigin { get; set; }
+
+        /// <summary>
+        /// Gets or sets the current mouse postion.
+        /// </summary>
+        public Vector2 CurrentMousePoint = Vector2.Zero;
+
+        /// <summary>
+        /// Gets or sets the offset from the mouse origin.
+        /// </summary>
+        public Vector2 MouseOffset => CurrentMousePoint - MouseOrigin;
+
+        /// <summary>
+        /// Determines to enable SRGB or not for the current context.
+        /// </summary>
         public bool UseSRBFrameBuffer;
 
         public Camera Camera { get; set; }
@@ -40,21 +59,6 @@ namespace GLFrameworkEngine
             n.Z /= n.W;
             return n.Xyz;
         }
-
-        /// <summary>
-        /// Gets or sets the mouse position after a mouse down event.
-        /// </summary>
-        public Vector2 MouseOrigin { get; set; }
-
-        /// <summary>
-        /// Gets or sets the current mouse postion.
-        /// </summary>
-        public Vector2 CurrentMousePoint = Vector2.Zero;
-
-        /// <summary>
-        /// Gets or sets the offset from the mouse origin.
-        /// </summary>
-        public Vector2 MouseOffset => CurrentMousePoint - MouseOrigin;
 
         public void OnMouseDown(MouseEventInfo e) {
             MouseOrigin = new Vector2(e.X, e.Y);

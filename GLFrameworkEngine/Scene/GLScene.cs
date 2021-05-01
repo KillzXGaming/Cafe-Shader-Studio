@@ -17,6 +17,12 @@ namespace GLFrameworkEngine
             return PickableObjects.Where(x => x.IsSelected).ToList();
         }
 
+        public void ResetSelected()
+        {
+            foreach (var file in PickableObjects)
+                file.IsSelected = false;
+        }
+
         public void SetTransformAction(GLTransform transform, TransformActions action)
         {
             switch (action)
