@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Drawing;
 using OpenTK.Graphics.OpenGL;
 using OpenTK;
 
@@ -36,6 +35,13 @@ namespace GLFrameworkEngine
             program = CompileShaders();
         }
 
+
+
+        public ShaderProgram(byte[] binaryData, BinaryFormat format)
+        {
+            GL.ProgramBinary(program, format, binaryData, binaryData.Length);
+        }
+
         public void Link()
         {
             GL.LinkProgram(program);
@@ -50,6 +56,9 @@ namespace GLFrameworkEngine
         }
 
         public void Dispose() {
+            foreach (var shader in shaders)
+                shader.Dispose();
+
             GL.DeleteProgram(program);
         }
 
@@ -214,20 +223,13 @@ namespace GLFrameworkEngine
         }
     }
 
-    public class Shader
+    public class Shader : IDisposable
     {
         public Shader(string src, ShaderType type)
         {
             id = GL.CreateShader(type);
             GL.ShaderSource(id, src);
             GL.CompileShader(id);
-            this.type = type;
-        }
-
-        public Shader(byte[] binaryData, BinaryFormat format, ShaderType type)
-        {
-            id = GL.CreateShader(type);
-            GL.ProgramBinary(id, format, binaryData, binaryData.Length);
             this.type = type;
         }
 
@@ -243,6 +245,10 @@ namespace GLFrameworkEngine
 
         public string GetInfoLog() {
             return GL.GetShaderInfoLog(id);
+        }
+
+        public void Dispose() {
+            GL.DeleteShader(id);
         }
 
         public ShaderType type;

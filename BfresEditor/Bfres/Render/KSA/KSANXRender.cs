@@ -66,8 +66,8 @@ namespace BfresEditor
             {
                 ColorHemiUpper = new Vector4(0, 0, 0, 1.0f);
                 ColorHemiLower = new Vector4(0, 0, 0, 1.0f);
-                ColorHemiLowerMaxRot = -1.5708f;
-                ColorHemiUpperMaxRot = 1.5708f;
+                ColorHemiLowerMaxRotDegrees = -90;
+                ColorHemiUpperMaxRotDegrees = 90;
                 Direction = new Vector3(-0.5773503f, -0.5773503f, -0.5773503f);
                 DirectionalColor = new Vector4(1);
             }
