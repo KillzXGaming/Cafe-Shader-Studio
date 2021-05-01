@@ -11,7 +11,7 @@ using CafeStudio.UI;
 
 namespace BfresEditor
 {
-    public class ShaderProgramViewer
+    public class BfshaShaderProgramViewer
     {
         static string VertexShaderSource;
         static string FragShaderSource;

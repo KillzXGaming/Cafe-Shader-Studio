@@ -56,7 +56,7 @@ namespace BfresEditor
                 Init();
 
 
-            TegraShaderDecoder.ShaderInfo shaderInfo = null;
+            ShaderInfo shaderInfo = null;
             if (material.MaterialAsset is BfshaRenderer)
             {
                 shaderInfo = ((BfshaRenderer)material.MaterialAsset).GLShaderInfo;

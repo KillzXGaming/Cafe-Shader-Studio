@@ -97,11 +97,29 @@ namespace BfresEditor
                 if (material.MaterialAsset is BfshaRenderer)
                 {
                     if (ImguiCustomWidgets.BeginTab("Menu1", "Shader Data")) {
-                        ShaderProgramViewer.Render(material);
+                        BfshaShaderProgramViewer.Render(material);
                         ImGui.EndTabItem();
                     }
                 }
-                
+                else if (material.MaterialAsset is SharcFBRenderer)
+                {
+                    if (ImguiCustomWidgets.BeginTab("Menu1", "Shader Data"))
+                    {
+                        SharcFBShaderProgramViewer.Render(material);
+                        ImGui.EndTabItem();
+                    }
+                }
+
+
+                if (material.MaterialAsset is KSANXRender)
+                {
+                    if (ImguiCustomWidgets.BeginTab("Menu1", "Lighting Data"))
+                    {
+                        ((KSANXRender)material.MaterialAsset).RenderUI();
+                        ImGui.EndTabItem();
+                    }
+                }
+
                 ImGui.EndTabBar();
             }
             ImGui.EndChild();

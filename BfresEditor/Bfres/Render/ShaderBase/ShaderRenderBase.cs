@@ -21,6 +21,12 @@ namespace BfresEditor
         public virtual bool HasValidProgram { get; }
 
         /// <summary>
+        /// Shader information from the decoded shader.
+        /// This is used to store constants and source information.
+        /// </summary>
+        public virtual ShaderInfo GLShaderInfo { get; set; }
+
+        /// <summary>
         /// Determines when to use this renderer for the given material.
         /// This is typically done from the shader archive or shader model name.
         /// The material can also be used for shader specific render information to check.

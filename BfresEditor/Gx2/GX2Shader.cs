@@ -8,27 +8,6 @@ using System.Runtime.InteropServices;
 
 namespace BfresEditor
 {
-    [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    class GX2VertexShaderStuct
-    {
-        public uint sq_pgm_resources_vs;
-        public uint vgt_primitiveid_en;
-        public uint spi_vs_out_config;
-        public uint num_spi_vs_out_id;
-        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 10)]
-        public uint[] spi_vs_out_id;
-
-        public uint pa_cl_vs_out_cntl;
-        public uint sq_vtx_semantic_clear;
-        public uint num_sq_vtx_semantic;
-        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 32)]
-        public uint[] sq_vtx_semantic;
-
-        public uint vgt_strmout_buffer_en;
-        public uint vgt_vertex_reuse_block_cntl;
-        public uint vgt_hos_reuse_depth;
-    }
-
     public class GX2Shader
     {
         public virtual void Write(FileWriter writer)
@@ -128,6 +107,27 @@ namespace BfresEditor
     }
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
+    class GX2VertexShaderStuct
+    {
+        public uint sq_pgm_resources_vs;
+        public uint vgt_primitiveid_en;
+        public uint spi_vs_out_config;
+        public uint num_spi_vs_out_id;
+        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 10)]
+        public uint[] spi_vs_out_id;
+
+        public uint pa_cl_vs_out_cntl;
+        public uint sq_vtx_semantic_clear;
+        public uint num_sq_vtx_semantic;
+        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 32)]
+        public uint[] sq_vtx_semantic;
+
+        public uint vgt_strmout_buffer_en;
+        public uint vgt_vertex_reuse_block_cntl;
+        public uint vgt_hos_reuse_depth;
+    }
+
+    [StructLayout(LayoutKind.Sequential, Pack = 1)]
     class GX2PixelShaderStuct
     {
         public uint sq_pgm_resources_ps;
@@ -159,8 +159,6 @@ namespace BfresEditor
             Count = reader.ReadUInt32();
             Offset = reader.ReadUInt32();
             BlockIndex = reader.ReadUInt32();
-
-           // Console.WriteLine($"GX2Uniform {Name} {Type} Offset {Offset} Count {Count}");
         }
     }
 
@@ -175,8 +173,6 @@ namespace BfresEditor
             Name = reader.ReadNameOffset(false, typeof(uint));
             Type = reader.ReadEnum< GX2SamplerVarType>(false);
             Location = reader.ReadUInt32();
-
-            Console.WriteLine($"GX2SamplerVar {Name} {Type}");
         }
     }
 
@@ -191,8 +187,6 @@ namespace BfresEditor
             Name = reader.ReadNameOffset(false, typeof(uint));
             Offset = reader.ReadUInt32();
             Size = reader.ReadUInt32();
-
-           // Console.WriteLine($"GX2UniformBlock {Name} {Offset} {Size}");
         }
     }
 
@@ -209,8 +203,6 @@ namespace BfresEditor
             Type = reader.ReadEnum<GX2ShaderVarType>(true);
             Count = reader.ReadUInt32();
             Location = reader.ReadInt32();
-
-            Console.WriteLine($"GX2AttributeVar {Name} {Type} {Count} {Location}");
         }
     }
 

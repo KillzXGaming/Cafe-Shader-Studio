@@ -92,8 +92,9 @@ namespace BfresEditor
             }
         }
 
-        public override bool UseRenderer(FMAT material, string archive, string model) {
-            return archive == "Block_UBER"; 
+        public override bool UseRenderer(FMAT material, string archive, string model)
+        {
+            return archive == "Block_UBER";
         }
 
         struct ResMaterial
@@ -276,7 +277,7 @@ namespace BfresEditor
             //Z value controls shadow intensity when a light source hits shadows
             Vector4 light_prepass_param = new Vector4(1, 1, 0, 1);
             Vector4 exposure = new Vector4(1);
-                
+
             block.Buffer.Clear();
             block.Add(shadow_color);
             block.Add(ao_color);
@@ -289,7 +290,7 @@ namespace BfresEditor
                 throw new Exception("Invalid gsys_scene_material size");
         }
 
-        private void SetViewportUniforms(Camera camera,  UniformBlock block)
+        private void SetViewportUniforms(Camera camera, UniformBlock block)
         {
             Matrix4 mdlMat = ParentRenderer.Transform.TransformMatrix;
             var viewMatrix = mdlMat * camera.ViewMatrix;
