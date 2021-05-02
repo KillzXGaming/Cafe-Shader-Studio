@@ -708,7 +708,8 @@ namespace CafeShaderStudio
 
             Pipeline.RenderScene();
 
-            if (ImGui.IsWindowFocused() || ImGui.IsWindowHovered() || _mouseDown)
+            if ((ImGui.IsWindowFocused() && _mouseDown) ||
+                ImGui.IsWindowHovered() || _mouseDown)
             {
                 if (!onEnter)
                 {
