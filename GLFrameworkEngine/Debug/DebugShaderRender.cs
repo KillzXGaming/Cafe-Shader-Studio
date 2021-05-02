@@ -12,8 +12,7 @@ namespace GLFrameworkEngine
     {
         public static void RenderMaterial(GLContext context)
         {
-            var debugShader = GlobalShaders.GetShader("DEBUG");
-            context.CurrentShader = debugShader;
+            var debugShader = context.CurrentShader;
             debugShader.SetInt("debugShading", (int)Runtime.DebugRendering);
             debugShader.SetInt("weightRampType", 2);
             debugShader.SetInt("selectedBoneIndex", Runtime.SelectedBoneIndex);
