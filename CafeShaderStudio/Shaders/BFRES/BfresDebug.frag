@@ -9,6 +9,7 @@ in vec3 normals;
 in vec3 boneWeightsColored;
 in vec3 tangent;
 in vec3 bitangent;
+in vec4 vertexColor;
 
 layout (location = 0) out vec4 fragOutput;
 layout (location = 1) out vec4 brightColor;
@@ -50,6 +51,10 @@ void main(){
     {
         vec3 displayBitangent = (bitangent * 0.5) + 0.5;
         outputColor.rgb = displayBitangent;
+    }
+    if (debugShading == DISPLAY_VTX_CLR)
+    {
+        outputColor.rgb = vertexColor.rgb;
     }
 
     fragOutput = outputColor;

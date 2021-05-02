@@ -204,6 +204,10 @@ namespace BfresEditor
             Count = reader.ReadUInt32();
             Location = reader.ReadInt32();
         }
+
+        public uint GetStreamCount() {
+            return GX2ShaderHelper.GetStreamCount(Type);
+        }
     }
 
     public enum GX2SamplerVarType

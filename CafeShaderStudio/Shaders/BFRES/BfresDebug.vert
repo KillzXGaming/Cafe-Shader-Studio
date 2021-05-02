@@ -30,6 +30,7 @@ out vec3 normals;
 out vec3 boneWeightsColored;
 out vec3 tangent;
 out vec3 bitangent;
+out vec4 vertexColor;
 
 vec4 skin(vec3 pos, ivec4 index)
 {
@@ -123,4 +124,5 @@ void main(){
     texCoord0 = vTexCoord0;
     tangent = vTangent;
     bitangent = vBitangent;
+    vertexColor = vColor;
 }
