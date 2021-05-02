@@ -63,7 +63,10 @@ namespace BfresEditor
                 mesh.Material.ShaderModel);
 
             if (sharcfb == null)
+            {
+                Console.WriteLine($"Failed to sharcfb! {mesh.Material.ShaderArchive}");
                 return;
+            }
 
             OnLoad(sharcfb, fmdl, mesh, meshAsset);
         }
@@ -75,7 +78,10 @@ namespace BfresEditor
         {
             ShaderModel = sharcfb.Programs.FirstOrDefault(x => x.Name == mesh.Material.ShaderModel);
             if (ShaderModel == null)
+            {
+                Console.WriteLine($"Failed to find program! {mesh.Material.ShaderModel}");
                 return;
+            }
 
             ReloadProgram(meshAsset);
 
@@ -219,7 +225,7 @@ namespace BfresEditor
                 return null;
 
             foreach (var file in archiveFile.Files) {
-                if (file.FileName.EndsWith(".sharcfb") && file.FileName.Contains(shaderFile)) {
+                if (file.FileName == $"{shaderFile}.sharcfb"){
                     return new SHARCFB(file.FileData);
                 }
             }

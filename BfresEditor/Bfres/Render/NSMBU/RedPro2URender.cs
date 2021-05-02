@@ -16,7 +16,12 @@ namespace BfresEditor
         public override bool UseSRGB => false;
 
         public override bool UseRenderer(FMAT material, string archive, string model) {
-            return false;
+            return true;
+
+            return material.ShaderParams.ContainsKey("mat_color0") ||
+                   material.ShaderParams.ContainsKey("tev_color0") ||
+                   material.ShaderParams.ContainsKey("amb_color0") ||
+                   material.ShaderParams.ContainsKey("konst0");
         }
 
         public RedPro2URender() { }
