@@ -32,7 +32,12 @@ namespace BfresEditor
             typeof(BlitzNXRender), typeof(KSANXRender),
             typeof(SMORenderer), typeof(RedCarpetNXRender),
             typeof(ACNHNXRender), typeof(UKingNXRender),
-            typeof(SMM2Render),
+            typeof(SMM2Render), typeof(RedPro2URender),
+        };
+
+        static Type[] SharcfbRenders = new Type[]
+        {
+            typeof(RedPro2URender)
         };
 
         private bool isSelected = false;
@@ -80,6 +85,24 @@ namespace BfresEditor
                         materialRender.TryLoadShader(bfres, ResModel, mesh, meshAsset);
                         break;
                     }
+                }
+
+                //Check for the GX2 shader decompiler as needed for Wii U games
+                if (System.IO.File.Exists("GFD\\gx2shader-decompiler.exe"))
+                {
+                    foreach (var customRender in SharcfbRenders)
+                    {
+                        var materialRender = (SharcFBRenderer)Activator.CreateInstance(customRender);
+                        if (materialRender.UseRenderer(
+                           mesh.Material,
+                           mesh.Material.ShaderArchive,
+                           mesh.Material.ShaderModel))
+                        {
+                            materialRender.TryLoadShader(bfres, ResModel, mesh, meshAsset);
+                            break;
+                        }
+                    }
+
                 }
 
                 mesh.Material.MaterialAsset = (BfresMaterialAsset)meshAsset.MaterialAsset;
