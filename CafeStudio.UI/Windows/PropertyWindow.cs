@@ -34,10 +34,11 @@ namespace CafeStudio.UI
             if (valueChanged)
                 ActiveNode = node;
 
-            //Check for editor purpose node handling
-            if (valueChanged)
+            //Clear and reset all animations when an animation is clicked.
+            if (valueChanged && node.Tag is Toolbox.Core.Animations.STAnimation)
                 timeline.ResetAnimations();
 
+            //Check for editor purpose node handling
             foreach (var n in outliner.SelectedNodes)
                 CheckEditorSelectedNodes(timeline, n, valueChanged);
 
