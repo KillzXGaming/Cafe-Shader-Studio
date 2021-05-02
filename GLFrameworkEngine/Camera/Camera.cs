@@ -375,8 +375,8 @@ namespace GLFrameworkEngine
         {
             if (Mode == CameraMode.Inspect)
                 Controller = new InspectCameraController(this);
-            else if (Mode == CameraMode.Walk)
-                Controller = new WalkCameraController(this);
+            else if (Mode == CameraMode.FlyAround)
+                Controller = new FlyCameraController(this);
             else
                 throw new Exception($"Invalid camera mode! {Mode}");
         }
@@ -425,19 +425,19 @@ namespace GLFrameworkEngine
 
         public enum CameraMode
         {
-            Walk,
+            FlyAround,
             Inspect,
         }
     }
 
-    public class WalkCameraController : ICameraController
+    public class FlyCameraController : ICameraController
     {
         private Camera _camera;
 
         private float rotFactorX => _camera.InvertRotationX ? -0.002f : 0.002f;
         private float rotFactorY => _camera.InvertRotationY ? -0.002f : 0.002f;
 
-        public WalkCameraController(Camera camera)
+        public FlyCameraController(Camera camera)
         {
             _camera = camera;
         }
