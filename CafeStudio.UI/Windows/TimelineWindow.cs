@@ -24,7 +24,6 @@ namespace CafeStudio.UI
             CurveEditor = new AnimationControl();
 
             CurveEditor.OnLoad();
-            CurveEditor.SetShaderParameter("backgroundColor", System.Drawing.Color.FromArgb(40, 40, 40, 40));
             CurveEditor.BackColor = System.Drawing.Color.FromArgb(40, 40, 40, 40);
             AnimationPlayer.OnFrameChanged += delegate
             {
@@ -39,6 +38,12 @@ namespace CafeStudio.UI
             CurveEditor.OnFrameCountChanged += delegate {
                 AnimationPlayer.FrameCount = CurveEditor.FrameCount;
             };
+        }
+
+        public void ResetAnimations()
+        {
+            AnimationPlayer.CurrentAnimations.Clear();
+            AnimationPlayer.ResetModels();
         }
 
         public void ClearAnimations() {

@@ -35,7 +35,11 @@ namespace CafeStudio.UI
                 ActiveNode = node;
 
             //Check for editor purpose node handling
-            CheckEditorSelectedNodes(timeline, node, valueChanged);
+            if (valueChanged)
+                timeline.ResetAnimations();
+
+            foreach (var n in outliner.SelectedNodes)
+                CheckEditorSelectedNodes(timeline, n, valueChanged);
 
             //Archive files have multiple purpose editors (hex, tag properties, text previewer)
             if (node is ArchiveHiearchy)
@@ -49,10 +53,13 @@ namespace CafeStudio.UI
             //Check for active changes for functions that load only once on click
             if (valueChanged)
             {
+                Console.WriteLine($"CheckEditorSelectedNodes {node.Header}");
+
                 if (node.Tag != null && node.Tag is Toolbox.Core.Animations.STAnimation) {
                     var anim = (Toolbox.Core.Animations.STAnimation)node.Tag;
-                    timeline.AddAnimation(anim, true);
+                    timeline.AddAnimation(anim, false);
                 }
+                //Container to batch play multiple animations at once
                 if (node.Tag != null && node.Tag is IAnimationContainer) {
                     timeline.ClearAnimations();
                     foreach (var anim in ((IAnimationContainer)node.Tag).AnimationList)

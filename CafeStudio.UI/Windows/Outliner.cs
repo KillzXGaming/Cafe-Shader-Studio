@@ -19,7 +19,7 @@ namespace CafeStudio.UI
         public List<NodeBase> Nodes = new List<NodeBase>();
         public List<NodeBase> SelectedNodes = new List<NodeBase>();
 
-        public NodeBase SelectedNode => SelectedNodes.FirstOrDefault();
+        public NodeBase SelectedNode => SelectedNodes.LastOrDefault();
 
         static NodeBase dragDroppedNode;
 
@@ -312,11 +312,14 @@ namespace CafeStudio.UI
                         SelectedNodes.Add(node);
                         node.IsSelected = true;
                     }
-                    else if (nodeFocused && !isToggleOpened)
+                    else if (nodeFocused && !isToggleOpened && !node.IsSelected)
                     {
-                        foreach (var n in SelectedNodes)
-                            n.IsSelected = false;
-                        SelectedNodes.Clear();
+                        if (!ImGui.GetIO().KeyCtrl && !ImGui.GetIO().KeyShift)
+                        {
+                            foreach (var n in SelectedNodes)
+                                n.IsSelected = false;
+                            SelectedNodes.Clear();
+                        }
 
                         //Add the clicked node to selection.
                         SelectedNodes.Add(node);
