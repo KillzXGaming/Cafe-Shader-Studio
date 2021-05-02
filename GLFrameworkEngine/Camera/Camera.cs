@@ -546,7 +546,7 @@ namespace GLFrameworkEngine
         {
             if (k.KeyCtrl && e.RightButton == ButtonState.Pressed && _camera.Depth != _camera.ZFar)
             {
-                _camera.TargetPosition = _camera.CoordFor(e.X, e.Y, _camera.Depth);
+             //   _camera.TargetPosition = _camera.CoordFor(e.X, e.Y, _camera.Depth);
             }
         }
 
