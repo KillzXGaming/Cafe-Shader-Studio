@@ -590,7 +590,10 @@ namespace CafeShaderStudio
                 }
 
                 ImGuiHelper.ComboFromEnum<Camera.FaceDirection>("Direction", Pipeline._context.Camera, "Direction");
-                ImGuiHelper.ComboFromEnum<Camera.CameraMode>("Mode", Pipeline._context.Camera, "Mode");
+                if (ImGuiHelper.ComboFromEnum<Camera.CameraMode>("Mode", Pipeline._context.Camera, "Mode"))
+                {
+                    Pipeline._context.Camera.ResetViewportTransform();
+                }
 
                 ImGuiHelper.InputFromBoolean("Orthographic", Pipeline._context.Camera, "IsOrthographic");
                 ImGuiHelper.InputFromBoolean("Lock Rotation", Pipeline._context.Camera, "LockRotation");
