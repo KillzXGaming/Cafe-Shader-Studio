@@ -405,7 +405,8 @@ namespace BfresEditor
                 //Set the inverse matrix and load the matrix data into 3 vec4s
                 if (i < skeleton.Bones.Count)
                 {
-                    if (useInverse) //Use inverse transforms for smooth skinning
+                    //Check if the bone is smooth skinning aswell for accuracy purposes.
+                    if (useInverse || ((BfresBone)skeleton.Bones[i]).UseSmoothMatrix) //Use inverse transforms for smooth skinning
                         value = skeleton.Bones[i].Inverse * skeleton.Bones[i].Transform;
                     else
                         value = skeleton.Bones[i].Transform;

@@ -13,6 +13,11 @@ namespace BfresEditor
     {
         public Bone BoneData { get; set; }
 
+        public bool RigidSkinning => BoneData.RigidMatrixIndex != -1;
+        public bool SmoothSkinning => BoneData.SmoothMatrixIndex != -1;
+
+        public bool UseSmoothMatrix => SmoothSkinning && !RigidSkinning;
+
         public BfresBone(STSkeleton skeleton) : base(skeleton)
         {
 

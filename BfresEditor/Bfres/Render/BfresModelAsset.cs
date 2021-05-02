@@ -487,13 +487,13 @@ namespace BfresEditor
         {
             GL.Uniform1(GL.GetUniformLocation(programID, "UseSkinning"), 1);
 
-            int i = 0;
-            foreach (var bone in skeleton.Bones)
+            for (int i = 0; i < skeleton.Bones.Count; i++)
             {
-                Matrix4 transform = bone.Transform;
-                if (useInverse)
-                    transform = bone.Inverse * bone.Transform;
-                GL.UniformMatrix4(GL.GetUniformLocation(programID, String.Format("bones[{0}]", i++)), false, ref transform);
+                Matrix4 transform = skeleton.Bones[i].Transform;
+                //Check if the bone is smooth skinning aswell for accuracy purposes.
+                if (useInverse || ((BfresBone)skeleton.Bones[i]).UseSmoothMatrix)
+                    transform = skeleton.Bones[i].Inverse * skeleton.Bones[i].Transform;
+                GL.UniformMatrix4(GL.GetUniformLocation(programID, String.Format("bones[{0}]", i)), false, ref transform);
             }
         }
 
