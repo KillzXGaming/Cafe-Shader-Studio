@@ -165,6 +165,26 @@ namespace CafeStudio.UI
                 bool rightClicked = ImGui.IsItemClicked(ImGuiMouseButton.Right);
                 bool nodeFocused = ImGui.IsItemFocused();
                 bool isToggleOpened = ImGui.IsItemToggledOpen();
+                bool beginDragDropSource = !isRenaming && node.Tag is IDragDropNode && ImGui.BeginDragDropSource();
+
+                if (beginDragDropSource)
+                {
+                    //Placeholder pointer data. Instead use drag/drop nodes from GetDragDropNode()
+                    GCHandle handle1 = GCHandle.Alloc(node.ID);
+                    ImGui.SetDragDropPayload("OUTLINER_ITEM", (IntPtr)handle1, sizeof(int), ImGuiCond.Once);
+                    handle1.Free();
+
+                    dragDroppedNode = node;
+
+                    //Display icon for texture types
+                    if (node.Tag is STGenericTexture)
+                        LoadTextureIcon(node);
+
+                    //Display text for item being dragged
+                    ImGui.Button($"{node.Header}");
+                    ImGui.EndDragDropSource();
+                }
+
                 bool hasContextMenu = node is IContextMenu || node is IExportReplaceNode || node.Tag is ICheckableNode ||
                     node.Tag is IContextMenu || node.Tag is IExportReplaceNode ||
                     node.Tag is STGenericTexture;
@@ -238,28 +258,6 @@ namespace CafeStudio.UI
 
                 if (!isRenaming)
                 {
-                    // Drag/drop tag types
-                    if (node.Tag is IDragDropNode)
-                    {
-                        if (ImGui.BeginDragDropSource())
-                        {
-                            //Placeholder pointer data. Instead use drag/drop nodes from GetDragDropNode()
-                            GCHandle handle1 = GCHandle.Alloc(node.ID);
-                            ImGui.SetDragDropPayload("OUTLINER_ITEM", (IntPtr)handle1, sizeof(int), ImGuiCond.Once);
-                            handle1.Free();
-
-                            dragDroppedNode = node;
-
-                            //Display icon for texture types
-                            if (node.Tag is STGenericTexture)
-                                LoadTextureIcon(node);
-
-                            //Display text for item being dragged
-                            ImGui.Button($"{node.Header}");
-                            ImGui.EndDragDropSource();
-                        }
-                    }
-
                     //Check for rename selection on selected renamable node
                     if (node.IsSelected && node.Tag is IRenamableNode && RENAME_ENABLE)
                     {

@@ -696,6 +696,8 @@ namespace CafeShaderStudio
             }
         }
 
+        private IPickable DragDroppedModel;
+
         private void DrawViewport()
         {
             var size = ImGui.GetWindowSize();
@@ -709,7 +711,7 @@ namespace CafeShaderStudio
             Pipeline.RenderScene();
 
             if ((ImGui.IsWindowFocused() && _mouseDown) ||
-                ImGui.IsWindowHovered() || _mouseDown)
+                ImGui.IsWindowFocused() && ImGui.IsWindowHovered() || _mouseDown)
             {
                 if (!onEnter)
                 {
@@ -724,10 +726,53 @@ namespace CafeShaderStudio
             else
             {
                 onEnter = false;
+
+                //Reset drag/dropped model data if mouse leaves the viewport during a drag event
+                if (DragDroppedModel != null)
+                {
+                    DragDroppedModel.DragDroppedOnLeave();
+                    DragDroppedModel = null;
+                }
             }
 
             var id = Pipeline.GetViewportTexture();
             ImGui.Image((IntPtr)id, size, new System.Numerics.Vector2(0, 1), new System.Numerics.Vector2(1, 0));
+
+            if (ImGui.BeginDragDropTarget())
+            {
+                ImGuiPayloadPtr outlinerDrop = ImGui.AcceptDragDropPayload("OUTLINER_ITEM",
+                    ImGuiDragDropFlags.AcceptNoDrawDefaultRect | ImGuiDragDropFlags.AcceptBeforeDelivery);
+
+                if (outlinerDrop.IsValid())
+                {
+                    //Drag/drop things onto meshes
+                    var mouseInfo = CreateMouseState();
+                    var picked = Pipeline.GetPickedObject(mouseInfo);
+                    //Picking object changed.
+                    if (DragDroppedModel != picked)
+                    {
+                        //Set exit drop event for previous model
+                        if (DragDroppedModel != null)
+                            DragDroppedModel.DragDroppedOnLeave();
+
+                        DragDroppedModel = picked;
+
+                        //Model has changed so call the enter event
+                        if (picked != null)
+                            picked.DragDroppedOnEnter();
+                    }
+
+                    if (picked != null)
+                    {
+                        //Set the drag/drop event
+                        var node = Outliner.GetDragDropNode();
+                        picked.DragDropped(node.Tag);
+                    }
+                    if (mouseInfo.LeftButton == ButtonState.Released)
+                        DragDroppedModel = null;
+                }
+                ImGui.EndDragDropTarget();
+            }
         }
 
         bool showStyleEditor;
