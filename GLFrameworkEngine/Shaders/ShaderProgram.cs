@@ -35,8 +35,6 @@ namespace GLFrameworkEngine
             program = CompileShaders();
         }
 
-
-
         public ShaderProgram(byte[] binaryData, BinaryFormat format)
         {
             GL.ProgramBinary(program, format, binaryData, binaryData.Length);

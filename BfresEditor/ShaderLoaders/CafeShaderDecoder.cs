@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.IO;
 using Toolbox.Core;
+using Toolbox.Core.IO;
 using System.Diagnostics;
 using GLFrameworkEngine;
 
@@ -15,14 +16,13 @@ namespace BfresEditor
         public static Dictionary<string, ShaderInfo> GLShaderPrograms = new Dictionary<string, ShaderInfo>();
 
         public static ShaderInfo LoadShaderProgram(string programName,
-            GX2VertexShader vertexInfo, GX2PixelShader pixelInfo,
-           byte[] vertexShader, byte[] fragmentShader)
+            GX2VertexShader vertexInfo, GX2PixelShader pixelInfo, byte[] vertexShader, byte[] fragmentShader)
         {
             if (!Directory.Exists("GFD/Cache"))
                 Directory.CreateDirectory("GFD/Cache");
 
-            var vertShaderName = programName + GetHashSHA1(vertexShader);
-            var fragShaderName = programName + GetHashSHA1(fragmentShader);
+            var vertShaderName = GetHashSHA1(vertexShader);
+            var fragShaderName = GetHashSHA1(fragmentShader);
 
             string key = $"{vertShaderName}{fragShaderName}";
 
@@ -51,8 +51,7 @@ namespace BfresEditor
 
         static ShaderInfo DecodeSharcBinary(string directory, List<ShaderStage> stages)
         {
-            ConvertStages(stages);
-
+            string ex = ConvertStages(stages);
             for (int i = 0; i < stages.Count; i++)
             {
                 string outputFilePath = $"{directory}/Cache/{stages[i].Name}{stages[i].Extension}";
@@ -60,7 +59,7 @@ namespace BfresEditor
                 if (!File.Exists(outputFilePath))
                 {
                     ConvertGLSL($"{directory}/{stages[i].Name}", outputFilePath, stages[i].Extension);
-                        
+
                     string updatedShaderData = RenameBuffers(File.ReadAllText(outputFilePath), stages[i].Command, stages[i].BlockLocations);
                     File.WriteAllText(outputFilePath, updatedShaderData);
                 }
@@ -93,7 +92,7 @@ namespace BfresEditor
                 foreach (var index in blockLocations)
                 {
                     uniformConversions.Add(
-                        $"layout(std430) readonly buffer CBUFFER_DATA_{index}",
+                        $"readonly buffer CBUFFER_DATA_{index}",
                         $"layout (std140) uniform vp_{index}");
                 }
             }
@@ -102,7 +101,7 @@ namespace BfresEditor
                 foreach (var index in blockLocations)
                 {
                     uniformConversions.Add(
-                        $"layout(std430) readonly buffer CBUFFER_DATA_{index}",
+                        $"readonly buffer CBUFFER_DATA_{index}",
                         $"layout (std140) uniform fp_{index}");
                 }
             }
@@ -119,7 +118,7 @@ namespace BfresEditor
                         foreach (var uniform in uniformConversions)
                         {
                             if (line.Contains(uniform.Key))
-                                line = line.Replace(uniform.Key, uniform.Value);
+                                line = uniform.Value;
                         }
                         if (line.Contains("vec4 values[];"))
                             line = line.Replace("vec4 values[];", "vec4 values[0x1000];");
@@ -142,7 +141,12 @@ namespace BfresEditor
             start.FileName = "GFD/gx2shader-decompiler.exe";
             start.WorkingDirectory = Path.Combine(Runtime.ExecutableDir, "GFD");
             foreach (var stage in stages)
+            {
+                if (!File.Exists($"GFD/{stage.Name}"))
+                    throw new Exception($"Failed to write stage {stage.Name}!");
+
                 start.Arguments += $"{stage.Command} {AddQuotesIfRequired($"{stage.Name}")} ";
+            }
             start.UseShellExecute = false;
             start.RedirectStandardOutput = true;
             start.CreateNoWindow = true;
@@ -204,7 +208,7 @@ namespace BfresEditor
             ProcessStartInfo start = new ProcessStartInfo();
             start.FileName = "GFD/spirv-cross.exe";
             start.WorkingDirectory = Runtime.ExecutableDir;
-            start.Arguments = $"{AddQuotesIfRequired(filePath)} {remapFlags} --no-es --extension GL_ARB_shader_storage_buffer_object --no-420pack-extension --no-support-nonzero-baseinstance --version 330 --output {AddQuotesIfRequired(output)}";
+            start.Arguments = $"{AddQuotesIfRequired(filePath)} {remapFlags} --no-es --extension GL_ARB_shader_storage_buffer_object --extension GL_ARB_separate_shader_objects --no-420pack-extension --no-support-nonzero-baseinstance --version 440 --output {AddQuotesIfRequired(output)}";
             start.UseShellExecute = false;
             start.RedirectStandardOutput = true;
             start.CreateNoWindow = true;

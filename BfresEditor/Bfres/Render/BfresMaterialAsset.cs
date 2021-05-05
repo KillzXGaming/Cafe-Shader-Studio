@@ -163,7 +163,7 @@ namespace BfresEditor
             GL.BindTexture(TextureTarget.Texture2D, 0);
         }
 
-        public static bool BindTexture(ShaderProgram shader, Dictionary<string, STGenericTexture> textures,
+        public static GLTexture BindTexture(ShaderProgram shader, Dictionary<string, STGenericTexture> textures,
             STGenericTextureMap textureMap, string name, int id)
         {
             GL.ActiveTexture(TextureUnit.Texture0 + id);
@@ -171,7 +171,6 @@ namespace BfresEditor
 
             if (textures.ContainsKey(name))
                 return BindGLTexture(textures[name], textureMap, shader);
-
 
             foreach (var tex in Runtime.TextureCache)
             {
@@ -185,17 +184,17 @@ namespace BfresEditor
                     return BindGLTexture(model.Textures[name], textureMap, shader);
             }
 
-            return false;
+            return null;
         }
 
-        private static bool BindGLTexture(STGenericTexture texture, STGenericTextureMap textureMap, ShaderProgram shader)
+        private static GLTexture BindGLTexture(STGenericTexture texture, STGenericTextureMap textureMap, ShaderProgram shader)
         {
             if (texture.RenderableTex == null) { 
                 texture.LoadRenderableTexture();
             }
 
             if (texture.RenderableTex == null)
-                return false;
+                return null;
 
             var target = ((GLTexture)texture.RenderableTex).Target;
 
@@ -216,7 +215,7 @@ namespace BfresEditor
                     OpenGLHelper.GetSwizzle(texture.AlphaChannel),
             };
             GL.TexParameter(target, TextureParameterName.TextureSwizzleRgba, mask);
-            return true;
+            return (GLTexture)texture.RenderableTex;
         }
     }
 }

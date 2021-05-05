@@ -83,25 +83,6 @@ namespace BfresEditor
                 return;
             }
 
-            ReloadProgram(meshAsset);
-
-            var gx2ShaderVertex = (GX2VertexShader)ShaderModel.GetGX2VertexShader(VariationIndex);
-
-            //Remap the vertex layouts from shader model attributes
-            Dictionary<string, int> attributeLocations = new Dictionary<string, int>();
-
-            int location = 0;
-            for (int i = 0; i < gx2ShaderVertex.Attributes.Count; i++)
-            {
-                var symbol = ShaderModel.AttributeVariables.symbols.FirstOrDefault(
-                    x => x.Name == gx2ShaderVertex.Attributes[i].Name);
-
-                if (symbol == null)
-                    continue;
-
-                attributeLocations.Add(symbol.SymbolName, location++);
-            }
-
             //Assign some necessary data
             meshAsset.MaterialAsset = this;
 
@@ -124,6 +105,34 @@ namespace BfresEditor
             ReloadRenderState(meshAsset);
             ReloadProgram(meshAsset);
 
+            var gx2ShaderVertex = (GX2VertexShader)ShaderModel.GetGX2VertexShader(VariationIndex);
+            var bfresMaterial = (FMAT)this.MaterialData;
+
+            //Remap the vertex layouts from shader model attributes
+            Dictionary<string, int> attributeLocations = new Dictionary<string, int>();
+
+            int location = 0;
+            for (int i = 0; i < gx2ShaderVertex.Attributes.Count; i++)
+            {
+                var symbol = ShaderModel.AttributeVariables.symbols.FirstOrDefault(
+                     x => x.Name == gx2ShaderVertex.Attributes[i].Name);
+
+                if (symbol == null)
+                    continue;
+
+                var attribVar = gx2ShaderVertex.Attributes[i];
+                var arrayCount = Math.Max(1, attribVar.Count);
+                var streamCount = attribVar.GetStreamCount();
+
+                if (arrayCount > 1 || streamCount > 1)
+                    throw new Exception("Multiple attribute streams and variable counts not supported!");
+
+                if (symbol.SymbolName == "_t0" && !meshAsset.Attributes.Any(x => x.name == "_t0"))
+                    continue;
+
+                attributeLocations.Add(symbol.SymbolName, location++);
+            }
+
             meshAsset.UpdateVaoAttributes(attributeLocations);
         }
 
@@ -133,7 +142,14 @@ namespace BfresEditor
         /// </summary>
         public override void ReloadProgram(BfresMeshAsset mesh)
         {
+            var mat = mesh.Shape.Material;
+
             Dictionary<string, string> options = new Dictionary<string, string>();
+            foreach (var macro in ShaderModel.VariationMacroData.symbols)
+            {
+                if (mat.ShaderOptions.ContainsKey(macro.SymbolName))
+                    options.Add(macro.Name, mat.ShaderOptions[macro.SymbolName]);
+            }
             VariationIndex = ShaderModel.GetVariationIndex(options);
         }
 
@@ -176,6 +192,7 @@ namespace BfresEditor
             var pixelShader = ShaderModel.GetGX2PixelShader(this.VariationIndex);
             var vertexShader = ShaderModel.GetGX2VertexShader(this.VariationIndex);
 
+            int bindings = 2;
             for (int i = 0; i < ShaderModel.UniformBlocks.symbols.Count; i++)
             {
                 string name = ShaderModel.UniformBlocks.symbols[i].Name;
@@ -198,7 +215,7 @@ namespace BfresEditor
 
                 var shaderBlock = GetBlock(name);
                 LoadUniformBlock(control, shader, i, shaderBlock, name, mesh);
-                RenderBlock(shaderBlock, programID, vertLocation, fragLocation);
+                RenderBlock(shaderBlock, programID, vertLocation, fragLocation, bindings++);
             }
         }
 
@@ -208,6 +225,14 @@ namespace BfresEditor
         /// <returns></returns>
         public virtual SHARCFB TryLoadShaderArchive(BFRES bfres, string shaderFile, string shaderModel)
         {
+            //Check external files.
+            bfres.UpdateExternalShaderFiles();
+            foreach (var file in bfres.ShaderFiles) {
+                if (file is SHARCFB && ((SHARCFB)file).Name.Contains(shaderFile)) {
+                    return (SHARCFB)file;
+                }
+            }
+
             //Check global shader cache
             foreach (var file in GlobalShaderCache.ShaderFiles.Values)
             {
@@ -225,11 +250,30 @@ namespace BfresEditor
                 return null;
 
             foreach (var file in archiveFile.Files) {
-                if (file.FileName == $"{shaderFile}.sharcfb"){
-                    return new SHARCFB(file.FileData);
+                if (!file.FileName.EndsWith(".sharcfb"))
+                    continue;
+
+                if (file.FileName == shaderFile || HasFileName(file.FileData, shaderFile)) {
+                    if (file.FileFormat == null)
+                        file.FileFormat = file.OpenFile();
+
+                    return (SHARCFB)file.FileFormat;
                 }
             }
             return null;
+        }
+
+        private bool HasFileName(Stream stream, string fileName)
+        {
+            using (var reader = new Toolbox.Core.IO.FileReader(stream, true))
+            {
+                reader.ReadSignature(4, "BAHS");
+
+                reader.SeekBegin(20);
+                uint nameLength = reader.ReadUInt32();
+                string name = reader.ReadString((int)nameLength, true);
+                return name == fileName;
+            }
         }
 
         /// <summary>
@@ -256,7 +300,7 @@ namespace BfresEditor
 
             GLShaderInfo = CafeShaderDecoder.LoadShaderProgram(ShaderModel.ParentFile.Name + "_" + ShaderModel.Name,
                (GX2VertexShader)vertexData.ShaderData, (GX2PixelShader)pixelData.ShaderData,
-                vertexData.Data, pixelData.Data);
+                vertexData.DataBytes, pixelData.DataBytes);
 
             shaderProgram = GLShaderInfo.Program;
 
@@ -314,10 +358,9 @@ namespace BfresEditor
                          x => x.Name == "Mat");
 
                 writer.Write(matBlock.DefaultValue);
-
                 foreach (var param in ShaderModel.UniformVariables.symbols)
                 {
-                    var uniformName = param.Name;
+                    var uniformName = param.SymbolName;
 
                     writer.SeekBegin(param.Offset);
                     if (mat.ShaderParams.ContainsKey(uniformName))
@@ -327,7 +370,7 @@ namespace BfresEditor
                             matParam = mat.AnimatedParams[uniformName];
 
                         if (matParam.Type == BfresLibrary.ShaderParamType.TexSrtEx) //Texture matrix (texmtx)
-                            writer.Write(CalculateSRT2x3((BfresLibrary.TexSrt)matParam.DataValue));
+                            writer.Write(CalculateSRT3x4((BfresLibrary.TexSrt)matParam.DataValue));
                         else if (matParam.Type == BfresLibrary.ShaderParamType.TexSrt)
                             writer.Write(CalculateSRT2x3((BfresLibrary.TexSrt)matParam.DataValue));
                         else if (matParam.DataValue is BfresLibrary.Srt2D) //Indirect SRT (ind_texmtx)
@@ -354,13 +397,13 @@ namespace BfresEditor
             block.Buffer.AddRange(mem.ToArray());
         }
 
-        public void RenderBlock(UniformBlock block, int programID, int vertexLocation, int fragmentLocation)
+        public void RenderBlock(UniformBlock block, int programID, int vertexLocation, int fragmentLocation, int bindings)
         {
             if (vertexLocation != -1)
-                block.RenderBuffer(programID, $"vp_{vertexLocation}");
+                block.RenderBuffer(programID, $"vp_{vertexLocation}", bindings);
 
             if (fragmentLocation != -1)
-                block.RenderBuffer(programID, $"fp_{fragmentLocation}");
+                block.RenderBuffer(programID, $"fp_{fragmentLocation}", bindings);
         }
 
         public void SetShaderConstants(ShaderProgram shader, int programID, FMAT material)
@@ -379,22 +422,34 @@ namespace BfresEditor
             shader.SetInt("PS_PUSH.needsPremultiply", 0);
         }
 
-        public string GetSamplerName(string fragSampler)
+        public int GetSamplerLocation(string fragSampler)
         {
             var sharcSymbol = ShaderModel.SamplerVariables.symbols.FirstOrDefault(x => x.SymbolName == fragSampler);
             if (sharcSymbol == null)
-                return "";
+                return -1;
 
             var pixelShader = ShaderModel.GetGX2PixelShader(VariationIndex);
             var gx2Sampler = pixelShader.Samplers.FirstOrDefault(x => x.Name == sharcSymbol.Name);
             if (gx2Sampler == null)
-                return "";
+                return -1;
 
-            return ConvertSamplerName((int)gx2Sampler.Location);
+          return (int)gx2Sampler.Location;
+        }
+
+        public void SetSampler(ShaderProgram shader, int location, ref int slot)
+        {
+            GL.ActiveTexture(TextureUnit.Texture0 + slot);
+            shader.SetInt(ConvertSamplerName(location), slot++);
+
+            GL.ActiveTexture(TextureUnit.Texture0 + slot);
+            shader.SetInt(ConvertSamplerFetchName(location), slot++);
         }
 
         public static string ConvertSamplerName(int index) {
             return $"SPIRV_Cross_CombinedTEXTURE_{index}SAMPLER_{index}";
+        }
+        public static string ConvertSamplerFetchName(int index) {
+            return $"SPIRV_Cross_CombinedTEXTURE_{index}SPIRV_Cross_DummySampler";
         }
 
         public UniformBlock GetBlock(string name)
@@ -423,30 +478,26 @@ namespace BfresEditor
                 case BfresLibrary.TexSrtMode.ModeMaya:
                     return new float[8]
                     {
-                        scalingXC,
-                        -scalingYS,
-                        -0.5f * (scalingXC + scalingXS - scaling.X) - scaling.X * translate.X,
-                        0.0f,
-                        scalingXS,
-                        scalingYC,
-                        -0.5f * (scalingYC - scalingYS + scaling.Y) + scaling.Y * translate.Y + 1.0f,
-                        0.0f,
+                scalingXC, -scalingYS,
+                scalingXS, scalingYC,
+                -0.5f * (scalingXC + scalingXS - scaling.X) - scaling.X * translate.X, -0.5f * (scalingYC - scalingYS + scaling.Y) + scaling.Y * translate.Y + 1.0f,
+                0.0f, 0.0f,
                     };
                 case BfresLibrary.TexSrtMode.Mode3dsMax:
                     return new float[8]
                     {
-                        scalingXC, -scalingYS,
-                        scalingXS, scalingYC,
-                        -scalingXC * (translate.X + 0.5f) + scalingXS * (translate.Y - 0.5f) + 0.5f, scalingYS * (translate.X + 0.5f) + scalingYC * (translate.Y - 0.5f) + 0.5f,
-                        0.0f, 0.0f
+                scalingXC, -scalingYS,
+                scalingXS, scalingYC,
+                -scalingXC * (translate.X + 0.5f) + scalingXS * (translate.Y - 0.5f) + 0.5f, scalingYS * (translate.X + 0.5f) + scalingYC * (translate.Y - 0.5f) + 0.5f,
+                0.0f, 0.0f
                     };
                 case BfresLibrary.TexSrtMode.ModeSoftimage:
                     return new float[8]
                     {
-                        scalingXC, scalingYS,
-                        -scalingXS, scalingYC,
-                        scalingXS - scalingXC * translate.X - scalingXS * translate.Y, -scalingYC - scalingYS * translate.X + scalingYC * translate.Y + 1.0f,
-                        0.0f, 0.0f,
+                scalingXC, scalingYS,
+                -scalingXS, scalingYC,
+                scalingXS - scalingXC * translate.X - scalingXS * translate.Y, -scalingYC - scalingYS * translate.X + scalingYC * translate.Y + 1.0f,
+                0.0f, 0.0f,
                     };
             }
         }
@@ -471,14 +522,10 @@ namespace BfresEditor
 
             return new float[8]
             {
-                scaling.X * cosR,
-                scaling.X * sinR,
-                translate.X,
-                0.0f,
-                -scaling.Y * sinR,
-                scaling.Y * cosR,
-                translate.Y,
-                0.0f
+                scaling.X * cosR, scaling.X * sinR,
+                -scaling.Y * sinR, scaling.Y * cosR,
+                translate.X, translate.Y,
+                0.0f, 0.0f
             };
         }
     }

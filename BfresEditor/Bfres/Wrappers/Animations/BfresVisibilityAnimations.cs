@@ -72,7 +72,6 @@ namespace BfresEditor
                 if (anim.Curves.Count > i) {
                     BfresAnimations.GenerateKeys(group.Track, anim.Curves[i]);
                 }
-
             }
         }
 

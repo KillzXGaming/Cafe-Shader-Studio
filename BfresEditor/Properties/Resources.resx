@@ -139,8 +139,8 @@
   <data name="HalfMap" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\HalfMap.dds;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
-  <data name="LightingTable" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\LightingTable.bin;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  <data name="toon" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\toon.dds;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="white" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\white.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>

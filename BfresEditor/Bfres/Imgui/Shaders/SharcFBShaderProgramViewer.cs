@@ -7,6 +7,7 @@ using BfresEditor;
 using OpenTK.Graphics.OpenGL;
 using ImGuiNET;
 using System.IO;
+using Toolbox.Core.IO;
 using CafeStudio.UI;
 
 namespace BfresEditor
@@ -56,6 +57,25 @@ namespace BfresEditor
                 ImGui.EndChild();
                 ImGui.EndTabItem();
             }
+            if (ImguiCustomWidgets.BeginTab("menu_shader1", "GX2 Shader Data"))
+            {
+                var shader = material.MaterialAsset as SharcFBRenderer;
+                var program = shader.ShaderModel;
+
+                ImGui.Text($"VariationIndex {shader.VariationIndex}");
+
+                if (selectedStage == "Vertex")
+                {
+                    var gx2Shader = program.GetRawVertexShader(shader.VariationIndex).ToArray();
+                    MemoryEditor.Draw(gx2Shader, gx2Shader.Length);
+                }
+                if (selectedStage == "Pixel")
+                {
+                    var gx2Shader = program.GetRawPixelShader(shader.VariationIndex).ToArray();
+                    MemoryEditor.Draw(gx2Shader, gx2Shader.Length);
+                }
+                ImGui.EndTabItem();
+            }
         }
 
         static void LoadShaderInfo(FMAT material)
@@ -69,7 +89,7 @@ namespace BfresEditor
                 if (ImGui.CollapsingHeader("Attributes", ImGuiTreeNodeFlags.DefaultOpen))
                 {
                     for (int i = 0; i < gx2Shader.Attributes.Count; i++)
-                        ImGui.Text($"In {gx2Shader.Attributes[i].Name} Location {gx2Shader.Attributes[i].Location}");
+                        ImGui.Text($"In {gx2Shader.Attributes[i].Name} Location {gx2Shader.Attributes[i].Location} Location {gx2Shader.Attributes[i].Type}");
                 }
 
                 if (ImGui.CollapsingHeader("Uniform Blocks", ImGuiTreeNodeFlags.DefaultOpen))

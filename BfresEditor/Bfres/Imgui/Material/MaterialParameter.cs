@@ -233,6 +233,27 @@ namespace BfresEditor
                             ImGuiHelper.InputFloatsFromVector4(label, param, "DataValue", drag);
                     }
                     break;
+                case ShaderParamType.Srt2D:
+                    {
+                        Srt2D value = (Srt2D)param.DataValue;
+                        var pos = new Vector2(value.Translation.X, value.Translation.Y);
+                        var scale = new Vector2(value.Scaling.X, value.Scaling.Y);
+                        var rot = value.Rotation;
+
+                        bool edited0 = ImGui.DragFloat2("Scale", ref scale);
+                        bool edited1 = ImGui.DragFloat("Rotate", ref rot, 0.1f);
+                        bool edited2 = ImGui.DragFloat2("Translate", ref pos);
+                        if (edited0 || edited1 || edited2)
+                        {
+                            param.DataValue = new Srt2D()
+                            {
+                                Scaling = new Syroot.Maths.Vector2F(scale.X, scale.Y),
+                                Translation = new Syroot.Maths.Vector2F(pos.X, pos.Y),
+                                Rotation = rot,
+                            };
+                        }
+                    }
+                    break;
                 case ShaderParamType.TexSrt:
                 case ShaderParamType.TexSrtEx:
                     {
@@ -271,6 +292,11 @@ namespace BfresEditor
                 case ShaderParamType.Float3:
                 case ShaderParamType.Float4:
                     return string.Join(",", (float[])Param.DataValue);
+                case ShaderParamType.Srt2D:
+                    {
+                        var texSrt = (Srt2D)Param.DataValue;
+                        return $"{texSrt.Scaling.X} {texSrt.Scaling.Y} {texSrt.Rotation} {texSrt.Translation.X} {texSrt.Translation.Y}";
+                    }
                 case ShaderParamType.TexSrt:
                 case ShaderParamType.TexSrtEx:
                     {

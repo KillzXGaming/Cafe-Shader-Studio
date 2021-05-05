@@ -15,25 +15,43 @@ namespace BfresEditor
     {
         public override bool UseSRGB => false;
 
-        public override bool UseRenderer(FMAT material, string archive, string model) {
-            return true;
-
-            return material.ShaderParams.ContainsKey("mat_color0") ||
-                   material.ShaderParams.ContainsKey("tev_color0") ||
-                   material.ShaderParams.ContainsKey("amb_color0") ||
-                   material.ShaderParams.ContainsKey("konst0");
+        //Todo find a better way to detect materials
+        //These uniforms are usually used in the file, even if unused.
+        //However some games may use the same ones.
+        public override bool UseRenderer(FMAT material, string archive, string model)
+        {
+            return material.ShaderParams.ContainsKey("mat_color0") &&
+                   material.ShaderParams.ContainsKey("tev_color0") &&
+                   material.ShaderParams.ContainsKey("amb_color0") &&
+                   material.ShaderParams.ContainsKey("konst0") ||
+                   archive == "nw4f_cs_shader" ||
+                   archive == "nw4f_dv_shader" ||
+                   archive == "nw4f_shader";
         }
 
         public RedPro2URender() { }
 
         public RedPro2URender(SHARCFB.ShaderProgram shaderModel) : base(shaderModel) { }
 
+        public override void LoadMesh(BfresMeshAsset mesh)
+        {
+            base.LoadMesh(mesh);
+
+            var mat = mesh.Shape.Material;
+            if (mat.ShaderArchive == "nw4f_cs_shader" || mat.ShaderArchive == "nw4f_shader")
+            {
+                mesh.Shape.UpdateVertexBuffer(true);
+                mesh.UpdateVertexBuffer();
+            }
+        }
+
         public override void ReloadRenderState(BfresMeshAsset mesh)
         {
             var mat = mesh.Shape.Material;
 
             //Set custom priority value NSMBU uses
-            if (mat.Material.RenderInfos.ContainsKey("priority")) {
+            if (mat.Material.RenderInfos.ContainsKey("priority"))
+            {
                 int sharc_priority = (int)mat.GetRenderInfo("priority");
                 mesh.Priority = (int)(sharc_priority * 0x10000 + (uint)mesh.Shape.Shape.MaterialIndex);
             }
@@ -45,18 +63,27 @@ namespace BfresEditor
 
         public override void ReloadProgram(BfresMeshAsset mesh)
         {
+            var mat = mesh.Shape.Material;
+
             Dictionary<string, string> options = new Dictionary<string, string>();
+            foreach (var macro in ShaderModel.VariationMacroData.symbols)
+            {
+                if (mat.ShaderOptions.ContainsKey(macro.SymbolName))
+                    options.Add(macro.Name, mat.ShaderOptions[macro.SymbolName]);
+            }
             VariationIndex = ShaderModel.GetVariationIndex(options);
         }
 
-        static GLTexture2D DummyTexture;
+        static GLTexture2D ShadowMapTexture;
 
-        private void InitTextures() {
-            DummyTexture = GLTexture2D.FromBitmap(BfresEditor.Properties.Resources.white);
+        private void InitTextures()
+        {
+            ShadowMapTexture = GLTexture2D.FromBitmap(BfresEditor.Properties.Resources.white);
         }
 
-        public override void Render(GLContext control, ShaderProgram shader, GenericPickableMesh mesh) {
-            if (DummyTexture == null)
+        public override void Render(GLContext control, ShaderProgram shader, GenericPickableMesh mesh)
+        {
+            if (ShadowMapTexture == null)
                 InitTextures();
 
             base.Render(control, shader, mesh);
@@ -80,7 +107,7 @@ namespace BfresEditor
                     SetShapeBlock(bfresMesh, meshBone.Transform, block);
                     break;
                 case "MdlMtx":
-                    SetBoneMatrixBlock(this.ParentModel.Skeleton, bfresMesh.SkinCount > 1, block, 100);
+                    SetBoneMatrixBlock(this.ParentModel.Skeleton, bfresMesh.SkinCount > 1, block, 64);
                     break;
             }
         }
@@ -165,22 +192,32 @@ namespace BfresEditor
                 if (bfresMaterial.AnimatedSamplers.ContainsKey(sampler))
                     name = bfresMaterial.AnimatedSamplers[sampler];
 
-                var uniformName = this.GetSamplerName(bfresMaterial.Samplers[i]);
-                if (string.IsNullOrEmpty(uniformName))
+                var location = this.GetSamplerLocation(bfresMaterial.Samplers[i]);
+                if (location == -1)
                     continue;
 
-                var binded = BindTexture(shader, GetTextures(), mat.TextureMaps[i], name, id);
-                shader.SetInt(uniformName, id++);
+                GL.ActiveTexture(TextureUnit.Texture0 + id);
+                var tex = BindTexture(shader, GetTextures(), mat.TextureMaps[i], name, id);
+                shader.SetInt(ConvertSamplerName(location), id++);
+
+                GL.ActiveTexture(TextureUnit.Texture0 + id);
+                tex.Bind();
+                shader.SetInt(ConvertSamplerFetchName(location), id++);
             }
 
-            int placeholderID = id++;
+            var pixelShader = ShaderModel.GetGX2PixelShader(this.VariationIndex);
+            foreach (var sampler in pixelShader.Samplers)
+            {
+                if (sampler.Name == "cShadowMap")
+                {
+                    GL.ActiveTexture(TextureUnit.Texture0 + id);
+                    ShadowMapTexture.Bind();
+                    shader.SetInt(ConvertSamplerName((int)sampler.Location), id++);
+                }
 
-            GL.ActiveTexture(TextureUnit.Texture0 + placeholderID);
-            DummyTexture.Bind();
-            shader.SetInt("SPIRV_Cross_CombinedTEXTURE_0SPIRV_Cross_DummySampler", placeholderID);
-
-            GL.ActiveTexture(TextureUnit.Texture0);
-            GL.BindTexture(TextureTarget.Texture2D, 0);
+                GL.ActiveTexture(TextureUnit.Texture0);
+                GL.BindTexture(TextureTarget.Texture2D, 0);
+            }
         }
     }
 }

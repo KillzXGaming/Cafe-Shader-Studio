@@ -63,7 +63,16 @@ namespace BfresEditor
             this.ProgramPasses.Add(ShaderModel.GetShaderProgram(programIndex));
         }
 
+        static GLTexture2D ShadowMapTexture;
+
+        private void InitTextures() {
+            ShadowMapTexture = GLTexture2D.FromBitmap(BfresEditor.Properties.Resources.white);
+        }
+
         public override void Render(GLContext control, ShaderProgram shader, GenericPickableMesh mesh) {
+            if (ShadowMapTexture == null)
+                InitTextures();
+
             base.Render(control, shader, mesh);
         }
 
@@ -195,6 +204,20 @@ namespace BfresEditor
 
             GL.ActiveTexture(TextureUnit.Texture0);
             GL.BindTexture(TextureTarget.Texture2D, 0);
+
+            for (int i = 0; i < ShaderModel.Samplers.Count; i++)
+            {
+                string sampler = ShaderModel.SamplersDict.GetKey(i);
+                if (sampler == "_sm0")
+                {
+                    GL.ActiveTexture(TextureUnit.Texture0 + id);
+                    ShadowMapTexture.Bind();
+                    shader.SetInt(ConvertSamplerID((int)ProgramPasses[ProgramIndex].SamplerLocations[i].FragmentLocation), id++);
+                }
+
+                GL.ActiveTexture(TextureUnit.Texture0);
+                GL.BindTexture(TextureTarget.Texture2D, 0);
+            }
         }
     }
 }

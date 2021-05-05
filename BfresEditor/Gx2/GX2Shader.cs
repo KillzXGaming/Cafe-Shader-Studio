@@ -24,6 +24,7 @@ namespace BfresEditor
         public List<GX2UniformVar> Uniforms = new List<GX2UniformVar>();
         public List<GX2AttributeVar> Attributes = new List<GX2AttributeVar>();
         public List<GX2SamplerVar> Samplers = new List<GX2SamplerVar>();
+        public List<GX2LoopVar> Loops = new List<GX2LoopVar>();
 
         public GX2VertexShader(FileReader reader, uint version) {
 
@@ -63,6 +64,10 @@ namespace BfresEditor
             reader.SeekBegin(samplerVarsOffset);
             for (int i = 0; i < samplerVarCount; i++)
                 Samplers.Add(new GX2SamplerVar(reader));
+
+            reader.SeekBegin(loopVarsOffset);
+            for (int i = 0; i < loopVarCount; i++)
+                Loops.Add(new GX2LoopVar(reader));
         }
     }
 
@@ -73,6 +78,7 @@ namespace BfresEditor
         public List<GX2UniformBlock> UniformBlocks = new List<GX2UniformBlock>();
         public List<GX2UniformVar> Uniforms = new List<GX2UniformVar>();
         public List<GX2SamplerVar> Samplers = new List<GX2SamplerVar>();
+        public List<GX2LoopVar> Loops = new List<GX2LoopVar>();
 
         public GX2PixelShader(FileReader reader, uint version)
         {
@@ -103,6 +109,10 @@ namespace BfresEditor
             reader.SeekBegin(samplerVarsOffset);
             for (int i = 0; i < samplerVarCount; i++)
                 Samplers.Add(new GX2SamplerVar(reader));
+
+            reader.SeekBegin(loopVarsOffset);
+            for (int i = 0; i < loopVarCount; i++)
+                Loops.Add(new GX2LoopVar(reader));
         }
     }
 
@@ -207,6 +217,18 @@ namespace BfresEditor
 
         public uint GetStreamCount() {
             return GX2ShaderHelper.GetStreamCount(Type);
+        }
+    }
+
+    public class GX2LoopVar
+    {
+        public uint Offset { get; set; }
+        public uint Value { get; set; }
+
+        public GX2LoopVar(FileReader reader)
+        {
+            Offset = reader.ReadUInt32();
+            Value = reader.ReadUInt32();
         }
     }
 

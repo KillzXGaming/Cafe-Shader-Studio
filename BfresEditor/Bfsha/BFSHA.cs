@@ -12,7 +12,7 @@ namespace BfresEditor
 {
     public class BFSHA : NodeBase, IFileFormat
     {
-        public bool CanSave { get; set; } = true;
+        public bool CanSave { get; set; } = false;
 
         public string[] Description { get; set; } = new string[] { "BFRES" };
         public string[] Extension { get; set; } = new string[] { "*.bfres" };
@@ -26,7 +26,7 @@ namespace BfresEditor
             }
         }
 
-        BfshaFile BfshaFile;
+        public BfshaFile BfshaFile;
 
         public void Load(Stream stream)
         {

@@ -3,12 +3,27 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.IO;
+using Toolbox.Core;
 using Toolbox.Core.IO;
 
 namespace BfresEditor
 {
-    public class SHARCFB : IShaderFile
+    public class SHARCFB : IFileFormat, IShaderFile
     {
+        public bool CanSave { get; set; } = false;
+
+        public string[] Description { get; set; } = new string[] { "SHARCFB" };
+        public string[] Extension { get; set; } = new string[] { "*.sharcfb" };
+
+        public File_Info FileInfo { get; set; }
+
+        public bool Identify(File_Info fileInfo, Stream stream)
+        {
+            using (var reader = new FileReader(stream, true)) {
+                return reader.CheckSignature(4, "BAHS");
+            }
+        }
+
         public List<ShaderProgram> Programs = new List<ShaderProgram>();
 
         public List<BinaryData> Binaries = new List<BinaryData>();
@@ -31,6 +46,14 @@ namespace BfresEditor
         {
             Stream = stream;
             Read(stream);
+        }
+
+        public void Load(Stream stream) {
+            Read(stream);
+        }
+
+        public void Save(Stream stream) {
+            Write(stream);
         }
 
         public void Read(string fileName)
@@ -130,6 +153,16 @@ namespace BfresEditor
                 return (GX2PixelShader)ParentFile.Binaries[variationIndex + 1].ShaderData;
             }
 
+            public Stream GetRawVertexShader(int variationIndex)
+            {
+                return ParentFile.Binaries[variationIndex].Data;
+            }
+
+            public Stream GetRawPixelShader(int variationIndex)
+            {
+                return ParentFile.Binaries[variationIndex + 1].Data;
+            }
+
             public SHARCFB ParentFile;
 
             public ShaderProgram(SHARCFB shader)
@@ -220,8 +253,24 @@ namespace BfresEditor
         public class BinaryData
         {
             public ShaderType Type;
-            public GX2Shader ShaderData { get; set; }
-            public byte[] Data { get; set; }
+            public Stream Data { get; set; }
+
+            public byte[] DataBytes
+            {
+                get
+                {
+                    using (var binaryReader = new FileReader(Data, true)) {
+                        return binaryReader.ReadBytes((int)binaryReader.Length);
+                    }
+                }
+            }
+
+            private GX2Shader gx2Shader;
+
+            public GX2Shader ShaderData
+            {
+                get { return GetGX2Shader(); }
+            }
 
             public uint Offset;
 
@@ -231,27 +280,31 @@ namespace BfresEditor
 
                 uint SectionSize = reader.ReadUInt32();
                 Type = reader.ReadEnum<ShaderType>(true);
-                uint Offset = reader.ReadUInt32();
+                Offset = reader.ReadUInt32();
                 uint BinarySize = reader.ReadUInt32();
+                Data = new SubStream(reader.BaseStream, reader.Position, BinarySize);
 
-                var stream = new SubStream(reader.BaseStream, reader.Position, BinarySize);
-                using (var binaryReader = new FileReader(stream))
+                reader.Seek(SectionSize + pos, System.IO.SeekOrigin.Begin);
+            }
+
+            public GX2Shader GetGX2Shader()
+            {
+                if (gx2Shader != null)
+                    return gx2Shader;
+
+                using (var binaryReader = new FileReader(Data))
                 {
-                    Data = binaryReader.ReadBytes((int)BinarySize);
-
-                    binaryReader.SeekBegin(0);
                     switch (Type)
                     {
                         case ShaderType.GX2VertexShader:
-                            ShaderData = new GX2VertexShader(binaryReader, version);
+                            gx2Shader = new GX2VertexShader(binaryReader, 0);
                             break;
                         case ShaderType.GX2PixelShader:
-                            ShaderData = new GX2PixelShader(binaryReader, version);
+                            gx2Shader = new GX2PixelShader(binaryReader, 0);
                             break;
                     }
                 }
-
-                reader.Seek(SectionSize + pos, System.IO.SeekOrigin.Begin);
+                return gx2Shader;
             }
 
             public void Write(FileWriter writer)

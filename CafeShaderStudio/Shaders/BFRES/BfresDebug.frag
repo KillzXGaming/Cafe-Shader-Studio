@@ -1,11 +1,12 @@
 ﻿#version 330
 
+uniform sampler2D DiffuseTexture;
 uniform sampler2D UVTestPattern;
 
 uniform int debugShading;
 
 in vec2 texCoord0;
-in vec3 normals;
+in vec3 normal;
 in vec3 boneWeightsColored;
 in vec3 tangent;
 in vec3 bitangent;
@@ -28,7 +29,7 @@ void main(){
     vec4 outputColor = vec4(0);
     vec2 displayTexCoord = texCoord0;
 
-    vec3 N = normals;
+    vec3 N = normal;
 
     if (debugShading == DISPLAY_NORMALS)
     {

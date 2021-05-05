@@ -32,12 +32,12 @@ namespace BfresEditor
             typeof(BlitzNXRender), typeof(KSANXRender),
             typeof(SMORenderer), typeof(RedCarpetNXRender),
             typeof(ACNHNXRender), typeof(UKingNXRender),
-            typeof(SMM2Render), typeof(RedPro2URender),
+            typeof(SMM2Render)
         };
 
         static Type[] SharcfbRenders = new Type[]
         {
-            typeof(RedPro2URender)
+           typeof(WWHDRender),  typeof(RedPro2URender)
         };
 
         private bool isSelected = false;

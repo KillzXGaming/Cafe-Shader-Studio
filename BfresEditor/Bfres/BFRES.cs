@@ -39,7 +39,7 @@ namespace BfresEditor
         public List<BfresMaterialAnim> MaterialAnimations = new List<BfresMaterialAnim>();
         public List<BfresShapeAnim> ShapeAnimations = new List<BfresShapeAnim>();
         public List<BfresVisibilityAnim> VisibilityAnimations = new List<BfresVisibilityAnim>();
-        public List<BfshaLibrary.BfshaFile> ShaderFiles = new List<BfshaLibrary.BfshaFile>();
+        public List<object> ShaderFiles = new List<object>();
 
         public GenericRenderer Renderer { get; set; }
 
@@ -79,6 +79,10 @@ namespace BfresEditor
                 if (fileName.EndsWith(".bfsha") && IsSwitchBinary(ResFile.ExternalFiles[i].Data))
                 {
                     ShaderFiles.Add(new BfshaLibrary.BfshaFile(new MemoryStream(ResFile.ExternalFiles[i].Data)));
+                }
+                if (fileName.EndsWith(".sharcfb"))
+                {
+                    ShaderFiles.Add(new SHARCFB(new MemoryStream(ResFile.ExternalFiles[i].Data)));
                 }
             }
         }

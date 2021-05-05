@@ -148,6 +148,9 @@ namespace BfresEditor
 
         private void ParseSamplerTrack(FMAT material, SamplerTrack track)
         {
+            if (TextureList.Count == 0)
+                return;
+
             if (material.AnimatedSamplers.ContainsKey(track.Sampler))
                 material.AnimatedSamplers.Remove(track.Sampler);
 

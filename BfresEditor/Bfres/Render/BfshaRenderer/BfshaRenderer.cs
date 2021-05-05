@@ -310,8 +310,8 @@ namespace BfresEditor
             //Check external files.
             bfres.UpdateExternalShaderFiles();
             foreach (var file in bfres.ShaderFiles) {
-                if (file.Name.Contains(shaderFile)) {
-                    return file;
+                if (file is BfshaLibrary.BfshaFile && ((BfshaLibrary.BfshaFile)file).Name.Contains(shaderFile)) {
+                    return (BfshaLibrary.BfshaFile)file;
                 }
             }
 
@@ -319,7 +319,6 @@ namespace BfresEditor
             foreach (var file in GlobalShaderCache.ShaderFiles.Values)
             {
                 if (file is BfshaLibrary.BfshaFile) {
-                    Console.WriteLine($"BFSHA {((BfshaLibrary.BfshaFile)file).Name}");
                     if (((BfshaLibrary.BfshaFile)file).Name.Contains(shaderFile)) {
                         return (BfshaLibrary.BfshaFile)file;
                     }
@@ -333,7 +332,10 @@ namespace BfresEditor
 
             foreach (var file in archiveFile.Files) {
                 if (file.FileName.Contains(shaderFile)) {
-                    return new BfshaLibrary.BfshaFile(file.FileData);
+                    if (file.FileFormat == null)
+                        file.FileFormat = file.OpenFile();
+
+                    return ((BFSHA)file.FileFormat).BfshaFile;
                 }
             }
             return null;
@@ -479,7 +481,7 @@ namespace BfresEditor
                             matParam = mat.AnimatedParams[uniformName];
 
                         if (matParam.Type == BfresLibrary.ShaderParamType.TexSrtEx) //Texture matrix (texmtx)
-                            writer.Write(CalculateSRT2x3((BfresLibrary.TexSrt)matParam.DataValue));
+                            writer.Write(CalculateSRT3x4((BfresLibrary.TexSrt)matParam.DataValue));
                         else if (matParam.Type == BfresLibrary.ShaderParamType.TexSrt)
                             writer.Write(CalculateSRT2x3((BfresLibrary.TexSrt)matParam.DataValue));
                         else if (matParam.DataValue is BfresLibrary.Srt2D) //Indirect SRT (ind_texmtx)
@@ -524,6 +526,17 @@ namespace BfresEditor
             if (reset)
                 UniformBlocks[name].Buffer.Clear();
             return UniformBlocks[name];
+        }
+
+        private float[] CalculateSRT3x4(BfresLibrary.TexSrt texSrt)
+        {
+            var m = CalculateSRT2x3(texSrt);
+            return new float[12]
+            {
+                m[0], m[2], m[4], 0.0f,
+                m[1], m[3], m[5], 0.0f,
+                0.0f, 0.0f, 1.0f, 0.0f,
+            };
         }
 
         private float[] CalculateSRT2x3(BfresLibrary.TexSrt texSrt)

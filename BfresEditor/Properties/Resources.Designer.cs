@@ -133,9 +133,9 @@ namespace BfresEditor.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
-        internal static byte[] LightingTable {
+        internal static byte[] toon {
             get {
-                object obj = ResourceManager.GetObject("LightingTable", resourceCulture);
+                object obj = ResourceManager.GetObject("toon", resourceCulture);
                 return ((byte[])(obj));
             }
         }
