@@ -46,5 +46,7 @@ Keep in mind this is very WIP. Editing is limited to material editing. You can e
 - mellinoe and IMGUI Team - for c# port and creating the IMGUI library
 - Syroot - for bfres library and binary IO
 - Jasper (no clip developer) - various help for MK8 and AGL usage.
+- MasterVermilli0n for swizzle code and the shader decompiler tool for Wii U shaders.
+- Decaf Team - for shader decompiler handling used by the tool.
 
 HDR Cubemaps from HDRLabs used under the Creative Commons Attribution-Noncommercial-Share Alike 3.0 License. http://www.hdrlabs.com/sibl/index.html
