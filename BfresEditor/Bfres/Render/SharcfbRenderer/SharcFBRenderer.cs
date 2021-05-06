@@ -298,10 +298,7 @@ namespace BfresEditor
             var vertexData = ShaderModel.ParentFile.Binaries[VariationIndex];
             var pixelData = ShaderModel.ParentFile.Binaries[VariationIndex + 1];
 
-            GLShaderInfo = CafeShaderDecoder.LoadShaderProgram(ShaderModel.ParentFile.Name + "_" + ShaderModel.Name,
-               (GX2VertexShader)vertexData.ShaderData, (GX2PixelShader)pixelData.ShaderData,
-                vertexData.DataBytes, pixelData.DataBytes);
-
+            GLShaderInfo = CafeShaderDecoder.LoadShaderProgram(vertexData.DataBytes, pixelData.DataBytes);
             shaderProgram = GLShaderInfo.Program;
 
             UpdateShader = false;
@@ -413,13 +410,29 @@ namespace BfresEditor
             shader.SetVector4("VS_PUSH.zSpaceMul", new Vector4(0, 1, 1, 1));
             shader.SetFloat("VS_PUSH.pointSize", 1.0f);
 
-            uint alphaFunction = 6;
-            if (material.BlendState.AlphaFunction == AlphaFunction.Lequal)
-                alphaFunction = 3;
 
-            GL.Uniform1(GL.GetUniformLocation(programID, "PS_PUSH.alphaFunc"), alphaFunction);
-            shader.SetFloat("PS_PUSH.alphaRef", material.BlendState.AlphaValue);
-            shader.SetInt("PS_PUSH.needsPremultiply", 0);
+            uint alphaFunction = 7;
+            switch (material.BlendState.AlphaFunction)
+            {
+                case AlphaFunction.Never: alphaFunction = 0; break;
+                case AlphaFunction.Less: alphaFunction = 1; break;
+                case AlphaFunction.Lequal: alphaFunction = 3; break;
+                case AlphaFunction.Greater: alphaFunction = 4; break;
+                case AlphaFunction.Gequal: alphaFunction = 6; break;
+            }
+
+            if (material.BlendState.AlphaTest)
+            {
+                GL.Uniform1(GL.GetUniformLocation(programID, "PS_PUSH.alphaFunc"), alphaFunction);
+                shader.SetFloat("PS_PUSH.alphaRef", material.BlendState.AlphaValue);
+                GL.Uniform1(GL.GetUniformLocation(programID, "PS_PUSH.needsPremultiply"), (uint)0);
+            }
+            else
+            {
+                GL.Uniform1(GL.GetUniformLocation(programID, "PS_PUSH.alphaFunc"), (uint)7);
+                shader.SetFloat("PS_PUSH.alphaRef", 1.0f);
+                GL.Uniform1(GL.GetUniformLocation(programID, "PS_PUSH.needsPremultiply"), (uint)0);
+            }
         }
 
         public int GetSamplerLocation(string fragSampler)

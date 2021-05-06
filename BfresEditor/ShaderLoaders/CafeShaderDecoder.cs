@@ -15,8 +15,7 @@ namespace BfresEditor
     {
         public static Dictionary<string, ShaderInfo> GLShaderPrograms = new Dictionary<string, ShaderInfo>();
 
-        public static ShaderInfo LoadShaderProgram(string programName,
-            GX2VertexShader vertexInfo, GX2PixelShader pixelInfo, byte[] vertexShader, byte[] fragmentShader)
+        public static ShaderInfo LoadShaderProgram(byte[] vertexShader, byte[] fragmentShader)
         {
             if (!Directory.Exists("GFD/Cache"))
                 Directory.CreateDirectory("GFD/Cache");
@@ -32,12 +31,6 @@ namespace BfresEditor
             List<ShaderStage> stages = new List<ShaderStage>();
             stages.Add(new ShaderStage() { Name = vertShaderName, Data = vertexShader, Command = "-v" });
             stages.Add(new ShaderStage() { Name = fragShaderName, Data = fragmentShader, Command = "-p" });
-
-            foreach (var block in vertexInfo.UniformBlocks)
-                stages[0].BlockLocations.Add((int)block.Offset);
-            foreach (var block in pixelInfo.UniformBlocks)
-                stages[1].BlockLocations.Add((int)block.Offset);
-
             var info = DecodeSharcBinary($"GFD", stages);
 
             //Load the source to opengl
@@ -60,7 +53,7 @@ namespace BfresEditor
                 {
                     ConvertGLSL($"{directory}/{stages[i].Name}", outputFilePath, stages[i].Extension);
 
-                    string updatedShaderData = RenameBuffers(File.ReadAllText(outputFilePath), stages[i].Command, stages[i].BlockLocations);
+                    string updatedShaderData = RenameBuffers(File.ReadAllText(outputFilePath), stages[i].Command);
                     File.WriteAllText(outputFilePath, updatedShaderData);
                 }
             }
@@ -84,25 +77,25 @@ namespace BfresEditor
         }
 
 
-        static string RenameBuffers(string source, string command, List<int> blockLocations)
+        static string RenameBuffers(string source, string command)
         {
             Dictionary<string, string> uniformConversions = new Dictionary<string, string>();
             if (command == "-v")
             {
-                foreach (var index in blockLocations)
+                for (int i = 0; i < 20; i++)
                 {
                     uniformConversions.Add(
-                        $"readonly buffer CBUFFER_DATA_{index}",
-                        $"layout (std140) uniform vp_{index}");
+                        $"readonly buffer CBUFFER_DATA_{i}",
+                        $"layout (std140) uniform vp_{i}");
                 }
             }
             if (command == "-p")
             {
-                foreach (var index in blockLocations)
+                for (int i = 0; i < 20; i++)
                 {
                     uniformConversions.Add(
-                        $"readonly buffer CBUFFER_DATA_{index}",
-                        $"layout (std140) uniform fp_{index}");
+                        $"readonly buffer CBUFFER_DATA_{i}",
+                        $"layout (std140) uniform fp_{i}");
                 }
             }
 
@@ -174,8 +167,6 @@ namespace BfresEditor
 
             public byte[] Data { get; set; }
             public string Command = "";
-
-            public List<int> BlockLocations = new List<int>();
 
             public string Extension
             {
