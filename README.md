@@ -6,10 +6,12 @@ Currently supports shader viewing in:
 - Mario Kart 8 Deluxe
 - Super Mario Odyssey (set the romfs game path in settings menu)
 - NSMBUDX
+- NSMBU
 - Kirby Star Allies
 - Splatoon 2 (very WIP)
 - Super Mario Maker 2 (very WIP)
 - Animal Crossing New Horizons (very WIP, add shader in GlobalShaders folder)
+- WWHD (very WIP)
 
 ## Features
 - Real time viewing and editing of material data with shaders. Shader editing isn't supported.
@@ -46,5 +48,7 @@ Keep in mind this is very WIP. Editing is limited to material editing. You can e
 - mellinoe and IMGUI Team - for c# port and creating the IMGUI library
 - Syroot - for bfres library and binary IO
 - Jasper (no clip developer) - various help for MK8 and AGL usage.
+- MasterVermilli0n for swizzle code, SRT calculation code used in parameter loading, and the shader decompiler tool for Wii U shaders.
+- Decaf Team - for shader decompiler handling used by the tool.
 
 HDR Cubemaps from HDRLabs used under the Creative Commons Attribution-Noncommercial-Share Alike 3.0 License. http://www.hdrlabs.com/sibl/index.html
