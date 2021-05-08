@@ -8,6 +8,8 @@ using Toolbox.Core;
 using Toolbox.Core.IO;
 using System.Diagnostics;
 using GLFrameworkEngine;
+using OpenTK;
+using OpenTK.Graphics.OpenGL;
 
 namespace BfresEditor
 {
@@ -20,17 +22,16 @@ namespace BfresEditor
             if (!Directory.Exists("GFD/Cache"))
                 Directory.CreateDirectory("GFD/Cache");
 
-            var vertShaderName = GetHashSHA1(vertexShader);
-            var fragShaderName = GetHashSHA1(fragmentShader);
+            var shaderName = GetHashSHA1(ByteUtils.CombineArray(fragmentShader, fragmentShader));
 
-            string key = $"{vertShaderName}{fragShaderName}";
+            string key = $"{shaderName}";
 
             if (GLShaderPrograms.ContainsKey(key))
                 return GLShaderPrograms[key];
 
             List<ShaderStage> stages = new List<ShaderStage>();
-            stages.Add(new ShaderStage() { Name = vertShaderName, Data = vertexShader, Command = "-v" });
-            stages.Add(new ShaderStage() { Name = fragShaderName, Data = fragmentShader, Command = "-p" });
+            stages.Add(new ShaderStage() { Name = shaderName + "VS", Data = vertexShader, Command = "-v" });
+            stages.Add(new ShaderStage() { Name = shaderName + "FS", Data = fragmentShader, Command = "-p" });
             var info = DecodeSharcBinary($"GFD", stages);
 
             //Load the source to opengl
@@ -40,6 +41,37 @@ namespace BfresEditor
 
             GLShaderPrograms.Add(key, info);
             return GLShaderPrograms[key];
+        }
+
+        public static void SetShaderConstants(ShaderProgram shader, int programID, FMAT material)
+        {
+            //Setup constants
+            shader.SetVector4("VS_PUSH.posMulAdd", new Vector4(1, -1, 0, 0));
+            shader.SetVector4("VS_PUSH.zSpaceMul", new Vector4(0, 1, 1, 1));
+            shader.SetFloat("VS_PUSH.pointSize", 1.0f);
+
+            uint alphaFunction = 7;
+            switch (material.BlendState.AlphaFunction)
+            {
+                case AlphaFunction.Never: alphaFunction = 0; break;
+                case AlphaFunction.Less: alphaFunction = 1; break;
+                case AlphaFunction.Lequal: alphaFunction = 3; break;
+                case AlphaFunction.Greater: alphaFunction = 4; break;
+                case AlphaFunction.Gequal: alphaFunction = 6; break;
+            }
+
+            if (material.BlendState.AlphaTest)
+            {
+                GL.Uniform1(GL.GetUniformLocation(programID, "PS_PUSH.alphaFunc"), alphaFunction);
+                shader.SetFloat("PS_PUSH.alphaRef", material.BlendState.AlphaValue);
+                GL.Uniform1(GL.GetUniformLocation(programID, "PS_PUSH.needsPremultiply"), (uint)0);
+            }
+            else
+            {
+                GL.Uniform1(GL.GetUniformLocation(programID, "PS_PUSH.alphaFunc"), (uint)7);
+                shader.SetFloat("PS_PUSH.alphaRef", 1.0f);
+                GL.Uniform1(GL.GetUniformLocation(programID, "PS_PUSH.needsPremultiply"), (uint)0);
+            }
         }
 
         static ShaderInfo DecodeSharcBinary(string directory, List<ShaderStage> stages)
