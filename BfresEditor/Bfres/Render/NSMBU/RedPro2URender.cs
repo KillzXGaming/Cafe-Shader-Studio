@@ -20,6 +20,8 @@ namespace BfresEditor
         //However some games may use the same ones.
         public override bool UseRenderer(FMAT material, string archive, string model)
         {
+            return true;
+
             return material.ShaderParams.ContainsKey("mat_color0") &&
                    material.ShaderParams.ContainsKey("tev_color0") &&
                    material.ShaderParams.ContainsKey("amb_color0") &&
@@ -59,6 +61,12 @@ namespace BfresEditor
             //Offset polygons
             if (mat.GetRenderInfo("polygon_offset") == "yes")
                 mesh.IsSealPass = true;
+
+            if (mat.GetRenderInfo("shadow_cast") == "shadow-only")
+                mesh.IsDepthShadow = true;
+
+            if (mat.GetRenderInfo("reflection") == "reflection-only")
+                mesh.Shape.IsVisible = false;
         }
 
         public override void ReloadProgram(BfresMeshAsset mesh)
