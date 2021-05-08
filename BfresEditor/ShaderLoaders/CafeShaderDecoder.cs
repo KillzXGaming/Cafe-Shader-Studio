@@ -22,7 +22,7 @@ namespace BfresEditor
             if (!Directory.Exists("GFD/Cache"))
                 Directory.CreateDirectory("GFD/Cache");
 
-            var shaderName = GetHashSHA1(ByteUtils.CombineArray(fragmentShader, fragmentShader));
+            var shaderName = GetHashSHA1(ByteUtils.CombineArray(vertexShader, fragmentShader));
 
             string key = $"{shaderName}";
 
