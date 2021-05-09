@@ -133,8 +133,8 @@ namespace BfresEditor
 
             SpecularCubeTextureID = GLTextureCube.CreateEmptyCubemap(32);
 
-            LightingEngine.LightSettings.LightPrepassTexture = GLTexture2DArray.FromBitmap(Resources.black);
-            LightingEngine.LightSettings.ShadowPrepassTexture = GLTexture2D.FromBitmap(Resources.white);
+            LightingEngine.LightSettings.InitTextures();
+
             DepthShadowCascadeTextureID = GLTexture2D.FromBitmap(Resources.white);
             ProjectionTextureID = GLTexture2D.FromBitmap(Resources.white);
             User1Texture = GLTexture2D.FromBitmap(Resources.white);
@@ -153,8 +153,6 @@ namespace BfresEditor
             GL.TexParameter(DiffuseCubeTextureID.Target, TextureParameterName.TextureBaseLevel, 0);
             GL.TexParameter(DiffuseCubeTextureID.Target, TextureParameterName.TextureMaxLevel, 2);
             DiffuseCubeTextureID.Unbind();
-
-            LightingEngine.LightSettings.InitTextures();
         }
 
         public override void Render(GLContext control, ShaderProgram shader, GenericPickableMesh mesh)

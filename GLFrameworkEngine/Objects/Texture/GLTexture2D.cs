@@ -37,6 +37,29 @@ namespace GLFrameworkEngine
             return texture;
         }
 
+        public static GLTexture2D CreateWhiteTexture(int width, int height)
+        {
+            GLTexture2D texture = new GLTexture2D();
+            texture.PixelInternalFormat = PixelInternalFormat.Rgba8;
+            texture.PixelFormat = PixelFormat.Rgba;
+            texture.PixelType = PixelType.UnsignedByte;
+            texture.Width = width; texture.Height = height;
+            texture.Target = TextureTarget.Texture2D;
+            texture.Bind();
+
+            byte[] buffer = new byte[width * height * 4];
+            for (int i = 0; i < width * height * 4; i++)
+                buffer[i] = 255;
+
+            GL.TexImage2D(TextureTarget.Texture2D, 0, texture.PixelInternalFormat,
+                texture.Width, texture.Height,
+                0, texture.PixelFormat, texture.PixelType, buffer);
+
+            texture.UpdateParameters();
+            texture.Unbind();
+            return texture;
+        }
+
         public static GLTexture2D FromGeneric(STGenericTexture texture, ImageParameters parameters = null)
         {
             if (parameters == null) parameters = new ImageParameters();

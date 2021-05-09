@@ -203,23 +203,12 @@ namespace BfresEditor
                 new DDS(new MemoryStream(Resources.CubemapLightmap)),
                 new DDS(new MemoryStream(Resources.CubemapLightmapShadow)));
 
-            //Used for dynamic lights. Ie spot, point, kart lights
-            //Dynamic lights are setup using the g buffer pass (normals) and depth information before material pass is drawn
-            //Additional slices may be used for bloom intensity
-            LightingEngine.LightSettings.LightPrepassTexture = GLTexture2DArray.FromBitmap(Resources.black);
+            LightingEngine.LightSettings.InitTextures();
 
-            //Shadows
-            //Channel usage:
-            //Red - Dynamic shadows
-            //Green - Static shadows (course, for casting onto objects)
-            //Blue - Soft shading (under kart, dynamic AO?)
-            //Alpha - Usually gray
-            LightingEngine.LightSettings.ShadowPrepassTexture = GLTexture2D.FromBitmap(Resources.white);
-
-            DepthShadowCascadeTexture = GLTexture2D.FromBitmap(Resources.white);
+            DepthShadowCascadeTexture = GLTexture2D.CreateWhiteTexture(4, 4);
 
             //Tire marks
-            ProjectionTexture = GLTexture2D.FromBitmap(Resources.white);
+            ProjectionTexture = GLTexture2D.CreateWhiteTexture(4, 4);
 
             //Depth information. Likely for shadows
             NormalizedLinearDepth = GLTexture2D.FromBitmap(Resources.black);
@@ -245,8 +234,6 @@ namespace BfresEditor
             GL.TexParameter(DiffuseLightmapTexture.Target, TextureParameterName.TextureWrapT, (int)TextureWrapMode.ClampToEdge);
             GL.TexParameter(DiffuseLightmapTexture.Target, TextureParameterName.TextureWrapR, (int)TextureWrapMode.ClampToEdge);
             DiffuseLightmapTexture.Unbind();
-
-            LightingEngine.LightSettings.InitTextures();
         }
 
         public override void Render(GLContext control, ShaderProgram shader, GenericPickableMesh mesh)
@@ -532,7 +519,7 @@ namespace BfresEditor
                 case "gsys_projection0":
                     return ProjectionTexture;
                 case "gsys_light_prepass":
-                    return lightSettings.LightPrepassTexture;
+                    return LightingEngine.LightSettings.LightPrepassTexture;
                 case "gsys_normalized_linear_depth":
                     return NormalizedLinearDepth;
                 case "gsys_color_buffer":

@@ -431,6 +431,9 @@ namespace BfresEditor
             return (int)gx2Sampler.Location;
         }
 
+        /// <summary>
+        /// Sets the sampler to 2 slots (one for default usage, one for fetch usage)
+        /// </summary>
         public void SetSampler(ShaderProgram shader, int location, ref int slot)
         {
             GL.ActiveTexture(TextureUnit.Texture0 + slot);
@@ -440,10 +443,17 @@ namespace BfresEditor
             shader.SetInt(ConvertSamplerFetchName(location), slot++);
         }
 
+        /// <summary>
+        /// Gets the default sampler name used in decompiled shaders.
+        /// </summary>
         public static string ConvertSamplerName(int index)
         {
             return $"SPIRV_Cross_CombinedTEXTURE_{index}SAMPLER_{index}";
         }
+
+        /// <summary>
+        /// Gets the SPIRV fetch sampler name used when a fetch method is required
+        /// </summary>
         public static string ConvertSamplerFetchName(int index)
         {
             return $"SPIRV_Cross_CombinedTEXTURE_{index}SPIRV_Cross_DummySampler";

@@ -20,7 +20,6 @@ namespace AGraphicsLibrary
 
         public GLTexture3D ColorCorrectionTable;
         public GLTexture2DArray LightPrepassTexture;
-        public GLTexture2D LightPrepassTexture2D;
         public GLTexture2D ShadowPrepassTexture;
 
         public bool UpdateColorCorrection = false;
@@ -54,19 +53,6 @@ namespace AGraphicsLibrary
             CubeMaps.CubeMapObjects.Add(new CubeMapObject());
         }
 
-        public void InitTextures()
-        {
-            if (ShadowPrepassTexture != null)
-                return;
-
-            ShadowPrepassTexture = GLTexture2D.CreateUncompressedTexture(4, 4,
-                PixelInternalFormat.Rgba, PixelFormat.Rgba, PixelType.UnsignedByte);
-
-            LightPrepassTexture = GLTexture2DArray.CreateUncompressedTexture(4, 4, 1, 1,
-                           PixelInternalFormat.R11fG11fB10f, PixelFormat.Rgb, PixelType.UnsignedInt10F11F11FRev);
-        }
-
-
         public void LoadArchive(List<ArchiveFileInfo> files)
         {
             foreach (var file in files)
@@ -87,6 +73,23 @@ namespace AGraphicsLibrary
                     CollectResource = new AreaCollection(file.FileData);
             }
             InitTextures();
+        }
+
+        public void InitTextures()
+        {
+            //Used for dynamic lights. Ie spot, point, lights
+            //Dynamic lights are setup using the g buffer pass (normals) and depth information before material pass is drawn
+            //Additional slices may be used for bloom intensity
+            LightPrepassTexture = GLTexture2DArray.CreateUncompressedTexture(4, 4, 1, 1,
+                PixelInternalFormat.Rgba16f, PixelFormat.Rgba, PixelType.Float);
+
+            //Shadows
+            //Channel usage:
+            //Red - Dynamic shadows
+            //Green - Static shadows (course, for casting onto objects)
+            //Blue - Soft shading (under kart, dynamic AO?)
+            //Alpha - Usually gray
+            ShadowPrepassTexture = GLTexture2D.CreateWhiteTexture(4, 4);
         }
 
         private ColorCorrection LoadColorCorrection(Stream file)
@@ -132,8 +135,7 @@ namespace AGraphicsLibrary
         }
 
         public void UpdateLightPrepass(GLContext control, int normalsTexture, int depthTexture) {
-            if (LightPrepassTexture == null)
-            {
+            if (LightPrepassTexture == null) {
                 LightPrepassTexture = GLTexture2DArray.CreateUncompressedTexture(control.Width, control.Height, 1, 1,
                      PixelInternalFormat.R11fG11fB10f, PixelFormat.Rgb, PixelType.UnsignedInt10F11F11FRev);
             }
