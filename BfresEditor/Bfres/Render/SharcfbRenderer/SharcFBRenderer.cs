@@ -119,7 +119,7 @@ namespace BfresEditor
                 var symbol = ShaderModel.AttributeVariables.symbols.FirstOrDefault(
                      x => x.Name == gx2ShaderVertex.Attributes[i].Name);
 
-                if (symbol == null || symbol.flags[this.VariationBaseIndex] == 0)
+                if (symbol == null)
                     continue;
 
                 var attribVar = gx2ShaderVertex.Attributes[i];
@@ -185,7 +185,7 @@ namespace BfresEditor
 
             //Set material raster state and texture samplers
             SetBlendState(bfresMaterial);
-            SetTextureUniforms(control, shader, MaterialData);
+            SetTextureUniforms(shader, MaterialData);
             SetRenderState(bfresMaterial);
 
             var pixelShader = ShaderModel.GetGX2PixelShader(this.BinaryIndex);
