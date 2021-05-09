@@ -106,6 +106,7 @@ namespace BfresEditor
             var bfresMaterial = (FMAT)this.MaterialData;
             var bfresMesh = (BfresMeshAsset)mesh;
             var meshBone = ParentModel.Skeleton.Bones[bfresMesh.BoneIndex];
+            var sharcBlock = ShaderModel.UniformBlocks.symbols[index];
 
             switch (name)
             {
@@ -116,7 +117,7 @@ namespace BfresEditor
                     SetMaterialBlock(bfresMaterial, block);
                     break;
                 case "Shp":
-                    SetShapeBlock(bfresMesh, meshBone.Transform, block);
+                    SetShapeBlock(bfresMesh, meshBone.Transform, block, sharcBlock.DefaultValue?.Length >= 48);
                     break;
                 case "MdlMtx":
                     SetBoneMatrixBlock(this.ParentModel.Skeleton, bfresMesh.SkinCount > 1, block, 64);

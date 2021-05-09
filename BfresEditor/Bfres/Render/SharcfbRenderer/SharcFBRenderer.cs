@@ -317,14 +317,20 @@ namespace BfresEditor
 
         }
 
-        public virtual void SetShapeBlock(BfresMeshAsset mesh, Matrix4 transform, UniformBlock block)
+        public virtual void SetShapeBlock(BfresMeshAsset mesh, Matrix4 transform, UniformBlock block, bool hasTransform = true)
         {
             int numSkinning = (int)mesh.SkinCount;
             block.Buffer.Clear();
-            block.Add(transform.Column0);
-            block.Add(transform.Column1);
-            block.Add(transform.Column2);
+            if (hasTransform)
+            {
+                block.Add(transform.Column0);
+                block.Add(transform.Column1);
+                block.Add(transform.Column2);
+            }
             block.AddInt(numSkinning);
+            block.Add(0);
+            block.Add(0);
+            block.Add(0);
         }
 
         public void SetBoneMatrixBlock(STSkeleton skeleton, bool useInverse, UniformBlock block, int maxTransforms = 64)
