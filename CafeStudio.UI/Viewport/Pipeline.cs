@@ -79,7 +79,7 @@ namespace CafeStudio.UI
                      */
 
             FinalBuffer = new Framebuffer(FramebufferTarget.Framebuffer,
-                this.Width, this.Height, 16, PixelInternalFormat.Rgba16f, 1);
+                this.Width, this.Height, PixelInternalFormat.Rgba16f, 1);
         }
 
         public void AddFile(IRenderableFile renderFile) {
