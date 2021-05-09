@@ -111,7 +111,7 @@ namespace BfresEditor
             var bfresMaterial = (FMAT)this.MaterialData;
 
             //Remap the vertex layouts from shader model attributes
-            Dictionary<string, int> attributeLocations = new Dictionary<string, int>();
+            Dictionary<string, string> attributeLocations = new Dictionary<string, string>();
 
             int location = 0;
             for (int i = 0; i < gx2ShaderVertex.Attributes.Count; i++)
@@ -129,7 +129,7 @@ namespace BfresEditor
                 if (arrayCount > 1 || streamCount > 1)
                     throw new Exception("Multiple attribute streams and variable counts not supported!");
 
-                attributeLocations.Add(symbol.SymbolName, location++);
+                attributeLocations.Add(symbol.SymbolName, $"{symbol.Name}_0_0");
             }
 
             meshAsset.UpdateVaoAttributes(attributeLocations);
@@ -185,7 +185,7 @@ namespace BfresEditor
 
             //Set material raster state and texture samplers
             SetBlendState(bfresMaterial);
-            SetTextureUniforms(shader, MaterialData);
+            SetTextureUniforms(control, shader, MaterialData);
             SetRenderState(bfresMaterial);
 
             var pixelShader = ShaderModel.GetGX2PixelShader(this.BinaryIndex);
