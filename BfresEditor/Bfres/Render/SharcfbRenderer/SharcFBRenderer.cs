@@ -33,7 +33,8 @@ namespace BfresEditor
         /// </summary>
         public override ShaderInfo GLShaderInfo { get; set; }
 
-        public int VariationIndex { get; set; } = -1;
+        public int VariationBaseIndex { get; set; } = -1;
+        public int BinaryIndex => ShaderModel.GetBinaryIndex(VariationBaseIndex);
 
         public bool UpdateShader { get; set; }
 
@@ -105,7 +106,7 @@ namespace BfresEditor
             ReloadRenderState(meshAsset);
             ReloadProgram(meshAsset);
 
-            var gx2ShaderVertex = (GX2VertexShader)ShaderModel.GetGX2VertexShader(VariationIndex);
+            var gx2ShaderVertex = (GX2VertexShader)ShaderModel.GetGX2VertexShader(BinaryIndex);
             var bfresMaterial = (FMAT)this.MaterialData;
 
             //Remap the vertex layouts from shader model attributes
@@ -117,7 +118,7 @@ namespace BfresEditor
                 var symbol = ShaderModel.AttributeVariables.symbols.FirstOrDefault(
                      x => x.Name == gx2ShaderVertex.Attributes[i].Name);
 
-                if (symbol == null)
+                if (symbol == null || symbol.flags[this.VariationBaseIndex] == 0)
                     continue;
 
                 var attribVar = gx2ShaderVertex.Attributes[i];
@@ -126,9 +127,6 @@ namespace BfresEditor
 
                 if (arrayCount > 1 || streamCount > 1)
                     throw new Exception("Multiple attribute streams and variable counts not supported!");
-
-                if (symbol.SymbolName == "_t0" && !meshAsset.Attributes.Any(x => x.name == "_t0"))
-                    continue;
 
                 attributeLocations.Add(symbol.SymbolName, location++);
             }
@@ -150,7 +148,7 @@ namespace BfresEditor
                 if (mat.ShaderOptions.ContainsKey(macro.SymbolName))
                     options.Add(macro.Name, mat.ShaderOptions[macro.SymbolName]);
             }
-            VariationIndex = ShaderModel.GetVariationIndex(options);
+            VariationBaseIndex = ShaderModel.GetVariationIndex(options);
         }
 
         /// <summary>
@@ -182,15 +180,15 @@ namespace BfresEditor
 
             var programID = shader.program;
 
-            this.SetShaderConstants(shader, programID, bfresMaterial);
+            CafeShaderDecoder.SetShaderConstants(shader, programID, bfresMaterial);
 
             //Set material raster state and texture samplers
             SetBlendState(bfresMaterial);
-            SetTextureUniforms(shader, MaterialData);
+            SetTextureUniforms(control, shader, MaterialData);
             SetRenderState(bfresMaterial);
 
-            var pixelShader = ShaderModel.GetGX2PixelShader(this.VariationIndex);
-            var vertexShader = ShaderModel.GetGX2VertexShader(this.VariationIndex);
+            var pixelShader = ShaderModel.GetGX2PixelShader(this.BinaryIndex);
+            var vertexShader = ShaderModel.GetGX2VertexShader(this.BinaryIndex);
 
             int bindings = 2;
             for (int i = 0; i < ShaderModel.UniformBlocks.symbols.Count; i++)
@@ -295,8 +293,8 @@ namespace BfresEditor
         /// </summary>
         public void ReloadGLSLShaderFile()
         {
-            var vertexData = ShaderModel.ParentFile.Binaries[VariationIndex];
-            var pixelData = ShaderModel.ParentFile.Binaries[VariationIndex + 1];
+            var vertexData = ShaderModel.ParentFile.Binaries[BinaryIndex];
+            var pixelData = ShaderModel.ParentFile.Binaries[BinaryIndex + 1];
 
             GLShaderInfo = CafeShaderDecoder.LoadShaderProgram(vertexData.DataBytes, pixelData.DataBytes);
             shaderProgram = GLShaderInfo.Program;
@@ -403,37 +401,6 @@ namespace BfresEditor
                 block.RenderBuffer(programID, $"fp_{fragmentLocation}", bindings);
         }
 
-        public void SetShaderConstants(ShaderProgram shader, int programID, FMAT material)
-        {
-            //Setup constants
-            shader.SetVector4("VS_PUSH.posMulAdd", new Vector4(1, -1, 0, 0));
-            shader.SetVector4("VS_PUSH.zSpaceMul", new Vector4(0, 1, 1, 1));
-            shader.SetFloat("VS_PUSH.pointSize", 1.0f);
-
-
-            uint alphaFunction = 7;
-            switch (material.BlendState.AlphaFunction)
-            {
-                case AlphaFunction.Never: alphaFunction = 0; break;
-                case AlphaFunction.Less: alphaFunction = 1; break;
-                case AlphaFunction.Lequal: alphaFunction = 3; break;
-                case AlphaFunction.Greater: alphaFunction = 4; break;
-                case AlphaFunction.Gequal: alphaFunction = 6; break;
-            }
-
-            if (material.BlendState.AlphaTest)
-            {
-                GL.Uniform1(GL.GetUniformLocation(programID, "PS_PUSH.alphaFunc"), alphaFunction);
-                shader.SetFloat("PS_PUSH.alphaRef", material.BlendState.AlphaValue);
-                GL.Uniform1(GL.GetUniformLocation(programID, "PS_PUSH.needsPremultiply"), (uint)0);
-            }
-            else
-            {
-                GL.Uniform1(GL.GetUniformLocation(programID, "PS_PUSH.alphaFunc"), (uint)7);
-                shader.SetFloat("PS_PUSH.alphaRef", 1.0f);
-                GL.Uniform1(GL.GetUniformLocation(programID, "PS_PUSH.needsPremultiply"), (uint)0);
-            }
-        }
 
         public int GetSamplerLocation(string fragSampler)
         {
@@ -441,7 +408,7 @@ namespace BfresEditor
             if (sharcSymbol == null)
                 return -1;
 
-            var pixelShader = ShaderModel.GetGX2PixelShader(VariationIndex);
+            var pixelShader = ShaderModel.GetGX2PixelShader(BinaryIndex);
             var gx2Sampler = pixelShader.Samplers.FirstOrDefault(x => x.Name == sharcSymbol.Name);
             if (gx2Sampler == null)
                 return -1;

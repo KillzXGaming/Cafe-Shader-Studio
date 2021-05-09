@@ -5,10 +5,11 @@ using System.Text;
 using System.IO;
 using Toolbox.Core;
 using Toolbox.Core.IO;
+using Toolbox.Core.ViewModels;
 
 namespace BfresEditor
 {
-    public class SHARCFB : IFileFormat, IShaderFile
+    public class SHARCFB : NodeBase, IFileFormat, IShaderFile
     {
         public bool CanSave { get; set; } = false;
 
@@ -49,7 +50,11 @@ namespace BfresEditor
         }
 
         public void Load(Stream stream) {
+            FileInfo.KeepOpen = true;
+
             Read(stream);
+
+           // Reload();
         }
 
         public void Save(Stream stream) {
@@ -64,6 +69,47 @@ namespace BfresEditor
         public void Write(string fileName)
         {
             Write(new System.IO.FileStream(fileName, System.IO.FileMode.Create, System.IO.FileAccess.Write));
+        }
+
+        private void Reload()
+        {
+            Tag = this;
+            Header = this.Name;
+            foreach (var program in this.Programs)
+            {
+                var node = new NodeBase(program.Name);
+                AddChild(node);
+
+                int variationIndex = 0;
+                foreach (var variation in program.VariationMacroData.symbols) {
+                    foreach (var val in variation.Values)
+                    {
+                        int binaryIndex = program.BaseIndex + variationIndex * (program.HasGeometryShader() ? 3 : 2);
+
+                        var vertexBinary = this.Binaries[binaryIndex].GetGX2Shader();
+                        var fragBinary = this.Binaries[binaryIndex + 1].GetGX2Shader();
+
+                        var shaderNode = new NodeBase($"Variation: {variation.Name}_{val}");
+                        var wrapper = new SHARCFBProgramWrapper(vertexBinary, fragBinary);
+                        shaderNode.Tag = wrapper;
+                        node.AddChild(shaderNode);
+
+                        variationIndex += 1;
+                    }
+                }
+                if (variationIndex == 0)
+                {
+                    int binaryIndex = program.BaseIndex;
+
+                    var vertexBinary = this.Binaries[binaryIndex].GetGX2Shader();
+                    var fragBinary = this.Binaries[binaryIndex + 1].GetGX2Shader();
+
+                    var shaderNode = new NodeBase($"Shader Data");
+                    var wrapper = new SHARCFBProgramWrapper(vertexBinary, fragBinary);
+                    shaderNode.Tag = wrapper;
+                    node.AddChild(shaderNode);
+                }
+            }
         }
 
         public void Read(System.IO.Stream stream)
@@ -183,13 +229,19 @@ namespace BfresEditor
 
                     index *= variation.Values.Count;
                     index += variation.Values.IndexOf(options[variation.Name]);
-
-                    Console.WriteLine($"Choices {variation.Name} {string.Join(",", variation.Values.ToArray())} {options[variation.Name]}");
                 }
 
+
                 if (HasGeometryShader())
-                    return BaseIndex + index * 3;
-                return BaseIndex + index * 2;
+                    return index;
+                return index;
+            }
+
+            public int GetBinaryIndex(int variation)
+            {
+                if (HasGeometryShader())
+                    return BaseIndex + variation * 3;
+                return BaseIndex + variation * 2;
             }
 
             public void Read(FileReader reader, uint version)

@@ -58,8 +58,10 @@ namespace BfresEditor
                 mesh.Priority = (int)(sharc_priority * 0x10000 + (uint)mesh.Shape.Shape.MaterialIndex);
             }
 
+            string polygonOffset = mat.GetRenderInfo("polygon_offset");
+
             //Offset polygons
-            if (mat.GetRenderInfo("polygon_offset") == "yes")
+            if (polygonOffset != null && polygonOffset.Contains("yes"))
                 mesh.IsSealPass = true;
 
             if (mat.GetRenderInfo("shadow_cast") == "shadow-only")
@@ -79,7 +81,7 @@ namespace BfresEditor
                 if (mat.ShaderOptions.ContainsKey(macro.SymbolName))
                     options.Add(macro.Name, mat.ShaderOptions[macro.SymbolName]);
             }
-            VariationIndex = ShaderModel.GetVariationIndex(options);
+            VariationBaseIndex = ShaderModel.GetVariationIndex(options);
         }
 
         static GLTexture2D ShadowMapTexture;
@@ -213,7 +215,7 @@ namespace BfresEditor
                 shader.SetInt(ConvertSamplerFetchName(location), id++);
             }
 
-            var pixelShader = ShaderModel.GetGX2PixelShader(this.VariationIndex);
+            var pixelShader = ShaderModel.GetGX2PixelShader(this.BinaryIndex);
             foreach (var sampler in pixelShader.Samplers)
             {
                 if (sampler.Name == "cShadowMap")

@@ -64,13 +64,12 @@ namespace BfresEditor
             foreach (var macro in ShaderModel.VariationMacroData.symbols)
             {
                 if (macro.Name == "vtx_skin_count") {
-                    options.Add(macro.Name, macro.Values[0]);
+                   options.Add(macro.Name, macro.Values[0]);
                 }
                 if (mat.ShaderOptions.ContainsKey(macro.SymbolName))
                     options.Add(macro.Name, mat.ShaderOptions[macro.SymbolName]);
             }
-            VariationIndex = ShaderModel.GetVariationIndex(options);
-            Console.WriteLine($"ReloadProgram {VariationIndex}");
+            VariationBaseIndex = ShaderModel.GetVariationIndex(options);
         }
 
         static GLTexture2DArray LightPPTexture;
@@ -218,7 +217,7 @@ namespace BfresEditor
 
             int id = 1;
 
-            var pixelShader = ShaderModel.GetGX2PixelShader(VariationIndex);
+            var pixelShader = ShaderModel.GetGX2PixelShader(BinaryIndex);
             foreach (var sampler in pixelShader.Samplers)
             {
                 switch (sampler.Name)

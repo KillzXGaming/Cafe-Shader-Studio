@@ -62,16 +62,14 @@ namespace BfresEditor
                 var shader = material.MaterialAsset as SharcFBRenderer;
                 var program = shader.ShaderModel;
 
-                ImGui.Text($"VariationIndex {shader.VariationIndex}");
-
                 if (selectedStage == "Vertex")
                 {
-                    var gx2Shader = program.GetRawVertexShader(shader.VariationIndex).ToArray();
+                    var gx2Shader = program.GetRawVertexShader(shader.BinaryIndex).ToArray();
                     MemoryEditor.Draw(gx2Shader, gx2Shader.Length);
                 }
                 if (selectedStage == "Pixel")
                 {
-                    var gx2Shader = program.GetRawPixelShader(shader.VariationIndex).ToArray();
+                    var gx2Shader = program.GetRawPixelShader(shader.BinaryIndex).ToArray();
                     MemoryEditor.Draw(gx2Shader, gx2Shader.Length);
                 }
                 ImGui.EndTabItem();
@@ -84,7 +82,7 @@ namespace BfresEditor
             var program = shader.ShaderModel;
 
             if (selectedStage == "Vertex") {
-                var gx2Shader = (GX2VertexShader)program.GetGX2VertexShader(shader.VariationIndex);
+                var gx2Shader = (GX2VertexShader)program.GetGX2VertexShader(shader.BinaryIndex);
 
                 if (ImGui.CollapsingHeader("Attributes", ImGuiTreeNodeFlags.DefaultOpen))
                 {
@@ -121,7 +119,7 @@ namespace BfresEditor
                 }
             }
             if (selectedStage == "Pixel") {
-                var gx2Shader = (GX2PixelShader)program.GetGX2PixelShader(shader.VariationIndex);
+                var gx2Shader = (GX2PixelShader)program.GetGX2PixelShader(shader.BinaryIndex);
 
                 if (ImGui.CollapsingHeader("Uniform Blocks", ImGuiTreeNodeFlags.DefaultOpen))
                 {
