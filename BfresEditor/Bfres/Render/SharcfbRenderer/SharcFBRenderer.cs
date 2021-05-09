@@ -117,7 +117,7 @@ namespace BfresEditor
                 var symbol = ShaderModel.AttributeVariables.symbols.FirstOrDefault(
                      x => x.Name == gx2ShaderVertex.Attributes[i].Name);
 
-                if (symbol == null)
+                if (symbol == null || symbol.flags[this.VariationIndex] == 0)
                     continue;
 
                 var attribVar = gx2ShaderVertex.Attributes[i];
@@ -126,10 +126,7 @@ namespace BfresEditor
 
                 if (arrayCount > 1 || streamCount > 1)
                     throw new Exception("Multiple attribute streams and variable counts not supported!");
-
-                if (symbol.SymbolName == "_t0" && !meshAsset.Attributes.Any(x => x.name == "_t0"))
-                    continue;
-
+                    
                 attributeLocations.Add(symbol.SymbolName, location++);
             }
 
