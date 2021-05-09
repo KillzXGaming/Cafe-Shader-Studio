@@ -334,7 +334,10 @@ namespace CafeShaderStudio
                         cubemapRenderModels.Add(model.Renderer);
 
                     //Generate cubemaps in the scene.
-                    LightingEngine.LightSettings.UpdateCubemap(cubemapRenderModels, true);
+
+                    //Todo need to fixup cubemap generation as it typically has bugs on certain hardware.
+                    //Certain games are also missing cubemap array support atm.
+                    //LightingEngine.LightSettings.UpdateCubemap(cubemapRenderModels, false);
                 }
 
                 //Generate light maps (area based lighting from directional and hemi lighting)
