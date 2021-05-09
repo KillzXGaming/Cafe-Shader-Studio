@@ -185,7 +185,7 @@ namespace BfresEditor
 
             //Set material raster state and texture samplers
             SetBlendState(bfresMaterial);
-            SetTextureUniforms(control, shader, MaterialData);
+            SetTextureUniforms(shader, MaterialData);
             SetRenderState(bfresMaterial);
 
             var pixelShader = ShaderModel.GetGX2PixelShader(this.BinaryIndex);
