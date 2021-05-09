@@ -65,7 +65,7 @@ namespace GLFrameworkEngine
             }
         }
 
-        private float _znear = 0.1f;
+        private float _znear = 1.0f;
 
         /// <summary>
         /// The z near value.
