@@ -324,7 +324,7 @@ namespace BfresEditor
             block.Add(transform.Column0);
             block.Add(transform.Column1);
             block.Add(transform.Column2);
-            block.Add(new Vector4(numSkinning, 0, 0, 0));
+            block.AddInt(numSkinning);
         }
 
         public void SetBoneMatrixBlock(STSkeleton skeleton, bool useInverse, UniformBlock block, int maxTransforms = 64)
@@ -410,7 +410,6 @@ namespace BfresEditor
             if (fragmentLocation != -1)
                 block.RenderBuffer(programID, $"fp_{fragmentLocation}", bindings);
         }
-
 
         public int GetSamplerLocation(string fragSampler)
         {

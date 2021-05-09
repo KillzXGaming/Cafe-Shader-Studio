@@ -47,6 +47,7 @@ namespace GLFrameworkEngine
             GL.GenVertexArrays(1, out int vao);
             GL.BindVertexArray(vao);
             GL.BindBuffer(BufferTarget.ArrayBuffer, buffer);
+
             ID = vao;
 
             if (GLErrorHandler.CheckGLError()) Debugger.Break();
