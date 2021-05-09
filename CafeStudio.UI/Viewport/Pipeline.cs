@@ -124,8 +124,8 @@ namespace CafeStudio.UI
             GL.BindFramebuffer(FramebufferTarget.ReadFramebuffer, ScreenBuffer.ID);
             GL.BindFramebuffer(FramebufferTarget.DrawFramebuffer, FinalBuffer.ID);
             GL.BlitFramebuffer(0, 0, Width, Height, 0, 0, Width, Height, ClearBufferMask.DepthBufferBit, BlitFramebufferFilter.Nearest);
+            GL.BlitFramebuffer(0, 0, Width, Height, 0, 0, Width, Height, ClearBufferMask.ColorBufferBit, BlitFramebufferFilter.Nearest);
 
-                
             _background.Draw(_context, Pass.OPAQUE);
             _floor.Draw(_context, Pass.OPAQUE);
             _context.Scene.DrawSelection(_context);
