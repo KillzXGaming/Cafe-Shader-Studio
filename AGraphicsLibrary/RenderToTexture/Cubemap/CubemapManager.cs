@@ -15,7 +15,8 @@ namespace AGraphicsLibrary
     /// </summary>
     public class CubemapManager
     {
-        public static GLTextureCubeArray CubeMapTexture { get; set; }
+        public static GLTexture CubeMapTexture { get; set; }
+        public static GLTexture CubeMapTextureArray { get; set; }
 
         public const int CUBEMAP_UPSCALE_SIZE = 256;
         public const int CUBEMAP_SIZE = 128;
@@ -24,7 +25,7 @@ namespace AGraphicsLibrary
         //Keep things simple and use single mips for now then generate later
         public const int MAX_MIP_LEVEL = 1;
 
-        public const bool SAVE_TO_DISK = true;
+        public const bool SAVE_TO_DISK = false;
 
         public CubemapManager()
         {
@@ -38,14 +39,24 @@ namespace AGraphicsLibrary
         }
 
         //Update all existing cubemap uint objects
-        public static void GenerateCubemaps(List<GenericRenderer> targetModels)
+        public static void GenerateCubemaps(List<GenericRenderer> targetModels, bool isWiiU)
         {
-            if (CubeMapTexture != null)
-                CubeMapTexture.Dispose();
+            var texture = isWiiU ? CubeMapTextureArray : CubeMapTexture;
 
-            CubeMapTexture = GLTextureCubeArray.CreateEmptyCubemap(CUBEMAP_SIZE, MAX_LAYER_COUNT, MAX_MIP_LEVEL,
-    PixelInternalFormat.Rgba16f, PixelFormat.Rgba, PixelType.Float);
-   
+            if (texture != null)
+                texture.Dispose();
+
+            if (isWiiU)
+            {
+                texture = GLTexture2DArray.CreateUncompressedTexture(CUBEMAP_SIZE, CUBEMAP_SIZE, MAX_LAYER_COUNT * 6, MAX_MIP_LEVEL,
+                    PixelInternalFormat.Rgba16f, PixelFormat.Rgba, PixelType.Float);
+            }
+            else
+            {
+                texture = GLTextureCubeArray.CreateEmptyCubemap(CUBEMAP_SIZE, MAX_LAYER_COUNT, MAX_MIP_LEVEL,
+                    PixelInternalFormat.Rgba16f, PixelFormat.Rgba, PixelType.Float);
+            }
+
             GLTextureCube cubemapTexture = GLTextureCube.CreateEmptyCubemap(
                 CUBEMAP_UPSCALE_SIZE, PixelInternalFormat.Rgba16f, PixelFormat.Rgba, PixelType.Float, 9);
 
@@ -76,7 +87,7 @@ namespace AGraphicsLibrary
                 cubemapTexture.Unbind();
 
                 //HDR encode and output into the array
-                CubemapHDREncodeRT.CreateCubemap(cubemapTexture, CubeMapTexture, layer, MAX_MIP_LEVEL, false, true);
+                CubemapHDREncodeRT.CreateCubemap(cubemapTexture, texture, layer, MAX_MIP_LEVEL, false, true);
 
                 if (SAVE_TO_DISK)
                     cubemapTexture.SaveDDS(cubeMap.Name + "default.dds");
@@ -87,12 +98,17 @@ namespace AGraphicsLibrary
             cubemapTexture.Dispose();
 
             //Just generate mips to keep things easier
-            CubeMapTexture.Bind();
-            CubeMapTexture.GenerateMipmaps();
-            CubeMapTexture.Unbind();
+            texture.Bind();
+            texture.GenerateMipmaps();
+            texture.Unbind();
 
             if (SAVE_TO_DISK)
-                CubeMapTexture.SaveDDS("Cubemap_Array_HDR.dds");
+                texture.SaveDDS("Cubemap_Array_HDR.dds");
+
+            if (isWiiU)
+                CubeMapTextureArray = texture;
+            else
+                CubeMapTexture = texture;
         }
 
         static void GenerateCubemap(GLContext control, GLTextureCube texture,

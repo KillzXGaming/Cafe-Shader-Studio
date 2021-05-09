@@ -28,14 +28,13 @@ namespace BfresEditor
                    new VertexShader(File.ReadAllText(VertPath)));
         }
 
-        public void CreateUsedUniformListVertex(BfshaLibrary.UniformBlock block, int blockLocation)
-        {
-            UsedVertexStageUniforms = FindUniforms(File.ReadAllText(VertPath), block, $"vp_c{blockLocation + 3}_data");
+
+        public void CreateUsedUniformListVertex(BfshaLibrary.UniformBlock block, string uniform) {
+            UsedVertexStageUniforms = FindUniforms(File.ReadAllText(VertPath), block, uniform);
         }
 
-        public void CreateUsedUniformListPixel(BfshaLibrary.UniformBlock block, int blockLocation)
-        {
-            UsedPixelStageUniforms = FindUniforms(File.ReadAllText(FragPath), block, $"fp_c{blockLocation + 3}_data");
+        public void CreateUsedUniformListPixel(BfshaLibrary.UniformBlock block, string uniform) {
+            UsedPixelStageUniforms = FindUniforms(File.ReadAllText(FragPath), block, uniform);
         }
 
         private List<string> FindUniforms(string shaderCode, BfshaLibrary.UniformBlock block, string blockName)
@@ -45,7 +44,7 @@ namespace BfresEditor
             Dictionary<string, string> UniformMapping = new Dictionary<string, string>();
             for (int i = 0; i < block.Uniforms.Count; i++)
             {
-                string name = block.UniformDict.GetKey(i);
+                string name = block.Uniforms.GetKey(i);
                 int size = 16;
                 if (i < block.Uniforms.Count - 1)
                     size = block.Uniforms[i + 1].Offset - block.Uniforms[i].Offset;

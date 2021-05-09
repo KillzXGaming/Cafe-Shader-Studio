@@ -70,15 +70,14 @@ namespace CafeStudio.UI
             }
 
             animation.CanPlay = true;
-
-            FrameCount = Math.Max(animation.FrameCount, 1);
-            StartFrame = animation.StartFrame;
-            CurrentFrame = StartFrame;
-
             CurrentAnimations.Add(animation);
 
-            if (reset)
-                SetAnimationsToFrame(0);
+            StartFrame = animation.StartFrame;
+            CurrentFrame = StartFrame;
+            FrameCount = Math.Max(CurrentAnimations.Max(x => x.FrameCount), 1);
+
+            //if (reset)
+             //   SetAnimationsToFrame(0);
         }
 
         public void Reset(bool clearAnimations = true)

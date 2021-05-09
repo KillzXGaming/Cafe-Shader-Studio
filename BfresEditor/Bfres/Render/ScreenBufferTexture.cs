@@ -63,6 +63,14 @@ namespace BfresEditor
 
             GL.UseProgram(0);
 
+            ScreenBuffer.Bind();
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapR, (int)TextureWrapMode.ClampToEdge);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.ClampToEdge);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.ClampToEdge);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureBaseLevel, 0);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMaxLevel, 0);
+            GL.BindTexture(TextureTarget.Texture2D, 0);
+
             control.ScreenBuffer.Bind();
             GL.Viewport(0, 0, control.Width, control.Height);
         }

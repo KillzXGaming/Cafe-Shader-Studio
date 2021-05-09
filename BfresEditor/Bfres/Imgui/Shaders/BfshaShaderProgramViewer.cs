@@ -25,8 +25,6 @@ namespace BfresEditor
         public static void Render(FMAT material)
         {
             var renderer = material.MaterialAsset as BfshaRenderer;
-            if (renderer.GLShaderInfo == null)
-                return;
 
             if (ImGui.BeginCombo("Stage", selectedStage))
             {
@@ -44,7 +42,8 @@ namespace BfresEditor
             ImGui.BeginTabBar("menu_shader1");
             if (ImguiCustomWidgets.BeginTab("menu_shader1", $"Shader Code"))
             {
-                LoadShaderStageCode(material);
+                if (renderer.GLShaderInfo != null)
+                    LoadShaderStageCode(material);
                 ImGui.EndTabItem();
             }
             if (ImguiCustomWidgets.BeginTab("menu_shader1", "Shader Info"))
@@ -56,20 +55,27 @@ namespace BfresEditor
                 ImGui.EndChild();
                 ImGui.EndTabItem();
             }
-            if (ImguiCustomWidgets.BeginTab("menu_shader1", "Shader Constants"))
+
+            if (renderer.GLShaderInfo != null)
             {
-                if (selectedStage == "Vertex")
+                if (ImguiCustomWidgets.BeginTab("menu_shader1", "Shader Constants"))
                 {
-                    var constants = renderer.GLShaderInfo.VertexConstants;
-                    MemoryEditor.Draw(constants, constants.Length);
+                    if (selectedStage == "Vertex")
+                    {
+                        var constants = renderer.GLShaderInfo.VertexConstants;
+                        if (constants != null)
+                            MemoryEditor.Draw(constants, constants.Length);
+                    }
+                    if (selectedStage == "Pixel")
+                    {
+                        var constants = renderer.GLShaderInfo.PixelConstants;
+                        if (constants != null)
+                            MemoryEditor.Draw(constants, constants.Length);
+                    }
+                    ImGui.EndTabItem();
                 }
-                if (selectedStage == "Pixel")
-                {
-                    var constants = renderer.GLShaderInfo.PixelConstants;
-                    MemoryEditor.Draw(constants, constants.Length);
-                }
-                ImGui.EndTabItem();
             }
+
             ImGui.EndTabBar();
         }
 
@@ -85,14 +91,15 @@ namespace BfresEditor
                 if (ImGui.CollapsingHeader("Attributes", ImGuiTreeNodeFlags.DefaultOpen))
                 {
                     for (int i = 0; i < shader.Attributes.Count; i++) {
-                        ImGui.Text($"In {shader.AttributeDict.GetKey(i)} Location {shader.Attributes[i].Location}");
+                        if (program.HasAttribute(i))
+                            ImGui.Text($"In {shader.Attributes.GetKey(i)} Location {shader.Attributes[i].Location}");
                     }
                 }
                 if (ImGui.CollapsingHeader("Samplers", ImGuiTreeNodeFlags.DefaultOpen))
                 {
                     for (int i = 0; i < program.SamplerLocations.Length; i++)
                     {
-                        var sampler = shader.SamplersDict.GetKey(i);
+                        var sampler = shader.Samplers.GetKey(i);
                         if (program.SamplerLocations[i].VertexLocation != -1)
                             ImGui.Text($"Sampler {sampler} Location {program.SamplerLocations[i].FragmentLocation}");
                     }
@@ -101,13 +108,14 @@ namespace BfresEditor
                 {
                     for (int i = 0; i < program.UniformBlockLocations.Length; i++)
                     {
-                        var block = shader.UniformBlockDict.GetKey(i);
+                        var block = shader.UniformBlocks.GetKey(i);
                         if (program.UniformBlockLocations[i].VertexLocation != -1)
                             ImGui.Text($"UniformBlock {block} Location {program.UniformBlockLocations[i].VertexLocation}");
                     }
                 }
 
-                ShowReflectionData(variation.BinaryProgram.ShaderReflection.VertexShaderCode);
+                if (variation != null)
+                    ShowReflectionData(variation.BinaryProgram.ShaderReflection.VertexShaderCode);
             }
             if (selectedStage == "Pixel")
             {
@@ -115,7 +123,7 @@ namespace BfresEditor
                 {
                     for (int i = 0; i < program.SamplerLocations.Length; i++)
                     {
-                        var sampler = shader.SamplersDict.GetKey(i);
+                        var sampler = shader.Samplers.GetKey(i);
                         if (program.SamplerLocations[i].FragmentLocation != -1)
                             ImGui.Text($"Sampler {sampler} Location {program.SamplerLocations[i].FragmentLocation}");
                     }
@@ -124,12 +132,20 @@ namespace BfresEditor
                 {
                     for (int i = 0; i < program.UniformBlockLocations.Length; i++)
                     {
-                        var block = shader.UniformBlockDict.GetKey(i);
-                        if (program.UniformBlockLocations[i].FragmentLocation != -1)
+                        var block = shader.UniformBlocks.GetKey(i);
+                        if (program.UniformBlockLocations[i].FragmentLocation != -1) {
                             ImGui.Text($"UniformBlock {block} Location {program.UniformBlockLocations[i].FragmentLocation}");
+
+                            foreach (var uniform in shader.UniformBlocks[i].Uniforms)
+                            {
+                                ImGui.Text($"Uniform {uniform.Key} Offset {uniform.Value.Offset} {uniform.Value.Name}");
+                            }
+                        }
                     }
                 }
-                ShowReflectionData(variation.BinaryProgram.ShaderReflection.PixelShaderCode);
+
+                if (variation != null)
+                    ShowReflectionData(variation.BinaryProgram.ShaderReflection.PixelShaderCode);
             }
         }
 

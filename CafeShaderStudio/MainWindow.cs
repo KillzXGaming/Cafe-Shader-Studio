@@ -334,12 +334,12 @@ namespace CafeShaderStudio
                         cubemapRenderModels.Add(model.Renderer);
 
                     //Generate cubemaps in the scene.
-                    LightingEngine.LightSettings.UpdateCubemap(cubemapRenderModels);
+                    LightingEngine.LightSettings.UpdateCubemap(cubemapRenderModels, true);
                 }
 
                 //Generate light maps (area based lighting from directional and hemi lighting)
-                for (int i = 0; i < 8; i++)
-                    LightingEngine.LightSettings.UpdateLightmap(Pipeline._context, i);
+               // for (int i = 0; i < 8; i++)
+               //     LightingEngine.LightSettings.UpdateLightmap(Pipeline._context, i);
             }
             if (System.IO.File.Exists($"{folder}\\course_bglpbd.szs"))
             {

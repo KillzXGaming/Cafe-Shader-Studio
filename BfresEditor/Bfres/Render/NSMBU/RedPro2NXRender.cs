@@ -33,9 +33,17 @@ namespace BfresEditor
                 mesh.Priority = (int)(sharc_priority * 0x10000 + (uint)mesh.Shape.Shape.MaterialIndex);
             }
 
+            string polygonOffset = mat.GetRenderInfo("polygon_offset");
+
             //Offset polygons
-            if (mat.GetRenderInfo("polygon_offset") == "yes")
+            if (polygonOffset != null && polygonOffset.Contains("yes"))
                 mesh.IsSealPass = true;
+
+            if (mat.GetRenderInfo("shadow_cast") == "shadow-only")
+                mesh.IsDepthShadow = true;
+
+            if (mat.GetRenderInfo("reflection") == "reflection-only")
+                mesh.Shape.IsVisible = false;
         }
 
         public override void ReloadProgram(BfresMeshAsset mesh)
@@ -172,7 +180,7 @@ namespace BfresEditor
                 throw new Exception("Invalid MdlEnvView size");
         }
 
-        public override void SetTextureUniforms(ShaderProgram shader, STGenericMaterial mat)
+        public override void SetTextureUniforms(GLContext control, ShaderProgram shader, STGenericMaterial mat)
         {
             var bfresMaterial = (FMAT)mat;
 
@@ -180,7 +188,7 @@ namespace BfresEditor
             GL.BindTexture(TextureTarget.Texture2D, RenderTools.defaultTex.ID);
 
             List<string> shaderSamplers = new List<string>();
-            foreach (var sampler in ShaderModel.SamplersDict.GetKeys())
+            foreach (var sampler in ShaderModel.Samplers.GetKeys())
             {
                 if (bfresMaterial.Samplers.Contains(sampler))
                     shaderSamplers.Add(sampler);
@@ -207,7 +215,7 @@ namespace BfresEditor
 
             for (int i = 0; i < ShaderModel.Samplers.Count; i++)
             {
-                string sampler = ShaderModel.SamplersDict.GetKey(i);
+                string sampler = ShaderModel.Samplers.GetKey(i);
                 if (sampler == "_sm0")
                 {
                     GL.ActiveTexture(TextureUnit.Texture0 + id);

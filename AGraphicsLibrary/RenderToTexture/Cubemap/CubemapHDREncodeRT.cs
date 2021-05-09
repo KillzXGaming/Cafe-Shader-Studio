@@ -73,7 +73,12 @@ namespace AGraphicsLibrary
                     cubemapFilter.SetInt("faceLevel", i);
 
                     //attach face to fbo as color attachment 0
-                    if (cubemapOutput is GLTextureCubeArray)
+                    if (cubemapOutput is GLTexture2DArray)
+                    {
+                        GL.FramebufferTextureLayer(FramebufferTarget.Framebuffer,
+                             FramebufferAttachment.ColorAttachment0, cubemapOutput.ID, mip, (layer * 6) + i);
+                    }
+                    else if (cubemapOutput is GLTextureCubeArray)
                     {
                         GL.FramebufferTextureLayer(FramebufferTarget.Framebuffer,
                              FramebufferAttachment.ColorAttachment0, cubemapOutput.ID, mip, (layer * 6) + i);

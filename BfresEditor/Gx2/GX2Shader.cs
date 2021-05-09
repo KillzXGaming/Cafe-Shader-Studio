@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
+using System.IO;
 using Toolbox.Core.IO;
 using System.Runtime.InteropServices;
 
@@ -10,6 +10,19 @@ namespace BfresEditor
 {
     public class GX2Shader
     {
+        public Stream Data { get; set; }
+
+        public byte[] DataBytes
+        {
+            get
+            {
+                using (var binaryReader = new FileReader(Data, true))
+                {
+                    return binaryReader.ReadBytes((int)binaryReader.Length);
+                }
+            }
+        }
+
         public virtual void Write(FileWriter writer)
         {
 
@@ -28,10 +41,14 @@ namespace BfresEditor
 
         public GX2VertexShader(FileReader reader, uint version) {
 
+            long pos = reader.Position;
             ShaderRegsHeader = reader.ReadStruct<GX2VertexShaderStuct>();
 
             uint size = reader.ReadUInt32();
             uint dataOffset = reader.ReadUInt32();
+
+            Data = new SubStream(reader.BaseStream, pos, dataOffset + size);
+
             uint mode = reader.ReadUInt32();
             uint uniformBlockCount = reader.ReadUInt32();
             uint uniformBlocksOffset = reader.ReadUInt32();
@@ -82,11 +99,15 @@ namespace BfresEditor
 
         public GX2PixelShader(FileReader reader, uint version)
         {
+            long pos = reader.Position;
             ShaderRegsHeader = reader.ReadStruct<GX2PixelShaderStuct>();
 
             uint size = reader.ReadUInt32();
             uint dataOffset = reader.ReadUInt32();
             uint mode = reader.ReadUInt32();
+
+            Data = new SubStream(reader.BaseStream, pos, dataOffset + size);
+
             uint uniformBlockCount = reader.ReadUInt32();
             uint uniformBlocksOffset = reader.ReadUInt32();
             uint uniformVarCount = reader.ReadUInt32();
@@ -162,6 +183,8 @@ namespace BfresEditor
         public uint Offset { get; set; }
         public uint BlockIndex { get; set; }
 
+        public GX2UniformVar() { }
+
         public GX2UniformVar(FileReader reader)
         {
             Name = reader.ReadNameOffset(false, typeof(uint));
@@ -178,6 +201,8 @@ namespace BfresEditor
         public GX2SamplerVarType Type { get; set; }
         public uint Location { get; set; }
 
+        public GX2SamplerVar() { }
+
         public GX2SamplerVar(FileReader reader)
         {
             Name = reader.ReadNameOffset(false, typeof(uint));
@@ -191,6 +216,8 @@ namespace BfresEditor
         public string Name { get; set; }
         public uint Offset { get; set; }
         public uint Size { get; set; }
+
+        public GX2UniformBlock() { }
 
         public GX2UniformBlock(FileReader reader)
         {
@@ -206,6 +233,8 @@ namespace BfresEditor
         public GX2ShaderVarType Type { get; set; }
         public uint Count { get; set; }
         public int Location { get; set; }
+
+        public GX2AttributeVar() { }
 
         public GX2AttributeVar(FileReader reader)
         {
@@ -225,6 +254,8 @@ namespace BfresEditor
         public uint Offset { get; set; }
         public uint Value { get; set; }
 
+        public GX2LoopVar() { }
+
         public GX2LoopVar(FileReader reader)
         {
             Offset = reader.ReadUInt32();
@@ -234,11 +265,14 @@ namespace BfresEditor
 
     public enum GX2SamplerVarType
     {
-        SAMPLER_1D,
-        SAMPLER_2D,
-        SAMPLER_3D,
-        SAMPLER_CUBE,
+        SAMPLER_1D = 0,
+        SAMPLER_2D = 1,
+        SAMPLER_3D = 2,
+        SAMPLER_CUBE = 4,
+        SAMPLER_2D_SHADOW = 6,
         SAMPLER_2D_ARRAY = 10,
+        SAMPLER_2D_ARRAY_SHADOW = 12,
+        SAMPLER_CUBE_ARRAY = 13,
     }
 
     public enum GX2ShaderVarType

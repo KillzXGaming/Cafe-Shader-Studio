@@ -33,7 +33,7 @@ namespace BfresEditor
             BfshaFile = new BfshaFile(stream);
 
             this.Header = BfshaFile.Name;
-            foreach (var model in BfshaFile.ShaderModels) {
+            foreach (var model in BfshaFile.ShaderModels.Values) {
                 AddChild(LoadShaderModel(model));
             }
             Tag = this;
@@ -49,6 +49,18 @@ namespace BfresEditor
             var node = new NodeBase(shaderModel.Name);
             node.Tag = new ShaderModelWrapper(shaderModel);
             return node;
+        }
+
+        public static byte[] CreateGX2Shader(ShaderModel shaderModel, int programIndex)
+        {
+            var program = shaderModel.GetShaderProgram(programIndex);
+
+            var mem = new MemoryStream();
+            using (var writer = new FileWriter(mem))
+            {
+              //  writer.Write(program.gx);
+            }
+            return mem.ToArray();
         }
     }
 }

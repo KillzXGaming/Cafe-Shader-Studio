@@ -193,6 +193,7 @@ namespace BfresEditor
                     strideTotal,
                     att.Offset);
             }
+
             vao.Initialize();
         }
 

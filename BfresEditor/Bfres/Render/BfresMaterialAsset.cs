@@ -86,7 +86,7 @@ namespace BfresEditor
 
             SetBlendState(bfresMaterial);
             SetUniforms(shader, bfresMaterial);
-            SetTextureUniforms(shader, MaterialData);
+            SetTextureUniforms(control, shader, MaterialData);
             SetRenderState(bfresMaterial);
 
             shader.SetInt("SkinCount", bfresMesh.SkinCount);
@@ -129,7 +129,7 @@ namespace BfresEditor
                 GL.Disable(EnableCap.CullFace);
         }
 
-        public virtual void SetTextureUniforms(ShaderProgram shader, STGenericMaterial mat)
+        public virtual void SetTextureUniforms(GLContext control, ShaderProgram shader, STGenericMaterial mat)
         {
             var bfresMaterial = (FMAT)mat;
 

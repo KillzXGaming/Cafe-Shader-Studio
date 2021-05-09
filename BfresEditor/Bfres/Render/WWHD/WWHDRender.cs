@@ -208,7 +208,7 @@ namespace BfresEditor
             block.Add(cProj);
         }
 
-        public override void SetTextureUniforms(ShaderProgram shader, STGenericMaterial mat)
+        public override void SetTextureUniforms(GLContext control, ShaderProgram shader, STGenericMaterial mat)
         {
             var bfresMaterial = (FMAT)mat;
 
@@ -220,6 +220,8 @@ namespace BfresEditor
             var pixelShader = ShaderModel.GetGX2PixelShader(BinaryIndex);
             foreach (var sampler in pixelShader.Samplers)
             {
+                GL.ActiveTexture(TextureUnit.Texture0 + id);
+
                 switch (sampler.Name)
                 {
                     case "ice_cube": IceCubeTexture.Bind(); break;
@@ -231,8 +233,6 @@ namespace BfresEditor
                     default:
                         ProjectionTexture.Bind(); break;
                 }
-
-                GL.ActiveTexture(TextureUnit.Texture0 + id);
                 this.SetSampler(shader, (int)sampler.Location, ref id);
             }
 

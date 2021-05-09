@@ -109,7 +109,10 @@ namespace BfresEditor
                 if (ImGui.CollapsingHeader("SHARCFB Attributes", ImGuiTreeNodeFlags.DefaultOpen))
                 {
                     for (int i = 0; i < program.AttributeVariables.symbols.Count; i++)
-                        ImGui.Text($"Name {program.AttributeVariables.symbols[i].Name} Symbol { program.AttributeVariables.symbols[i].SymbolName}");
+                    {
+                        var symbol = program.AttributeVariables.symbols[i];
+                        ImGui.Text($"Name {symbol.Name} Symbol { symbol.SymbolName} Usage: { symbol.flags[shader.VariationBaseIndex]}");
+                    }
                 }
 
                 if (ImGui.CollapsingHeader("SHARCFB Uniform Blocks", ImGuiTreeNodeFlags.DefaultOpen))

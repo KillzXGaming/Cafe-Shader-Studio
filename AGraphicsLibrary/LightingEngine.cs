@@ -62,7 +62,7 @@ namespace AGraphicsLibrary
             ShadowPrepassTexture = GLTexture2D.CreateUncompressedTexture(4, 4,
                 PixelInternalFormat.Rgba, PixelFormat.Rgba, PixelType.UnsignedByte);
 
-            LightPrepassTexture = GLTexture2DArray.CreateUncompressedTexture(4, 4,
+            LightPrepassTexture = GLTexture2DArray.CreateUncompressedTexture(4, 4, 1, 1,
                            PixelInternalFormat.R11fG11fB10f, PixelFormat.Rgb, PixelType.UnsignedInt10F11F11FRev);
         }
 
@@ -134,7 +134,7 @@ namespace AGraphicsLibrary
         public void UpdateLightPrepass(GLContext control, int normalsTexture, int depthTexture) {
             if (LightPrepassTexture == null)
             {
-                LightPrepassTexture = GLTexture2DArray.CreateUncompressedTexture(control.Width, control.Height,
+                LightPrepassTexture = GLTexture2DArray.CreateUncompressedTexture(control.Width, control.Height, 1, 1,
                      PixelInternalFormat.R11fG11fB10f, PixelFormat.Rgb, PixelType.UnsignedInt10F11F11FRev);
             }
             LightPrepassManager.CreateLightPrepassTexture(control,  normalsTexture, depthTexture, LightPrepassTexture);
@@ -150,8 +150,8 @@ namespace AGraphicsLibrary
             ShadowPrepassManager.CreateShadowPrepassTexture(control, shadowMap, depthTexture, ShadowPrepassTexture);
         }
 
-        public void UpdateCubemap(List<GenericRenderer> renders) {
-            CubemapManager.GenerateCubemaps(renders);
+        public void UpdateCubemap(List<GenericRenderer> renders, bool isWiiU) {
+            CubemapManager.GenerateCubemaps(renders, isWiiU);
         }
 
         public void UpdateLightmap(GLContext control, int areaIndex)

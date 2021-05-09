@@ -113,7 +113,6 @@ namespace BfresEditor
             //Remap the vertex layouts from shader model attributes
             Dictionary<string, string> attributeLocations = new Dictionary<string, string>();
 
-            int location = 0;
             for (int i = 0; i < gx2ShaderVertex.Attributes.Count; i++)
             {
                 var symbol = ShaderModel.AttributeVariables.symbols.FirstOrDefault(
@@ -185,7 +184,7 @@ namespace BfresEditor
 
             //Set material raster state and texture samplers
             SetBlendState(bfresMaterial);
-            SetTextureUniforms(shader, MaterialData);
+            SetTextureUniforms(control, shader, MaterialData);
             SetRenderState(bfresMaterial);
 
             var pixelShader = ShaderModel.GetGX2PixelShader(this.BinaryIndex);

@@ -230,10 +230,6 @@ namespace BfresEditor
                     index *= variation.Values.Count;
                     index += variation.Values.IndexOf(options[variation.Name]);
                 }
-
-
-                if (HasGeometryShader())
-                    return index;
                 return index;
             }
 

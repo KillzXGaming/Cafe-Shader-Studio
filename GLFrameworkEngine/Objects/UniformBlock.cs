@@ -112,8 +112,6 @@ namespace GLFrameworkEngine
             if (index == -1)
                 return;
 
-            Bind();
-
             binding = binding != -1 ? binding : index;
 
             GL.UniformBlockBinding(programID, index, binding);

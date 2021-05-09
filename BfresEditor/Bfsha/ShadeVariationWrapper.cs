@@ -8,11 +8,11 @@ using CafeStudio.UI;
 
 namespace BfresEditor
 {
-    public class ShadeVariationWrapper : IPropertyUI
+    public class ShaderVariationWrapper : IPropertyUI
     {
         public ShaderVariation VariationData;
 
-        public ShadeVariationWrapper(ShaderVariation variation) {
+        public ShaderVariationWrapper(ShaderVariation variation) {
             VariationData = variation;
         }
 

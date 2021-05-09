@@ -23,6 +23,8 @@ namespace BfresEditor
 
         public int AreaIndex { get; set; } = -1;
 
+        SceneMaterial sceneMaterial = new SceneMaterial();
+
         /// <summary>
         /// Gets the param area from a bgenv lighting file.
         /// The engine uses a collect model which as boundings for areas to set various things like fog or lights.
@@ -43,23 +45,6 @@ namespace BfresEditor
 
             float index = (float)areaParam.DataValue;
             return (int)index;
-        }
-
-        //A somewhat hacky implimentation to quickly adjust existing params in the block for dynamic objects
-        private void UpdateParam(string name, object value)
-        {
-            var mat = (FMAT)MaterialData;
-            var areaParam = mat.ShaderParams[name];
-
-            if (mat.AnimatedParams.ContainsKey((name)))
-                mat.AnimatedParams[name].DataValue = value;
-            else
-                mat.AnimatedParams.Add(name, new BfresLibrary.ShaderParam()
-                {
-                    Name = areaParam.Name,
-                    Type = areaParam.Type,
-                    DataValue = value,
-                });
         }
 
         //Render passes as labeled in bfsha binary 
@@ -116,15 +101,14 @@ namespace BfresEditor
             Console.WriteLine($"Reloading Shader Program {mesh.Name}");
 
             //The assign type has it's own set of programs for different passes
-            foreach (var option in ShaderModel.DynamiOptions[1].ChoiceDict.GetKeys())
+            foreach (var option in ShaderModel.DynamiOptions["gsys_assign_type"].choices)
             {
-                if (string.IsNullOrEmpty(option))
-                    continue;
-
                 options["gsys_assign_type"] = option;
                 int programIndex = ShaderModel.GetProgramIndex(options);
                 if (programIndex == -1)
                     continue;
+
+                Console.WriteLine($"program {programIndex}");
 
                 this.ProgramPasses.Add(ShaderModel.GetShaderProgram(programIndex));
             }
@@ -154,7 +138,46 @@ namespace BfresEditor
             public Vector4 Color = new Vector4(0);
         }
 
-        public static GLTextureCube DiffuseLightmapTexture;
+        class SceneMaterial
+        {
+            const float light_intensity = 1.0f; //Multipled by light scale param (fp_c7_data[2].y)
+
+            //Note alpha for colors also are intensity factors
+            public Vector4 shadow_color = new Vector4(0, 0, 0, 1);
+            public Vector4 ao_color = new Vector4(0, 0, 0, 1);
+
+            public Vector4 lighting = new Vector4(1.0f, light_intensity, 1.0f, 1.0f);
+            public Vector4 lighting_specular = new Vector4(1, 0.9f, 1, 1);
+            //Z value controls shadow intensity when a light source hits shadows
+            public Vector4 light_prepass_param = new Vector4(1, 1, 0, 1);
+            public Vector4 exposure = new Vector4(1);
+
+            public void AddBlock(UniformBlock block)
+            {
+                block.Add(shadow_color);
+                block.Add(ao_color);
+                block.Add(lighting);
+                block.Add(lighting_specular);
+                block.Add(light_prepass_param);
+                block.Add(exposure);
+            }
+
+            public void Write(Toolbox.Core.IO.FileWriter writer)
+            {
+                writer.Write(shadow_color);
+                writer.Write(ao_color);
+                writer.Write(lighting);
+                writer.Write(lighting_specular);
+                writer.Write(light_prepass_param);
+                writer.Write(exposure);
+            }
+        }
+
+        public static GLTexture DiffuseLightmapTexture;
+
+        //WiiU Specific
+        public static GLTexture DiffuseLightmapTextureArray;
+
         static GLTexture2D ProjectionTexture;
         static GLTexture2D DepthShadowCascadeTexture;
         static GLTexture2D NormalizedLinearDepth;
@@ -167,12 +190,12 @@ namespace BfresEditor
 
             CubemapManager.InitDefault(cubemap);
 
-            /*    CubeMapTexture = GLTextureCubeArray.CreateEmptyCubemap(
-                    4, PixelInternalFormat.Rgba, PixelFormat.Rgba, PixelType.UnsignedByte);
-                CubeMapTexture.GenerateMipmaps();*/
-
-            //  CubeMapTexture = GLTextureCubeArray.FromDDS(
-            // new DDS(new MemoryStream(Resources.ReflectionCubemap)));
+            CubemapManager.CubeMapTextureArray = GLTexture2DArray.FromDDS(new DDS($"Resources\\CubemapHDR.dds"));
+            DiffuseLightmapTextureArray = GLTexture2DArray.FromDDS(new DDS[2]
+            {
+                new DDS(new MemoryStream(Resources.CubemapLightmap)),
+                new DDS(new MemoryStream(Resources.CubemapLightmapShadow)) 
+            });
 
             //Diffuse cubemap lighting
             //Map gets updated when an object moves using probe lighting.
@@ -203,21 +226,24 @@ namespace BfresEditor
 
             //Adjust mip levels
 
-            cubemap.Bind();
-            GL.TexParameter(cubemap.Target, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Linear);
-            GL.TexParameter(cubemap.Target, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.LinearMipmapLinear);
-            GL.TexParameter(cubemap.Target, TextureParameterName.TextureBaseLevel, 0);
-            GL.TexParameter(cubemap.Target, TextureParameterName.TextureMaxLevel, 13);
-            GL.TexParameter(cubemap.Target, TextureParameterName.TextureWrapS, (int)TextureWrapMode.ClampToEdge);
-            GL.TexParameter(cubemap.Target, TextureParameterName.TextureWrapT, (int)TextureWrapMode.ClampToEdge);
-            GL.TexParameter(cubemap.Target, TextureParameterName.TextureWrapR, (int)TextureWrapMode.ClampToEdge);
-            cubemap.Unbind();
+            CubemapManager.CubeMapTexture.Bind();
+            GL.TexParameter(CubemapManager.CubeMapTexture.Target, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Linear);
+            GL.TexParameter(CubemapManager.CubeMapTexture.Target, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.LinearMipmapLinear);
+            GL.TexParameter(CubemapManager.CubeMapTexture.Target, TextureParameterName.TextureBaseLevel, 0);
+            GL.TexParameter(CubemapManager.CubeMapTexture.Target, TextureParameterName.TextureMaxLevel, 13);
+            GL.TexParameter(CubemapManager.CubeMapTexture.Target, TextureParameterName.TextureWrapS, (int)TextureWrapMode.ClampToEdge);
+            GL.TexParameter(CubemapManager.CubeMapTexture.Target, TextureParameterName.TextureWrapT, (int)TextureWrapMode.ClampToEdge);
+            GL.TexParameter(CubemapManager.CubeMapTexture.Target, TextureParameterName.TextureWrapR, (int)TextureWrapMode.ClampToEdge);
+            CubemapManager.CubeMapTexture.Unbind();
 
             DiffuseLightmapTexture.Bind();
-            GL.TexParameter(cubemap.Target, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Linear);
-            GL.TexParameter(cubemap.Target, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.LinearMipmapLinear);
+            GL.TexParameter(DiffuseLightmapTexture.Target, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Linear);
+            GL.TexParameter(DiffuseLightmapTexture.Target, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.LinearMipmapLinear);
             GL.TexParameter(DiffuseLightmapTexture.Target, TextureParameterName.TextureBaseLevel, 0);
             GL.TexParameter(DiffuseLightmapTexture.Target, TextureParameterName.TextureMaxLevel, 2);
+            GL.TexParameter(DiffuseLightmapTexture.Target, TextureParameterName.TextureWrapS, (int)TextureWrapMode.ClampToEdge);
+            GL.TexParameter(DiffuseLightmapTexture.Target, TextureParameterName.TextureWrapT, (int)TextureWrapMode.ClampToEdge);
+            GL.TexParameter(DiffuseLightmapTexture.Target, TextureParameterName.TextureWrapR, (int)TextureWrapMode.ClampToEdge);
             DiffuseLightmapTexture.Unbind();
 
             LightingEngine.LightSettings.InitTextures();
@@ -225,7 +251,7 @@ namespace BfresEditor
 
         public override void Render(GLContext control, ShaderProgram shader, GenericPickableMesh mesh)
         {
-            if (DiffuseLightmapTexture == null)
+            if (ProjectionTexture == null)
                 InitTextures();
 
             control.UseSRBFrameBuffer = true;
@@ -233,9 +259,6 @@ namespace BfresEditor
                 AreaIndex = GetAreaIndex();
 
             base.Render(control, shader, mesh);
-
-            if (((BfresMeshAsset)mesh).UseColorBufferPass)
-                SetScreenTextureBuffer(shader, control);
             SetShadowTexture(shader, control);
         }
 
@@ -294,22 +317,13 @@ namespace BfresEditor
         {
         }
 
-        private void SetScreenTextureBuffer(ShaderProgram shader, GLContext control)
+        private GLTexture SetScreenTextureBuffer(GLContext control)
         {
-            int id = 50;
-
             var screenBuffer = ScreenBufferTexture.GetColorBuffer(control);
             if (screenBuffer == null)
-                return;
+                return null;
 
-            GL.ActiveTexture(TextureUnit.Texture0 + id);
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapR, (int)TextureWrapMode.ClampToEdge);
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.ClampToEdge);
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.ClampToEdge);
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureBaseLevel, 0);
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMaxLevel, 0);
-            screenBuffer.Bind();
-            shader.SetInt($"{ConvertSamplerID(17)}", id);
+            return screenBuffer;
         }
 
         private void SetEnvUniforms(UniformBlock block)
@@ -368,28 +382,7 @@ namespace BfresEditor
 
         private void SetSceneMatUniforms(UniformBlock block)
         {
-            float light_intensity = 1.0f; //Multipled by light scale param (fp_c7_data[2].y)
-
-            //Note alpha for colors also are intensity factors
-            Vector4 shadow_color = new Vector4(0, 0, 0, 1);
-            Vector4 ao_color = new Vector4(0, 0, 0, 1);
-
-            Vector4 lighting = new Vector4(1.0f, light_intensity, 1.0f, 1.0f);
-            Vector4 lighting_specular = new Vector4(1, 0.9f, 1, 1);
-            //Z value controls shadow intensity when a light source hits shadows
-            Vector4 light_prepass_param = new Vector4(1, 1, 0, 1);
-            Vector4 exposure = new Vector4(1);
-                
-            block.Buffer.Clear();
-            block.Add(shadow_color);
-            block.Add(ao_color);
-            block.Add(lighting);
-            block.Add(lighting_specular);
-            block.Add(light_prepass_param);
-            block.Add(exposure);
-
-            if (block.Buffer.Count != 96)
-                throw new Exception("Invalid gsys_scene_material size");
+            sceneMaterial.AddBlock(block);
         }
 
         private void SetViewportUniforms(Camera camera,  UniformBlock block)
@@ -434,6 +427,10 @@ namespace BfresEditor
             using (var writer = new Toolbox.Core.IO.FileWriter(mem))
             {
                 writer.SeekBegin(0);
+                writer.Write(new byte[128 * 16]);
+
+                writer.SeekBegin(0);
+
                 writer.Write(cView[0]);
                 writer.Write(cView[1]);
                 writer.Write(cView[2]);
@@ -454,19 +451,51 @@ namespace BfresEditor
                 writer.Write(cViewInv[2]);
                 writer.Write(new Vector4(znear, zfar, zfar / znear, 1.0f - znear / zfar));
 
-                writer.SeekBegin(656);
-                writer.Write(0.55f);
-                writer.Write(1);
+                if (!IsSwitch) {
 
-                writer.SeekBegin(1024);
-                //Cubemap params
-                writer.Write(1024.0f);
-                writer.Write(4.0f);
-                writer.Write(1.0f);
-                writer.Write(1.0f);
+                    writer.SeekBegin(26 * 16);
+                    writer.Write(new Vector4(1));
 
-                //Visualizer flags (pass 5)
-                writer.SeekBegin(1984); //vec4[124]
+                    //Wii U saves scene params in view block
+                    writer.SeekBegin(53 * 16);
+                    writer.Write(sceneMaterial.shadow_color);
+                    writer.Write(sceneMaterial.ao_color);
+
+                    writer.SeekBegin(70 * 16);
+                    writer.Write(sceneMaterial.light_prepass_param);
+                    writer.Write(new Vector4(1));
+                    writer.Write(sceneMaterial.exposure);
+                    writer.Write(sceneMaterial.lighting);
+                    writer.Write(new Vector4(1));
+
+                    //Cubemap params
+                    writer.Write(1024.0f);
+                    writer.Write(4.0f);
+                    writer.Write(1.0f);
+                    writer.Write(1.0f);
+                    writer.Write(new Vector4(1280, 720, 0.0078f, 0.00139f));
+                    writer.Write(new Vector4(1, 0, 0, 0)); //Set to 1 for usable ratio lighting
+                    writer.Write(sceneMaterial.lighting_specular);
+                }
+                else
+                {
+                    writer.SeekBegin(53 * 16);
+                    writer.Write(new Vector4(1));
+
+                    writer.SeekBegin(656);
+                    writer.Write(0.55f);
+                    writer.Write(1);
+
+                    writer.SeekBegin(64 * 16);
+                    //Cubemap params
+                    writer.Write(1024.0f);
+                    writer.Write(4.0f);
+                    writer.Write(1.0f);
+                    writer.Write(1.0f);
+                }
+
+                writer.SeekBegin(78 * 16);
+                writer.Write(0.0f);
             }
 
             block.Buffer.Clear();
@@ -480,78 +509,43 @@ namespace BfresEditor
             block.Add(new Vector4(1.666667f, 0, 0, 0));
         }
 
-        public override void SetTextureUniforms(ShaderProgram shader, STGenericMaterial mat)
+        public override GLTexture GetExternalTexture(GLContext control, string sampler)
         {
-            var bfresMaterial = (FMAT)mat;
-
-            GL.ActiveTexture(TextureUnit.Texture0 + 1);
-            GL.BindTexture(TextureTarget.Texture2D, RenderTools.defaultTex.ID);
-
-            List<string> shaderSamplers = new List<string>();
-            foreach (var sampler in ShaderModel.SamplersDict.GetKeys())
-                if (!string.IsNullOrEmpty(sampler))
-                    shaderSamplers.Add(sampler);
-
-            int id = 1;
-            foreach (var sampler in bfresMaterial.Material.ShaderAssign.SamplerAssigns)
-            {
-                var fragOutput = sampler.Key;
-                var bfresInput = sampler.Value;
-
-                var textureIndex = bfresMaterial.TextureMaps.FindIndex(x => x.Sampler == bfresInput);
-                if (textureIndex == -1)
-                    continue;
-
-                var texMap = mat.TextureMaps[textureIndex];
-
-                var name = texMap.Name;
-                //Lookup samplers targeted via animations and use that texture instead if possible
-                if (bfresMaterial.AnimatedSamplers.ContainsKey(bfresInput))
-                    name = bfresMaterial.AnimatedSamplers[bfresInput];
-
-                int index = shaderSamplers.IndexOf(fragOutput);
-
-                var uniformName = $"{ConvertSamplerID(index)}";
-                var binded = BindTexture(shader, GetTextures(), texMap, name, id);
-                shader.SetInt(uniformName, id++);
-            }
-
-            LoadLightingTextures(shader, id);
-
-            GL.ActiveTexture(TextureUnit.Texture0);
-            GL.BindTexture(TextureTarget.Texture2D, 0);
-        }
-
-        void LoadLightingTextures(ShaderProgram shader, int id)
-        {
-            if (DiffuseLightmapTexture == null)
-                return;
-
-            id++;
-
             var lightSettings = LightingEngine.LightSettings;
+            switch (sampler)
+            {
+                case "gsys_lightmap_diffuse":
+                    {
+                        if (!IsSwitch)
+                            return DiffuseLightmapTextureArray;
 
-            GL.ActiveTexture(TextureUnit.Texture0 + id);
-            if (ParentRenderer.DiffuseProbeTexture != null)
-                LoadTexture(shader, ParentRenderer.DiffuseProbeTexture, 11, id++);
-            else if (lightSettings.Lightmaps.ContainsKey(AreaIndex))
-                LoadTexture(shader, lightSettings.Lightmaps[AreaIndex], 11, id++);
-            else
-                LoadTexture(shader, DiffuseLightmapTexture, 11, id++);
-
-            LoadTexture(shader, CubemapManager.CubeMapTexture, 12, id++);
-            LoadTexture(shader, LightingEngine.LightSettings.ShadowPrepassTexture, 13, id++);
-            LoadTexture(shader, DepthShadowCascadeTexture, 14, id++);
-            LoadTexture(shader, ProjectionTexture, 15, id++);
-            LoadTexture(shader, lightSettings.LightPrepassTexture, 16, id++);
-            LoadTexture(shader, NormalizedLinearDepth, 18, id++);
-        }
-
-        static void LoadTexture(ShaderProgram shader, GLTexture texture, int location, int id)
-        {
-            GL.ActiveTexture(TextureUnit.Texture0 + id);
-            texture.Bind();
-            shader.SetInt($"{ConvertSamplerID(location)}", id);
+                        if (ParentRenderer.DiffuseProbeTexture != null)
+                            return ParentRenderer.DiffuseProbeTexture;
+                        else if (lightSettings.Lightmaps.ContainsKey(AreaIndex))
+                            return lightSettings.Lightmaps[AreaIndex];
+                        else
+                            return DiffuseLightmapTexture;
+                    }
+                case "gsys_cube_map":
+                    if (IsSwitch)
+                        return CubemapManager.CubeMapTexture;
+                    else
+                        return CubemapManager.CubeMapTextureArray;
+                case "gsys_static_depth_shadow":
+                    return LightingEngine.LightSettings.ShadowPrepassTexture;
+                case "gsys_depth_shadow_cascade":
+                    return DepthShadowCascadeTexture;
+                case "gsys_projection0":
+                    return ProjectionTexture;
+                case "gsys_light_prepass":
+                    return lightSettings.LightPrepassTexture;
+                case "gsys_normalized_linear_depth":
+                    return NormalizedLinearDepth;
+                case "gsys_color_buffer":
+                    return SetScreenTextureBuffer(control);
+                default:
+                    return null;
+            }
         }
     }
 }

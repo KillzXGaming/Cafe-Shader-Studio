@@ -179,7 +179,7 @@ namespace BfresEditor
             block.Add(cFogStartEndInv);
         }
 
-        public override void SetTextureUniforms(ShaderProgram shader, STGenericMaterial mat)
+        public override void SetTextureUniforms(GLContext control, ShaderProgram shader, STGenericMaterial mat)
         {
             var bfresMaterial = (FMAT)mat;
 

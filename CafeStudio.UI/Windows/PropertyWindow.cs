@@ -44,9 +44,9 @@ namespace CafeStudio.UI
 
             //Archive files have multiple purpose editors (hex, tag properties, text previewer)
             if (node is ArchiveHiearchy)
-                LoadArchiveProperties(node);
+                LoadArchiveProperties(node, valueChanged);
             else
-                LoadProperties(node);
+                LoadProperties(node, valueChanged);
         }
 
         private void CheckEditorSelectedNodes(TimelineWindow timeline, NodeBase node, bool valueChanged)
@@ -54,8 +54,6 @@ namespace CafeStudio.UI
             //Check for active changes for functions that load only once on click
             if (valueChanged)
             {
-                Console.WriteLine($"CheckEditorSelectedNodes {node.Header}");
-
                 if (node.Tag != null && node.Tag is Toolbox.Core.Animations.STAnimation) {
                     var anim = (Toolbox.Core.Animations.STAnimation)node.Tag;
                     timeline.AddAnimation(anim, false);
@@ -74,7 +72,7 @@ namespace CafeStudio.UI
             }
         }
 
-        private void LoadArchiveProperties(NodeBase node)
+        private void LoadArchiveProperties(NodeBase node, bool onLoad)
         {
             var archiveFileWrapper = node as ArchiveHiearchy;
             //Wrapper is a folder, skip
@@ -103,11 +101,11 @@ namespace CafeStudio.UI
                 ((MemoryEditor)ActiveEditor).Draw(memPool, memPool.Length);
             }
             if (archiveFileWrapper.ArchiveEditor == "File Editor") {
-                LoadProperties(node);
+                LoadProperties(node, onLoad);
             }
         }
 
-        private void LoadProperties(NodeBase node)
+        private void LoadProperties(NodeBase node, bool onLoad)
         {
             if (node.Tag is IPropertyUI)
             {
@@ -117,6 +115,9 @@ namespace CafeStudio.UI
                     var instance = Activator.CreateInstance(propertyUI.GetTypeUI());
                     ActiveEditor = instance;
                 }
+                if (onLoad)
+                    propertyUI.OnLoadUI(ActiveEditor);
+
                 propertyUI.OnRenderUI(ActiveEditor);
             }
             else if (node.Tag is STGenericTexture)

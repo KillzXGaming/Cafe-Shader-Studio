@@ -102,6 +102,8 @@ namespace BfresEditor
         /// </summary>
         public BfshaLibrary.ShaderModel ShaderModel { get; set; }
 
+        public bool IsSwitch => ShaderModel.BnshFileStream != null;
+
         public BfshaRenderer() { }
 
         public BfshaRenderer(BfshaLibrary.ShaderModel shaderModel)
@@ -122,7 +124,7 @@ namespace BfresEditor
             if (bfsha == null)
                 return;
 
-            var shaderModel = bfsha.ShaderModels.FirstOrDefault(x => x.Name == mesh.Material.ShaderModel);
+            var shaderModel = bfsha.ShaderModels.Values.FirstOrDefault(x => x.Name == mesh.Material.ShaderModel);
             if (shaderModel != null)
                 OnLoad(shaderModel, fmdl, mesh, meshAsset);
         }
@@ -132,7 +134,7 @@ namespace BfresEditor
         /// </summary>
         public void OnLoad(BfshaLibrary.ShaderModel shaderModel, FMDL model, FSHP mesh, BfresMeshAsset meshAsset)
         {
-            var shapeBlock = shaderModel.UniformBlocks.FirstOrDefault(x =>
+            var shapeBlock = shaderModel.UniformBlocks.Values.FirstOrDefault(x =>
             x.Type == BfshaLibrary.UniformBlock.BlockType.Shape);
 
             //Models may update the shape block outside the shader if the shape block is unused so update mesh matrix manually
@@ -140,14 +142,6 @@ namespace BfresEditor
             {
                 mesh.UpdateVertexBuffer(true);
                 meshAsset.UpdateVertexBuffer();
-            }
-
-            //Remap the vertex layouts from shader model attributes
-            Dictionary<string, int> attributeLocations = new Dictionary<string, int>();
-            for (int i = 0; i < shaderModel.AttributeDict.Count; i++)
-            {
-                string key = shaderModel.AttributeDict.GetKey(i);
-                attributeLocations.Add(key, shaderModel.Attributes[i].Location);
             }
 
             //Assign some necessary data
@@ -173,7 +167,31 @@ namespace BfresEditor
             ReloadRenderState(meshAsset);
             ReloadProgram(meshAsset);
 
-            meshAsset.UpdateVaoAttributes(attributeLocations);
+            var bfresMaterial = (FMAT)this.MaterialData;
+
+            //Remap the vertex layouts from shader model attributes
+            if (!IsSwitch)
+            {
+                //GX2 shaders can be directly mapped via string and location searches
+                Dictionary<string, string> attributeLocations = new Dictionary<string, string>();
+                for (int i = 0; i < shaderModel.Attributes.Count; i++)
+                {
+                    string key = shaderModel.Attributes.GetKey(i);
+                    attributeLocations.Add(key, $"{key}_0_0");
+                }
+                meshAsset.UpdateVaoAttributes(attributeLocations);
+            }
+            else
+            {
+                Dictionary<string, int> attributeLocations = new Dictionary<string, int>();
+                for (int i = 0; i < shaderModel.Attributes.Count; i++)
+                {
+                    string key = shaderModel.Attributes.GetKey(i);
+                    int location = shaderModel.Attributes[i].Location;
+                    attributeLocations.Add(key, location);
+                }
+                meshAsset.UpdateVaoAttributes(attributeLocations);
+            }
         }
 
         /// <summary>
@@ -215,8 +233,14 @@ namespace BfresEditor
             var programID = shader.program;
 
             //Set constants saved from shader code to the first uniform block of each stage
-            LoadVertexShaderConstantBlock(programID);
-            LoadPixelShaderConstantBlock(programID);
+            if (IsSwitch)
+            {
+                LoadVertexShaderConstantBlock(programID);
+                LoadPixelShaderConstantBlock(programID);
+            }
+
+            if (!IsSwitch)
+                CafeShaderDecoder.SetShaderConstants(shader, programID, bfresMaterial);
 
             //Set in tool selection coloring
             shader.SetVector4("extraBlock.selectionColor", new Vector4(0));
@@ -225,13 +249,13 @@ namespace BfresEditor
 
             //Set material raster state and texture samplers
             SetBlendState(bfresMaterial);
-            SetTextureUniforms(shader, MaterialData);
+            SetTextureUniforms(control, shader, MaterialData);
             SetRenderState(bfresMaterial);
 
-            int binding = 2;
+            int binding = IsSwitch ? 2 : 0;
             for (int i = 0; i < ShaderModel.UniformBlocks.Count; i++)
             {
-                string name = ShaderModel.UniformBlockDict.GetKey(i);
+                string name = ShaderModel.UniformBlocks.GetKey(i);
                 var uniformBlock = ShaderModel.UniformBlocks[i];
 
                 var locationInfo = ProgramPasses[this.ProgramIndex].UniformBlockLocations[i];
@@ -242,7 +266,7 @@ namespace BfresEditor
                 if (fragLocation == -1 && vertLocation == -1)
                     continue;
 
-                var shaderBlock = GetBlock(name, false);
+                var shaderBlock = GetBlock(name + "vs", false);
 
                 //If a block is not cached, update it in the render loop.
                 if (!BlocksToCache.Contains(name)) {
@@ -361,21 +385,43 @@ namespace BfresEditor
         /// Reloads the glsl shader file from the shader cache or saves a translated one if does not exist.
         /// </summary>
         public void ReloadGLSLShaderFile(BfshaLibrary.ResShaderProgram program) {
-            GLShaderInfo = TegraShaderDecoder.LoadShaderProgram(ShaderModel, ShaderModel.GetShaderVariation(program));
-            shaderProgram = GLShaderInfo.Program;
+            if (IsSwitch)
+                DecodeSwitchBinary(program);
+            else
+                DecodeWiiUBinary(program);
 
             UpdateShader = false;
 
-            var matBlock = ShaderModel.UniformBlocks.FirstOrDefault(x => x.Type == BfshaLibrary.UniformBlock.BlockType.Material);
-            if (matBlock != null)
+            var matBlock = ShaderModel.UniformBlocks.Values.FirstOrDefault(x => x.Type == BfshaLibrary.UniformBlock.BlockType.Material);
+            if (matBlock != null && GLShaderInfo != null)
             {
                 var locationInfo = ProgramPasses[this.ProgramIndex].UniformBlockLocations[matBlock.Index];
+                string blockNameFSH = IsSwitch ? $"fp_c{locationInfo.FragmentLocation + 3}_data" : $"CBUFFER_{locationInfo.FragmentLocation}.values";
+                string blockNameVSH = IsSwitch ? $"vp_c{locationInfo.VertexLocation + 3}_data" : $"CBUFFER_{locationInfo.VertexLocation}.values";
 
-                GLShaderInfo.CreateUsedUniformListVertex(matBlock, locationInfo.VertexLocation);
-                GLShaderInfo.CreateUsedUniformListPixel(matBlock, locationInfo.FragmentLocation);
+                GLShaderInfo.CreateUsedUniformListVertex(matBlock, blockNameVSH);
+                GLShaderInfo.CreateUsedUniformListPixel(matBlock, blockNameFSH);
             }
         }
-        
+
+        private void DecodeSwitchBinary(BfshaLibrary.ResShaderProgram program)
+        {
+            GLShaderInfo = TegraShaderDecoder.LoadShaderProgram(ShaderModel, ShaderModel.GetShaderVariation(program));
+            shaderProgram = GLShaderInfo.Program;
+        }
+
+        private void DecodeWiiUBinary(BfshaLibrary.ResShaderProgram program)
+        {
+            var vertexShader = BfshaGX2ShaderHelper.CreateVertexShader(ShaderModel, program);
+            var pixelShader = BfshaGX2ShaderHelper.CreatePixelShader(ShaderModel, program);
+
+            GLShaderInfo = CafeShaderDecoder.LoadShaderProgram(vertexShader, pixelShader);
+            shaderProgram = GLShaderInfo.Program;
+
+           // File.WriteAllBytes($"GFD\\{this.MaterialData.Name}VERTEX.gx2", vertexShader);
+            //File.WriteAllBytes($"GFD\\{this.MaterialData.Name}PIXEL.gx2", pixelShader);
+        }
+
         /// <summary>
         /// A helper method to set a common shape block layout.
         /// Note not all games use the same shape block data!
@@ -425,7 +471,7 @@ namespace BfresEditor
         /// </summary>
         public virtual void SetMaterialOptionsBlock(FMAT mat, UniformBlock block)
         {
-            var uniformBlock = ShaderModel.UniformBlocks.FirstOrDefault(
+            var uniformBlock = ShaderModel.UniformBlocks.Values.FirstOrDefault(
                 x => x.Type == (BfshaLibrary.UniformBlock.BlockType)4);
 
             //Fill the buffer by program offsets
@@ -434,11 +480,10 @@ namespace BfresEditor
             {
                 writer.SeekBegin(0);
 
-                var uniformDict = uniformBlock.UniformDict;
                 int index = 0;
-                foreach (var param in uniformBlock.Uniforms)
+                foreach (var param in uniformBlock.Uniforms.Values)
                 {
-                    var uniformName = uniformDict.GetKey(index++);
+                    var uniformName = uniformBlock.Uniforms.GetKey(index++);
 
                     writer.SeekBegin(param.Offset - 1);
                     if (mat.ShaderOptions.ContainsKey(uniformName))
@@ -464,14 +509,13 @@ namespace BfresEditor
             using (var writer = new Toolbox.Core.IO.FileWriter(mem))
             {
                 writer.SeekBegin(0);
-                var matBlock = ShaderModel.UniformBlocks.FirstOrDefault(x =>
+                var matBlock = ShaderModel.UniformBlocks.Values.FirstOrDefault(x =>
                     x.Type == BfshaLibrary.UniformBlock.BlockType.Material);
 
-                var uniformDict = matBlock.UniformDict;
                 int index = 0;
-                foreach (var param in matBlock.Uniforms)
+                foreach (var param in matBlock.Uniforms.Values)
                 {
-                    var uniformName = uniformDict.GetKey(index++);
+                    var uniformName = matBlock.Uniforms.GetKey(index++);
 
                     writer.SeekBegin(param.Offset - 1);
                     if (mat.ShaderParams.ContainsKey(uniformName))
@@ -508,13 +552,85 @@ namespace BfresEditor
             block.Buffer.AddRange(mem.ToArray());
         }
 
+        public override void SetTextureUniforms(GLContext control, ShaderProgram shader, STGenericMaterial mat)
+        {
+            var bfresMaterial = (FMAT)mat;
+
+            GL.ActiveTexture(TextureUnit.Texture0 + 1);
+            GL.BindTexture(TextureTarget.Texture2D, RenderTools.defaultTex.ID);
+
+            int id = 1;
+            //Go through all the shader samplers
+            for (int i = 0; i < ShaderModel.Samplers.Count; i++)
+            {
+                var locationInfo = ProgramPasses[ProgramIndex].SamplerLocations[i];
+                //Currently only using the vertex and fragment stages
+                if (locationInfo.VertexLocation == -1 && locationInfo.FragmentLocation == -1)
+                    continue;
+
+                string sampler = ShaderModel.Samplers.GetKey(i);
+                var textureIndex = -1;
+                //Sampler assign has a key list of fragment shader samplers, value list of bfres material samplers
+                if (bfresMaterial.Material.ShaderAssign.SamplerAssigns.ContainsKey(sampler))
+                {
+                    //Get the resource sampler
+                    //Important to note, fragment samplers are unique while material samplers can be the same
+                    //So we need to lookup which material sampler the current fragment sampler uses.
+                    string resSampler = bfresMaterial.Material.ShaderAssign.SamplerAssigns[sampler].String;
+                    //Find a texture using the sampler
+                    textureIndex = bfresMaterial.TextureMaps.FindIndex(x => x.Sampler == resSampler);
+                }
+
+                //Cannot find the texture so try loading it from an external source
+                if (textureIndex == -1)
+                {
+                    //Get external textures (ie shadow maps, cubemaps, etc)
+                    var texture = GetExternalTexture(control, sampler);
+                    if (texture != null)
+                    {
+                        GL.ActiveTexture(TextureUnit.Texture0 + id);
+                        texture.Bind();
+                        SetTexture(shader, locationInfo.VertexLocation, locationInfo.FragmentLocation, ref id);
+                    }
+                    continue;
+                }
+
+                //Get the current material texture map
+                var texMap = bfresMaterial.TextureMaps[textureIndex];
+
+                var name = texMap.Name;
+                //Lookup samplers targeted via animations and use that texture instead if possible
+                if (bfresMaterial.AnimatedSamplers.ContainsKey(texMap.Sampler))
+                    name = bfresMaterial.AnimatedSamplers[texMap.Sampler];
+
+                BindTexture(shader, GetTextures(), texMap, name, id);
+                SetTexture(shader, locationInfo.VertexLocation, locationInfo.FragmentLocation, ref id);
+            }
+            GL.ActiveTexture(TextureUnit.Texture0);
+            GL.BindTexture(TextureTarget.Texture2D, 0);
+        }
+
+        public virtual GLTexture GetExternalTexture(GLContext control, string sampler)
+        {
+            return null;
+        }
+
+        //Sets the texture uniform from the locations given.
+        private void SetTexture(ShaderProgram shader, int vertexLocation, int fragmentLocation, ref int id)
+        {
+            if (vertexLocation != -1)
+                shader.SetInt(ConvertSamplerID(vertexLocation, true), id++);
+            if (fragmentLocation != -1)
+                shader.SetInt(ConvertSamplerID(fragmentLocation, false), id++);
+        }
+
         private void RenderBlock(UniformBlock block, int programID, int vertexLocation, int fragmentLocation, int binding)
         {
             if (vertexLocation != -1)
-                block.RenderBuffer(programID, $"vp_c{vertexLocation + 3}", binding);
+                block.RenderBuffer(programID, IsSwitch ? $"vp_c{vertexLocation + 3}" : $"vp_{vertexLocation}", binding);
 
             if (fragmentLocation != -1)
-                block.RenderBuffer(programID, $"fp_c{fragmentLocation + 3}", binding);
+                block.RenderBuffer(programID, IsSwitch ? $"fp_c{fragmentLocation + 3}" : $"fp_{fragmentLocation}", binding);
         }
 
         private UniformBlock GetBlock(string name, bool reset = true)
@@ -596,12 +712,19 @@ namespace BfresEditor
             };
         }
 
-        public static string ConvertSamplerID(int id, bool vertexShader = false)
+        public string ConvertSamplerID(int id, bool vertexShader = false)
         {
-            if (vertexShader)
-                return "vp_tex_tcb_" + ((id * 2) + 8).ToString("X1");
+            if (IsSwitch)
+            {
+                if (vertexShader)
+                    return $"SPIRV_Cross_CombinedTEXTURE_{id}SAMPLER_{id}" + ((id * 2) + 8).ToString("X1");
+                else
+                    return "fp_tex_tcb_" + ((id * 2) + 8).ToString("X1");
+            }
             else
-                return "fp_tex_tcb_" + ((id * 2) + 8).ToString("X1");
+            {
+                return $"SPIRV_Cross_CombinedTEXTURE_{id}SAMPLER_{id}";
+            }
         }
 
         public override void Dispose()

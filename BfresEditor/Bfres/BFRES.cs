@@ -76,7 +76,7 @@ namespace BfresEditor
             for (int i = 0; i < ResFile.ExternalFiles.Count; i++)
             {
                 string fileName = ResFile.ExternalFiles.Keys.ToList()[i];
-                if (fileName.EndsWith(".bfsha") && IsSwitchBinary(ResFile.ExternalFiles[i].Data))
+                if (fileName.EndsWith(".bfsha"))
                 {
                     ShaderFiles.Add(new BfshaLibrary.BfshaFile(new MemoryStream(ResFile.ExternalFiles[i].Data)));
                 }

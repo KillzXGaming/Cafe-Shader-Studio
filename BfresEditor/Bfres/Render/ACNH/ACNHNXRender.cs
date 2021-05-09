@@ -247,7 +247,7 @@ namespace BfresEditor
             block.Buffer.AddRange(mem.ToArray());
         }
 
-        public override void SetTextureUniforms(ShaderProgram shader, STGenericMaterial mat)
+        public override void SetTextureUniforms(GLContext control, ShaderProgram shader, STGenericMaterial mat)
         {
             var bfresMaterial = (FMAT)mat;
 
@@ -255,7 +255,7 @@ namespace BfresEditor
             GL.BindTexture(TextureTarget.Texture2D, RenderTools.defaultTex.ID);
 
             List<string> shaderSamplers = new List<string>();
-            foreach (var sampler in ShaderModel.SamplersDict.GetKeys())
+            foreach (var sampler in ShaderModel.Samplers.GetKeys())
             {
                 if (bfresMaterial.Samplers.Contains(sampler))
                     shaderSamplers.Add(sampler);
@@ -283,7 +283,7 @@ namespace BfresEditor
             GL.BindTexture(TextureTarget.Texture2D, 0);
         }
 
-        static void LoadLightingTextures(ShaderProgram shader, int id)
+        void LoadLightingTextures(ShaderProgram shader, int id)
         {
             id++;
 
@@ -296,14 +296,14 @@ namespace BfresEditor
             BindTexture(shader, DepthShadowTexture, 16, id++);
         }
 
-        static void BindTextureVertex(ShaderProgram shader, GLTexture texture, int slot, int id)
+        void BindTextureVertex(ShaderProgram shader, GLTexture texture, int slot, int id)
         {
             GL.ActiveTexture(TextureUnit.Texture0 + id);
             texture.Bind();
             shader.SetInt($"{ConvertSamplerID(slot, true)}", id);
         }
 
-        static void BindTexture(ShaderProgram shader, GLTexture texture, int slot, int id)
+        void BindTexture(ShaderProgram shader, GLTexture texture, int slot, int id)
         {
             GL.ActiveTexture(TextureUnit.Texture0 + id);
             texture.Bind();
