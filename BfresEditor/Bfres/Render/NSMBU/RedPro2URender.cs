@@ -39,8 +39,7 @@ namespace BfresEditor
         {
             base.LoadMesh(mesh);
 
-            var mat = mesh.Shape.Material;
-            if (mat.ShaderArchive == "nw4f_cs_shader" || mat.ShaderArchive == "nw4f_shader")
+            if (ShaderFileState == ShaderState.Global)
             {
                 mesh.Shape.UpdateVertexBuffer(true);
                 mesh.UpdateVertexBuffer();
@@ -50,13 +49,16 @@ namespace BfresEditor
         public override void ReloadRenderState(BfresMeshAsset mesh)
         {
             var mat = mesh.Shape.Material;
+            var materialIndex = mesh.Shape.Shape.MaterialIndex;
 
             //Set custom priority value NSMBU uses
             if (mat.Material.RenderInfos.ContainsKey("priority"))
             {
                 int sharc_priority = (int)mat.GetRenderInfo("priority");
-                mesh.Priority = (int)(sharc_priority * 0x10000 + (uint)mesh.Shape.Shape.MaterialIndex);
+                mesh.Priority = (int)(sharc_priority * 0x10000 + (uint)materialIndex);
             }
+            else
+                mesh.Priority = materialIndex;
 
             string polygonOffset = mat.GetRenderInfo("polygon_offset");
 
@@ -146,12 +148,12 @@ namespace BfresEditor
                 viewProjMatrix.Column2,
                 viewProjMatrix.Column3,
             };
-            Vector3[] cLightDiffDir = new Vector3[8];
+            Vector4[] cLightDiffDir = new Vector4[8];
             Vector4[] cLightDiffColor = new Vector4[8];
             Vector4[] cAmbColor = new Vector4[2];
-            Vector3[] cFogColor = new Vector3[8];
-            float[] cFogStart = new float[8];
-            float[] cFogStartEndInv = new float[8];
+            Vector4[] cFogColor = new Vector4[8];
+            Vector4[] cFogStart = new Vector4[8];
+            Vector4[] cFogStartEndInv = new Vector4[8];
 
             for (int i = 0; i < 2; i++)
             {
@@ -159,14 +161,14 @@ namespace BfresEditor
             }
             for (int i = 0; i < 8; i++)
             {
-                cLightDiffDir[i] = new Vector3(0.1f, -0.5f, -0.5f);
+                cLightDiffDir[i] = new Vector4(0.1f, -0.5f, -0.5f, 0);
                 cLightDiffColor[i] = new Vector4(1);
             }
             for (int i = 0; i < 8; i++)
             {
-                cFogColor[i] = new Vector3(1);
-                cFogStart[i] = 100000;
-                cFogStartEndInv[i] = 20000;
+                cFogColor[i] = new Vector4(1);
+                cFogStart[i] = new Vector4(10000000, 0, 0, 0);
+                cFogStartEndInv[i] = new Vector4(0.00003f, 0, 0, 0);
             }
 
             block.Add(cView);

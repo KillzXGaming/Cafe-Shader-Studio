@@ -83,5 +83,26 @@ namespace BfresEditor
         {
 
         }
+
+        /// <summary>
+        /// Gets or sets the state of the shader file.
+        /// </summary>
+        public ShaderState ShaderFileState { get; set; }
+
+        public enum ShaderState
+        {
+            /// <summary>
+            /// The shader file is from a global source.
+            /// </summary>
+            Global,
+            /// <summary>
+            /// The shader file is embedded in a resource file.
+            /// </summary>
+            EmbeddedResource,
+            /// <summary>
+            /// The shader file is inside an archive file.
+            /// </summary>
+            EmbeddedArchive,
+        }
     }
 }

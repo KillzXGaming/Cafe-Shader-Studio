@@ -229,6 +229,7 @@ namespace BfresEditor
             {
                 if (file is SHARCFB && ((SHARCFB)file).Name.Contains(shaderFile))
                 {
+                    ShaderFileState = ShaderState.EmbeddedResource;
                     return (SHARCFB)file;
                 }
             }
@@ -240,6 +241,7 @@ namespace BfresEditor
                 {
                     if (((SHARCFB)file).Name.Contains(shaderFile))
                     {
+                        ShaderFileState = ShaderState.Global;
                         return (SHARCFB)file;
                     }
                 }
@@ -260,6 +262,7 @@ namespace BfresEditor
                     if (file.FileFormat == null)
                         file.FileFormat = file.OpenFile();
 
+                    ShaderFileState = ShaderState.EmbeddedArchive;
                     return (SHARCFB)file.FileFormat;
                 }
             }
@@ -321,7 +324,7 @@ namespace BfresEditor
             block.Add(transform.Column0);
             block.Add(transform.Column1);
             block.Add(transform.Column2);
-            block.AddInt(numSkinning);
+            block.Add(new Vector4(numSkinning, 0, 0, 0));
         }
 
         public void SetBoneMatrixBlock(STSkeleton skeleton, bool useInverse, UniformBlock block, int maxTransforms = 64)
