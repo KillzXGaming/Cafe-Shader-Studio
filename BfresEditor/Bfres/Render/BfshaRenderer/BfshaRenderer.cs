@@ -417,9 +417,6 @@ namespace BfresEditor
 
             GLShaderInfo = CafeShaderDecoder.LoadShaderProgram(vertexShader, pixelShader);
             shaderProgram = GLShaderInfo.Program;
-
-           // File.WriteAllBytes($"GFD\\{this.MaterialData.Name}VERTEX.gx2", vertexShader);
-            //File.WriteAllBytes($"GFD\\{this.MaterialData.Name}PIXEL.gx2", pixelShader);
         }
 
         /// <summary>

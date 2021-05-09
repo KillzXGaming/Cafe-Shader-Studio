@@ -427,9 +427,6 @@ namespace BfresEditor
             using (var writer = new Toolbox.Core.IO.FileWriter(mem))
             {
                 writer.SeekBegin(0);
-                writer.Write(new byte[128 * 16]);
-
-                writer.SeekBegin(0);
 
                 writer.Write(cView[0]);
                 writer.Write(cView[1]);
@@ -493,9 +490,6 @@ namespace BfresEditor
                     writer.Write(1.0f);
                     writer.Write(1.0f);
                 }
-
-                writer.SeekBegin(78 * 16);
-                writer.Write(0.0f);
             }
 
             block.Buffer.Clear();
