@@ -49,7 +49,8 @@ namespace BfresEditor
 
         public SharcFBRenderer() { }
 
-        public SharcFBRenderer(SHARCFB.ShaderProgram shaderModel) {
+        public SharcFBRenderer(SHARCFB.ShaderProgram shaderModel)
+        {
             ShaderModel = shaderModel;
         }
 
@@ -225,8 +226,10 @@ namespace BfresEditor
         {
             //Check external files.
             bfres.UpdateExternalShaderFiles();
-            foreach (var file in bfres.ShaderFiles) {
-                if (file is SHARCFB && ((SHARCFB)file).Name.Contains(shaderFile)) {
+            foreach (var file in bfres.ShaderFiles)
+            {
+                if (file is SHARCFB && ((SHARCFB)file).Name.Contains(shaderFile))
+                {
                     return (SHARCFB)file;
                 }
             }
@@ -236,7 +239,8 @@ namespace BfresEditor
             {
                 if (file is SHARCFB)
                 {
-                    if (((SHARCFB)file).Name.Contains(shaderFile)) {
+                    if (((SHARCFB)file).Name.Contains(shaderFile))
+                    {
                         return (SHARCFB)file;
                     }
                 }
@@ -247,11 +251,13 @@ namespace BfresEditor
             if (archiveFile == null)
                 return null;
 
-            foreach (var file in archiveFile.Files) {
+            foreach (var file in archiveFile.Files)
+            {
                 if (!file.FileName.EndsWith(".sharcfb"))
                     continue;
 
-                if (file.FileName == shaderFile || HasFileName(file.FileData, shaderFile)) {
+                if (file.FileName == shaderFile || HasFileName(file.FileData, shaderFile))
+                {
                     if (file.FileFormat == null)
                         file.FileFormat = file.OpenFile();
 
@@ -279,11 +285,13 @@ namespace BfresEditor
         /// </summary>
         public override void CheckProgram(GLContext control, BfresMeshAsset mesh, int pass = 0)
         {
-            if (ShaderModel == null) {
+            if (ShaderModel == null)
+            {
                 return;
             }
 
-            if (Shader == null || UpdateShader) {
+            if (Shader == null || UpdateShader)
+            {
                 ReloadGLSLShaderFile();
             }
         }
@@ -413,7 +421,7 @@ namespace BfresEditor
             if (gx2Sampler == null)
                 return -1;
 
-          return (int)gx2Sampler.Location;
+            return (int)gx2Sampler.Location;
         }
 
         public void SetSampler(ShaderProgram shader, int location, ref int slot)
@@ -425,10 +433,12 @@ namespace BfresEditor
             shader.SetInt(ConvertSamplerFetchName(location), slot++);
         }
 
-        public static string ConvertSamplerName(int index) {
+        public static string ConvertSamplerName(int index)
+        {
             return $"SPIRV_Cross_CombinedTEXTURE_{index}SAMPLER_{index}";
         }
-        public static string ConvertSamplerFetchName(int index) {
+        public static string ConvertSamplerFetchName(int index)
+        {
             return $"SPIRV_Cross_CombinedTEXTURE_{index}SPIRV_Cross_DummySampler";
         }
 
