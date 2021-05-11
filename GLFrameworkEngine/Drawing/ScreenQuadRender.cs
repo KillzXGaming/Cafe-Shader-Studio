@@ -40,14 +40,6 @@ namespace GLFrameworkEngine
                     new Vector2(1.0f, 0.0f),
                 };
 
-               texCoords = new Vector2[4]
-                {
-                    new Vector2(0.0f, 1.0f),
-                    new Vector2(0.0f, 0.0f),
-                    new Vector2(1.0f, 1.0f),
-                    new Vector2(1.0f, 0.0f),
-                };
-
                 List<float> list = new List<float>();
                 for (int i = 0; i < 4; i++)
                 {
@@ -60,7 +52,10 @@ namespace GLFrameworkEngine
                 Length = 4;
 
                 float[] data = list.ToArray();
+
+                vao.Bind();
                 GL.BufferData(BufferTarget.ArrayBuffer, sizeof(float) * data.Length, data, BufferUsageHint.StaticDraw);
+                GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
             }
         }
 
@@ -75,9 +70,13 @@ namespace GLFrameworkEngine
             GL.BindTexture(TextureTarget.Texture2D, textureID);
             shader.SetInt("screenTexture", 1);
 
+            GL.Enable(EnableCap.CullFace);
+            GL.Enable(EnableCap.DepthTest);
+            GL.CullFace(CullFaceMode.Back);
+
             vao.Enable(shader);
             vao.Use();
-            GL.DrawArrays(PrimitiveType.QuadStrip, 0, Length);
+            GL.DrawArrays(PrimitiveType.TriangleStrip, 0, Length);
         }
 
         public static void Draw()
@@ -89,7 +88,7 @@ namespace GLFrameworkEngine
 
             vao.Enable(null);
             vao.Use();
-            GL.DrawArrays(PrimitiveType.QuadStrip, 0, Length);
+            GL.DrawArrays(PrimitiveType.TriangleStrip, 0, Length);
         }
     }
 }

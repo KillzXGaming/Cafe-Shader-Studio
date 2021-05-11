@@ -81,7 +81,8 @@ namespace CafeStudio.UI
             Initialize(control);
 
             GL.Disable(EnableCap.Blend);
-            GL.Disable(EnableCap.CullFace);
+            GL.Enable(EnableCap.CullFace);
+            GL.CullFace(CullFaceMode.Back);
 
             control.CurrentShader = DefaultShaderProgram;
 
@@ -114,7 +115,7 @@ namespace CafeStudio.UI
 
             vao.Enable(DefaultShaderProgram);
             vao.Use();
-            GL.DrawArrays(PrimitiveType.QuadStrip, 0, Length);
+            GL.DrawArrays(PrimitiveType.TriangleStrip, 0, Length);
             GL.BindTexture(TextureTarget.Texture2D, 0);
 
             GL.UseProgram(0);
