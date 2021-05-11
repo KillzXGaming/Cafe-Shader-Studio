@@ -337,13 +337,19 @@ namespace GLFrameworkEngine
 
             Vector3 translation = Vector3.Zero;
 
-            translation.X = -center.X;
+            translation.X = center.X;
             translation.Y = center.Y;
 
             float distanceOffset = offset / minFov;
-            translation.Z = -1 * (distance + distanceOffset);
+            translation.Z =  (distance + distanceOffset);
 
-            TargetPosition = translation;
+            if (Mode == CameraMode.Inspect)
+            {
+                TargetPosition = new Vector3(translation.X, translation.Y, 0);
+                TargetDistance = translation.Z;
+            }
+            else
+                TargetPosition = translation;
         }
 
         /// <summary>
