@@ -307,7 +307,7 @@ namespace BfresEditor
                 writer.Write(cProjViewInvNoPos[1]);
                 writer.Write(cProjViewInvNoPos[2]);
 
-                writer.Write(16.66667f); // vec4[20].x
+                writer.Write(1); // vec4[20].x
                 writer.Write(1.0f); //Exposure used for the half texture
                 writer.Write(0);
                 writer.Write(0);
