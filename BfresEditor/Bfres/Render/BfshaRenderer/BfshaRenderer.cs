@@ -557,6 +557,10 @@ namespace BfresEditor
             GL.BindTexture(TextureTarget.Texture2D, RenderTools.defaultTex.ID);
 
             int id = 1;
+
+            //Load bindless textures first (textures can be binded without locations set in the program)
+            LoadBindlessTextures(control, shader, ref id);
+
             //Go through all the shader samplers
             for (int i = 0; i < ShaderModel.Samplers.Count; i++)
             {
@@ -603,6 +607,7 @@ namespace BfresEditor
                 BindTexture(shader, GetTextures(), texMap, name, id);
                 SetTexture(shader, locationInfo.VertexLocation, locationInfo.FragmentLocation, ref id);
             }
+
             GL.ActiveTexture(TextureUnit.Texture0);
             GL.BindTexture(TextureTarget.Texture2D, 0);
         }
@@ -610,6 +615,11 @@ namespace BfresEditor
         public virtual GLTexture GetExternalTexture(GLContext control, string sampler)
         {
             return null;
+        }
+
+        public virtual void LoadBindlessTextures(GLContext control, ShaderProgram shader, ref int id)
+        {
+
         }
 
         //Sets the texture uniform from the locations given.
@@ -714,7 +724,7 @@ namespace BfresEditor
             if (IsSwitch)
             {
                 if (vertexShader)
-                    return $"SPIRV_Cross_CombinedTEXTURE_{id}SAMPLER_{id}" + ((id * 2) + 8).ToString("X1");
+                    return "vp_tex_tcb_" + ((id * 2) + 8).ToString("X1");
                 else
                     return "fp_tex_tcb_" + ((id * 2) + 8).ToString("X1");
             }
