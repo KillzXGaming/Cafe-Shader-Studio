@@ -125,7 +125,7 @@ namespace BfresEditor
             LinearDepthTexture = GLTexture2D.FromBitmap(Resources.black);
             ExposureTexture = GLTexture2D.FromBitmap(Resources.white);
             RoughnessCubemapTexture = MaterialLightCube;
-            Uniform0Texture = GLTexture2D.FromBitmap(Resources.white);
+            Uniform0Texture = GLTexture2D.FromBitmap(Resources.black);
         }
 
         public override void Render(GLContext control, ShaderProgram shader, GenericPickableMesh mesh)
@@ -322,49 +322,7 @@ namespace BfresEditor
             block.Buffer.AddRange(mem.ToArray());
         }
 
-        public override void SetTextureUniforms(GLContext control, ShaderProgram shader, STGenericMaterial mat)
-        {
-            var bfresMaterial = (FMAT)mat;
-
-            GL.ActiveTexture(TextureUnit.Texture0 + 1);
-            GL.BindTexture(TextureTarget.Texture2D, RenderTools.defaultTex.ID);
-
-            List<string> shaderSamplers = new List<string>();
-            foreach (var sampler in ShaderModel.Samplers.GetKeys())
-                if (!string.IsNullOrEmpty(sampler))
-                    shaderSamplers.Add(sampler);
-
-            LoadEngineTextures(shader, 20);
-
-            int id = 1;
-            foreach (var sampler in bfresMaterial.Material.ShaderAssign.SamplerAssigns)
-            {
-                var fragOutput = sampler.Key;
-                var bfresInput = sampler.Value;
-
-                var textureIndex = bfresMaterial.TextureMaps.FindIndex(x => x.Sampler == bfresInput);
-                if (textureIndex == -1)
-                    continue;
-
-                var texMap = mat.TextureMaps[textureIndex];
-
-                var name = texMap.Name;
-                //Lookup samplers targeted via animations and use that texture instead if possible
-                if (bfresMaterial.AnimatedSamplers.ContainsKey(bfresInput))
-                    name = bfresMaterial.AnimatedSamplers[bfresInput];
-
-                int index = shaderSamplers.IndexOf(fragOutput);
-                var uniformName = $"{ConvertSamplerID(index)}";
-
-                var binded = BindTexture(shader, GetTextures(), texMap, name, id);
-                shader.SetInt(uniformName, id++);
-            }
-
-            GL.ActiveTexture(TextureUnit.Texture0);
-            GL.BindTexture(TextureTarget.Texture2D, 0);
-        }
-
-        public void LoadEngineTextures(ShaderProgram shader, int id)
+        public override void LoadBindlessTextures(GLContext control, ShaderProgram shader, ref int id)
         {
             BindTextureVertex(shader, RoughnessCubemapTexture, 6, id++);
             BindTextureVertex(shader, DirectionalLightTexture, 15, id++);
@@ -373,25 +331,9 @@ namespace BfresEditor
             BindTexture(shader, DepthShadowTexture, 13, id++);
             BindTexture(shader, RoughnessCubemapTexture, 6, id++);
             BindTexture(shader, ExposureTexture, 23, id++);
-
-            for (int i = 0; i < ShaderModel.Samplers.Count; i++)
-            {
-                var locationInfo = ProgramPasses[this.ProgramIndex].SamplerLocations[i];
-                string sampler = ShaderModel.Samplers.GetKey(i);
-
-                GLTexture texture = GetTextureFromSampler(sampler);
-                if (texture == null)
-                    continue;
-
-                if (locationInfo.FragmentLocation != -1)
-                    BindTexture(shader, texture, locationInfo.FragmentLocation, id++);
-
-                if (locationInfo.VertexLocation != -1)
-                    BindTextureVertex(shader, texture, locationInfo.VertexLocation, id++);
-            }
         }
 
-        GLTexture GetTextureFromSampler(string sampler)
+        public override GLTexture GetExternalTexture(GLContext control, string sampler)
         {
             switch (sampler)
             {
