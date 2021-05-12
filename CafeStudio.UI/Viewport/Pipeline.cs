@@ -125,7 +125,7 @@ namespace CafeStudio.UI
             GL.BindFramebuffer(FramebufferTarget.DrawFramebuffer, FinalBuffer.ID);
             GL.BlitFramebuffer(0, 0, Width, Height, 0, 0, Width, Height, ClearBufferMask.DepthBufferBit, BlitFramebufferFilter.Nearest);
 
-                
+
             _background.Draw(_context, Pass.OPAQUE);
             _floor.Draw(_context, Pass.OPAQUE);
             _context.Scene.DrawSelection(_context);
@@ -258,9 +258,7 @@ namespace CafeStudio.UI
 
             var colorPass = (GLTexture2D)screen.Attachments[0];
 
-            GL.Disable(EnableCap.DepthTest);
             DeferredRenderQuad.Draw(_context, colorPass, bloomPass);
-            GL.Enable(EnableCap.DepthTest);
         }
 
         public void OnMouseMove(MouseEventInfo e, KeyEventInfo k)

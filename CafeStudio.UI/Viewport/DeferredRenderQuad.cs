@@ -68,11 +68,6 @@ namespace CafeStudio.UI
                 float[] data = list.ToArray();
                 GL.BufferData(BufferTarget.ArrayBuffer, sizeof(float) * data.Length, data, BufferUsageHint.StaticDraw);
             }
-            else
-            {
-                vao.Initialize();
-                DefaultShaderProgram.Link();
-            }
         }
 
 
@@ -81,8 +76,7 @@ namespace CafeStudio.UI
             Initialize(control);
 
             GL.Disable(EnableCap.Blend);
-            GL.Enable(EnableCap.CullFace);
-            GL.CullFace(CullFaceMode.Back);
+            GL.Disable(EnableCap.CullFace);
 
             control.CurrentShader = DefaultShaderProgram;
 
@@ -90,9 +84,9 @@ namespace CafeStudio.UI
             DefaultShaderProgram.SetInt("ENABLE_LUT", 0);
             DefaultShaderProgram.SetBoolToInt("ENABLE_SRGB", control.UseSRBFrameBuffer);
 
-            GL.ActiveTexture(TextureUnit.Texture23);
+            GL.ActiveTexture(TextureUnit.Texture1);
             colorPass.Bind();
-            DefaultShaderProgram.SetInt("uColorTex", 23);
+            DefaultShaderProgram.SetInt("uColorTex", 1);
             /*
                         if (bloomPass != null)
                         {
@@ -122,3 +116,4 @@ namespace CafeStudio.UI
         }
     }
 }
+        
