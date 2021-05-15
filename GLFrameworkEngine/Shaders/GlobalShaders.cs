@@ -62,13 +62,12 @@ namespace GLFrameworkEngine
 
         public static ShaderProgram GetShader(string key)
         {
-            if (!Shaders.ContainsKey("BASIC")) Init();
+            if (!Shaders.ContainsKey("BASIC"))
+                Init();
 
             if (Shaders.ContainsKey(key))
-            {
-                Shaders[key].Link();
                 return Shaders[key];
-            }
+
             return null;
         }
 
