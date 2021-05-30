@@ -21,10 +21,8 @@ namespace BfresEditor
 
                 foreach (CameraAnim camAnim in anim.CameraAnims.Values) {
                     var camnode = new BfresNodeBase(camAnim.Name);
+                    camnode.Tag = new BfresCameraAnim(camAnim);
                     node.AddChild(camnode);
-
-                    var fsha = new BfresCameraAnim(camAnim);
-                    node.Tag = fsha;
                 }
                 foreach (LightAnim lightAnim in anim.LightAnims.Values)
                 {

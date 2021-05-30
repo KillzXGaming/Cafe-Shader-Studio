@@ -53,7 +53,7 @@ namespace GLFrameworkEngine
 
                 float[] data = list.ToArray();
 
-                vao.Bind();
+                GL.BindBuffer(BufferTarget.ArrayBuffer, buffer);
                 GL.BufferData(BufferTarget.ArrayBuffer, sizeof(float) * data.Length, data, BufferUsageHint.StaticDraw);
                 GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
             }
