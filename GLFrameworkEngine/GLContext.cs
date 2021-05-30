@@ -8,6 +8,9 @@ namespace GLFrameworkEngine
 {
     public class GLContext
     {
+        //Todo maybe relocate. This is to quickly access the current context (which is only one atm)
+        public static GLContext ActiveContext = null;
+
         public Framebuffer ScreenBuffer { get; set; }
 
         public ColorPicker ColorPicker = new ColorPicker();
@@ -18,6 +21,11 @@ namespace GLFrameworkEngine
         public int Height { get; set; }
 
         public static float PreviewScale { get; set; } = 1.0f;
+
+        /// <summary>
+        /// A list of global uniform blocks which can be used to store data like camera matrices.
+        /// </summary>
+        public Dictionary<string, UniformBlock> UniformBlocks = new Dictionary<string, UniformBlock>();
 
         /// <summary>
         /// Gets or sets the mouse position after a mouse down event.
@@ -38,6 +46,18 @@ namespace GLFrameworkEngine
         /// Determines to enable SRGB or not for the current context.
         /// </summary>
         public bool UseSRBFrameBuffer;
+
+        /// <summary>
+        /// Toggles bloom usage.
+        /// </summary>
+        public bool EnableBloom;
+
+        public GLContext() { SetActive(); }
+
+        public void SetActive()
+        {
+            GLContext.ActiveContext = this;
+        }
 
         public Camera Camera { get; set; }
 

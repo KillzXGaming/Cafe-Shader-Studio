@@ -190,7 +190,6 @@ namespace CafeStudio.UI
                 //    continue;
 
                 float animFrameNum = frameNum;
-
                 CurrentAnimations[i].SetFrame(animFrameNum);
                 CurrentAnimations[i].NextFrame();
             }

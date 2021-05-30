@@ -148,6 +148,8 @@ namespace BfresEditor
                 AddChild(new ShapeAnimFolder(this, resFile, resFile.ShapeAnims));
             if (resFile.BoneVisibilityAnims.Count > 0)
                 AddChild(new BoneVisibilityAnimFolder(this, resFile, resFile.BoneVisibilityAnims));
+            if (resFile.SceneAnims.Count > 0)
+                AddChild(new SceneAnimFolder(this, resFile, resFile.SceneAnims));
             if (resFile.ExternalFiles.Count > 0)
                 AddChild(new EmbeddedFolder(this, resFile, resFile.ExternalFiles));
         }
