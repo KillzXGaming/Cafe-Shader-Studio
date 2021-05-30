@@ -72,6 +72,9 @@ namespace BfresEditor
                         bone.Scale.Z),
                 };
 
+                if (Skeleton.FlagsScaling == SkeletonFlagsScaling.Maya)
+                    genericBone.UseSegmentScaleCompensate = true;
+
                 if (bone.FlagsRotation == BoneFlagsRotation.EulerXYZ)
                 {
                     genericBone.EulerRotation = new OpenTK.Vector3(

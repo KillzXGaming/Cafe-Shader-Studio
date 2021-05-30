@@ -138,7 +138,7 @@ namespace BfresEditor
             x.Type == BfshaLibrary.UniformBlock.BlockType.Shape);
 
             //Models may update the shape block outside the shader if the shape block is unused so update mesh matrix manually
-            if (shapeBlock.Size == 0)
+            if (shapeBlock.Size == 0 && mesh.VertexSkinCount == 0)
             {
                 mesh.UpdateVertexBuffer(true);
                 meshAsset.UpdateVertexBuffer();
@@ -324,7 +324,6 @@ namespace BfresEditor
             firstBlock.RenderBuffer(programID, "fp_c1", 1);
         }
 
-
         /// <summary>
         /// Searches for the shader archive file in external files, parent archive, and the global shader cache.
         /// </summary>
@@ -406,7 +405,7 @@ namespace BfresEditor
 
         private void DecodeSwitchBinary(BfshaLibrary.ResShaderProgram program)
         {
-            GLShaderInfo = TegraShaderDecoder.LoadShaderProgram(ShaderModel, ShaderModel.GetShaderVariation(program));
+            GLShaderInfo = TegraShaderDecoder.LoadShaderProgram(ShaderModel.GetShaderVariation(program));
             shaderProgram = GLShaderInfo.Program;
         }
 

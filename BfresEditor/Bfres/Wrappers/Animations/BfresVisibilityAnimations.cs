@@ -69,8 +69,10 @@ namespace BfresEditor
 
                 group.Track.KeyFrames.Add(new STKeyFrame() { Frame = 0, Value = baseValue ? 1 : 0 });
 
-                if (anim.Curves.Count > i) {
-                    BfresAnimations.GenerateKeys(group.Track, anim.Curves[i]);
+                foreach (var curve in anim.Curves)
+                {
+                    if (curve.AnimDataOffset == i)
+                        BfresAnimations.GenerateKeys(group.Track, curve);
                 }
             }
         }
