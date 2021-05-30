@@ -282,8 +282,6 @@ namespace BfresEditor
             var indices = Shape.GetIndices();
             var bufferData = GetBufferData();
 
-            defaultVao.Bind();
-
             GL.BindBuffer(BufferTarget.ElementArrayBuffer, Ibo);
             GL.BufferData(BufferTarget.ElementArrayBuffer, indices.Length * sizeof(uint), indices, BufferUsageHint.StaticDraw);
             GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);

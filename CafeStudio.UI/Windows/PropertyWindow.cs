@@ -57,6 +57,7 @@ namespace CafeStudio.UI
                 if (node.Tag != null && node.Tag is Toolbox.Core.Animations.STAnimation) {
                     var anim = (Toolbox.Core.Animations.STAnimation)node.Tag;
                     timeline.AddAnimation(anim, false);
+                    timeline.SetFrame(0);
                 }
                 //Container to batch play multiple animations at once
                 if (node.Tag != null && node.Tag is IAnimationContainer) {
