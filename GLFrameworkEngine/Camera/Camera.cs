@@ -365,7 +365,7 @@ namespace GLFrameworkEngine
             var translationMatrix = Matrix4.CreateTranslation(-position);
             var rotationMatrix = Matrix4.CreateRotationY(rotation.Y) * Matrix4.CreateRotationX(rotation.X);
             if (RotationLookat)
-                rotationMatrix = Matrix4.LookAt(position, eye, new Vector3(0, 1, 0)) * Matrix4.CreateRotationZ(twist);
+                rotationMatrix = Matrix4.LookAt(eye, position, new Vector3(0, 1, 0)) * Matrix4.CreateRotationZ(twist);
 
             var distanceMatrix = Matrix4.CreateTranslation(0, 0, -distance);
             return translationMatrix * rotationMatrix * distanceMatrix;
