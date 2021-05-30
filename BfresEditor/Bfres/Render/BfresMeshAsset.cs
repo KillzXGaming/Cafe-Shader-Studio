@@ -88,7 +88,7 @@ namespace BfresEditor
             this.SkinCount = (int)fshp.VertexSkinCount;
             this.BoneIndex = fshp.BoneIndex;
             fshp.UpdateViewBuffer = () => {
-                this.UpdateVertexBuffer();
+                UpdateVertexData = true;
             };
             CalculateBounding();
 
@@ -275,6 +275,8 @@ namespace BfresEditor
               Shape.PolygonGroups[SubMeshLevel].FaceOffset);
         }
 
+        public bool UpdateVertexData { get; set; } = false;
+
         public override void UpdateVertexBuffer()
         {
             var indices = Shape.GetIndices();
@@ -290,6 +292,8 @@ namespace BfresEditor
 
             //Update attribute layout incase the attribute buffer data has been adjusted in size/offsets
             UpdateDefaultVaoAttributes();
+
+            UpdateVertexData = false;
         }
 
         public List<Vector3> MorphPositions = new List<Vector3>();

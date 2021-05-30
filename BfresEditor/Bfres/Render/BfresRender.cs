@@ -123,6 +123,34 @@ namespace BfresEditor
                 Models.Add(new BfresModelAsset(bfres, this, model));
             foreach (var tex in bfres.Textures)
                 Textures.Add(tex.Name, tex);
+
+            //Update frame bounding spheres
+            List<Vector3> positons = new List<Vector3>();
+            foreach (BfresModelAsset model in Models)
+            {
+                foreach (var mesh in model.Meshes) {
+                    for (int i = 0; i < mesh.Shape.Vertices.Count; i++)
+                    {
+                        var pos = mesh.Shape.Vertices[i].Position;
+
+                        if (mesh.SkinCount == 0)
+                        {
+                            var bone = model.ModelData.Skeleton.Bones[mesh.BoneIndex];
+                            pos = Vector3.TransformPosition(pos, bone.Transform);
+                        }
+                        if (mesh.SkinCount == 1)
+                        {
+                            var index = mesh.Shape.Vertices[i].BoneIndices[0];
+                            var bone = model.ModelData.Skeleton.Bones[index];
+                            pos = Vector3.TransformPosition(pos, bone.Transform);
+                        }
+                        positons.Add(pos);
+                    }
+                }
+            }
+
+            BoundingSphere = GLFrameworkEngine.Utils.BoundingSphereGenerator.GenerateBoundingSphere(positons);
+            positons.Clear();
         }
 
         /// <summary>
@@ -137,6 +165,10 @@ namespace BfresEditor
                     ((FMAT)mesh.Material).ResetAnimations();
 
                 model.ResetAnimations();
+            }
+            //Small adjustment for camera animations
+            if (GLContext.ActiveContext != null) {
+                GLContext.ActiveContext.Camera.ResetAnimations();
             }
         }
 

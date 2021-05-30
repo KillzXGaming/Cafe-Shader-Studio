@@ -85,7 +85,7 @@ namespace BfresEditor
                 mesh.MorphPositions[i] = position;
             }
 
-            mesh.UpdateVertexBuffer();
+            mesh.UpdateVertexData = true;
         }
 
         public void Reload(ShapeAnim anim)

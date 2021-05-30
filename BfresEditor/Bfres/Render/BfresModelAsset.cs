@@ -40,6 +40,11 @@ namespace BfresEditor
            typeof(WWHDRender),  typeof(RedPro2URender)
         };
 
+        /// <summary>
+        /// A list of uniform blocks, typically used to store skeleton information.
+        /// </summary>
+        public Dictionary<string, UniformBlock> UniformBlocks = new Dictionary<string, UniformBlock>();
+
         private bool isSelected = false;
         public bool IsSelected
         {
@@ -102,7 +107,6 @@ namespace BfresEditor
                             break;
                         }
                     }
-
                 }
 
                 mesh.Material.MaterialAsset = (BfresMaterialAsset)meshAsset.MaterialAsset;
@@ -409,7 +413,6 @@ namespace BfresEditor
                 RenderMesh(control, mesh, 1);
             }
 
-
             control.CurrentShader = null;
 
             GL.Enable(EnableCap.DepthTest);
@@ -432,6 +435,9 @@ namespace BfresEditor
 
         public void RenderMesh(GLContext control, BfresMeshAsset mesh, int stage = 0)
         {
+            if (mesh.UpdateVertexData)
+                mesh.UpdateVertexBuffer();
+
             if (Runtime.DebugRendering != Runtime.DebugRender.Default)
             {
                 DrawDebug(control,mesh);
