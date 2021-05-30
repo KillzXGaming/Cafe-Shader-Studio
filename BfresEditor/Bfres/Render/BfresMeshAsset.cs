@@ -282,6 +282,8 @@ namespace BfresEditor
             var indices = Shape.GetIndices();
             var bufferData = GetBufferData();
 
+            defaultVao.Bind();
+
             GL.BindBuffer(BufferTarget.ElementArrayBuffer, Ibo);
             GL.BufferData(BufferTarget.ElementArrayBuffer, indices.Length * sizeof(uint), indices, BufferUsageHint.StaticDraw);
             GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
@@ -296,7 +298,7 @@ namespace BfresEditor
             UpdateVertexData = false;
         }
 
-        public List<Vector3> MorphPositions = new List<Vector3>();
+        public Vector3[] MorphPositions = new Vector3[0];
 
         public byte[] GetBufferData()
         {
@@ -317,7 +319,7 @@ namespace BfresEditor
                         {
                             case "_p0":
                                 {
-                                    if (MorphPositions.Count > i)
+                                    if (MorphPositions.Length > i)
                                         writer.Write(MorphPositions[i]);
                                     else
                                         writer.Write(Shape.Vertices[i].Position);

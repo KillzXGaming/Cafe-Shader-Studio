@@ -46,7 +46,7 @@ namespace BfresEditor
             float baseWeight = 1.0f - totalWeight;
             float total = totalWeight + baseWeight;
 
-            mesh.MorphPositions.Clear();
+            Vector3[] morphPositions = new Vector3[mesh.Shape.Vertices.Count];
 
             //Trasform the existing track key data
             for (int i = 0; i < mesh.Shape.Vertices.Count; i++)
@@ -58,12 +58,12 @@ namespace BfresEditor
                 {
                     var keyShape = mesh.KeyGroups[baseTarget.Name];
                     //Add the keyed position target
-                    mesh.MorphPositions.Add(keyShape.Vertices[i].Position);
+                    morphPositions[i] = keyShape.Vertices[i].Position;
                 }
                 else
-                    mesh.MorphPositions.Add(vertex.Position);
+                    morphPositions[i] = vertex.Position;
 
-                Vector3 position = mesh.MorphPositions[i];
+                Vector3 position = morphPositions[i];
                 position *= baseWeight;
 
                 foreach (var track in tracks)
@@ -82,9 +82,10 @@ namespace BfresEditor
 
                 //Set the output vertex
                 position /= total;
-                mesh.MorphPositions[i] = position;
+                morphPositions[i] = position;
             }
 
+            mesh.MorphPositions = morphPositions;
             mesh.UpdateVertexData = true;
         }
 
