@@ -48,7 +48,13 @@ namespace CafeStudio.UI
 
         public void ClearAnimations() {
             AnimationPlayer.CurrentAnimations.Clear();
-            Reset();
+            AnimationPlayer.StartFrame = 0;
+            AnimationPlayer.CurrentFrame = 0;
+            AnimationPlayer.ResetModels();
+        }
+
+        public void SetFrame(float frame) {
+            AnimationPlayer.SetFrame(frame);
         }
 
         public void Reset() {
@@ -59,7 +65,6 @@ namespace CafeStudio.UI
 
         public void AddAnimation(STAnimation animation, bool reset = true) {
             AnimationPlayer.AddAnimation(animation, "", reset);
-            AnimationPlayer.SetFrame(0);
 
             //Todo, high frame counts can cause freeze issues atm
            // if (AnimationPlayer.FrameCount < 500)

@@ -63,6 +63,7 @@ namespace CafeStudio.UI
                     timeline.ClearAnimations();
                     foreach (var anim in ((IAnimationContainer)node.Tag).AnimationList)
                         timeline.AddAnimation(anim, false);
+                    timeline.SetFrame(0);
                 }
             }
 

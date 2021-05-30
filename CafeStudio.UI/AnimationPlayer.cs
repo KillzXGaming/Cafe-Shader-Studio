@@ -67,6 +67,7 @@ namespace CafeStudio.UI
             {
                 ResetModels();
                 CurrentAnimations.Clear();
+                SetFrame(0);
             }
 
             animation.CanPlay = true;
@@ -75,9 +76,6 @@ namespace CafeStudio.UI
             StartFrame = animation.StartFrame;
             CurrentFrame = StartFrame;
             FrameCount = Math.Max(CurrentAnimations.Max(x => x.FrameCount), 1);
-
-            //if (reset)
-             //   SetAnimationsToFrame(0);
         }
 
         public void Reset(bool clearAnimations = true)
@@ -179,11 +177,11 @@ namespace CafeStudio.UI
         private void SetAnimationsToFrame(float frameNum)
         {
             CurrentFrame = frameNum;
-            foreach (var anim in CurrentAnimations)
+            for (int i = 0; i < CurrentAnimations.Count; i++)
             {
-                if (anim.Loop || ForceLoop)
+                if (CurrentAnimations[i].Loop || ForceLoop)
                 {
-                    var lastFrame = anim.FrameCount;
+                    var lastFrame = CurrentAnimations[i].FrameCount;
                     while (frameNum > lastFrame)
                         frameNum -= lastFrame + 1;
                 }
@@ -193,8 +191,8 @@ namespace CafeStudio.UI
 
                 float animFrameNum = frameNum;
 
-                anim.SetFrame(animFrameNum);
-                anim.NextFrame();
+                CurrentAnimations[i].SetFrame(animFrameNum);
+                CurrentAnimations[i].NextFrame();
             }
         }
 
