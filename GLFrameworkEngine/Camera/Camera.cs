@@ -12,6 +12,11 @@ namespace GLFrameworkEngine
     public class Camera
     {
         /// <summary>
+        /// Keyed values for animating a camera.
+        /// </summary>
+        public Dictionary<CameraAnimationKeys, float> AnimationKeys = new Dictionary<CameraAnimationKeys, float>();
+
+        /// <summary>
         /// The speed of the camera used when zooming.
         /// </summary>
         public float ZoomSpeed { get; set; } = 1.0f;
@@ -57,7 +62,11 @@ namespace GLFrameworkEngine
         /// </summary>
         public float Fov
         {
-            get { return _fov; }
+            get {
+                if (AnimationKeys.ContainsKey(CameraAnimationKeys.FieldOfView))
+                    return AnimationKeys[CameraAnimationKeys.FieldOfView];
+
+                return _fov; }
             set
             {
                 _fov = Math.Max(value, 0.01f);
@@ -72,7 +81,11 @@ namespace GLFrameworkEngine
         /// </summary>
         public float ZNear
         {
-            get { return _znear; }
+            get {
+                if (AnimationKeys.ContainsKey(CameraAnimationKeys.Near))
+                    return AnimationKeys[CameraAnimationKeys.Near];
+
+                return _znear; }
             set
             {
                 _znear = Math.Max(value, 0.001f);
@@ -87,10 +100,14 @@ namespace GLFrameworkEngine
         /// </summary>
         public float ZFar
         {
-            get { return _zfar; }
+            get {
+                if (AnimationKeys.ContainsKey(CameraAnimationKeys.Far))
+                    return AnimationKeys[CameraAnimationKeys.Far];
+
+                return _zfar; }
             set
             {
-                _zfar = Math.Max(value, 1.0f);
+                _zfar = Math.Max(value, 10.0f);
             }
         }
 
@@ -295,6 +312,18 @@ namespace GLFrameworkEngine
             }
         }
 
+        //Look at properties
+        public bool RotationLookat { get; set; }
+
+        /// <summary>
+        /// Gets or sets the eye position for look at rotation type.
+        /// </summary>
+        public Vector3 EyePosition { get; set; }
+        /// <summary>
+        /// Gets or sets the Z rotation for look at rotation type.
+        /// </summary>
+        public float Twist { get; set; }
+
         /// <summary>
         /// Gets the calculated projection matrix.
         /// </summary>
@@ -315,14 +344,49 @@ namespace GLFrameworkEngine
         /// </summary>
         public Matrix4 GetViewMatrix()
         {
-            var translationMatrix = Matrix4.CreateTranslation(-TargetPosition);
-            var rotationMatrix = Matrix4.CreateRotationY(RotationY) * Matrix4.CreateRotationX(RotationX);
-            var distanceMatrix = Matrix4.CreateTranslation(0, 0, -TargetDistance);
+            var position = TargetPosition;
+            var rotation = new Vector3(RotationX, RotationY, 0);
+            var twist = this.Twist;
+            var eye = this.EyePosition;
+            var distance = this.TargetDistance;
+
+            if (AnimationKeys.ContainsKey(CameraAnimationKeys.PositionX)) position.X = AnimationKeys[CameraAnimationKeys.PositionX];
+            if (AnimationKeys.ContainsKey(CameraAnimationKeys.PositionY)) position.Y = AnimationKeys[CameraAnimationKeys.PositionY];
+            if (AnimationKeys.ContainsKey(CameraAnimationKeys.PositionZ)) position.Z = AnimationKeys[CameraAnimationKeys.PositionZ];
+            if (AnimationKeys.ContainsKey(CameraAnimationKeys.RotationX)) rotation.X = AnimationKeys[CameraAnimationKeys.RotationX];
+            if (AnimationKeys.ContainsKey(CameraAnimationKeys.RotationY)) rotation.Y = AnimationKeys[CameraAnimationKeys.RotationY];
+            if (AnimationKeys.ContainsKey(CameraAnimationKeys.RotationZ)) rotation.Z = AnimationKeys[CameraAnimationKeys.RotationZ];
+            if (AnimationKeys.ContainsKey(CameraAnimationKeys.EyeX)) eye.X = AnimationKeys[CameraAnimationKeys.EyeX];
+            if (AnimationKeys.ContainsKey(CameraAnimationKeys.EyeY)) eye.Y = AnimationKeys[CameraAnimationKeys.EyeY];
+            if (AnimationKeys.ContainsKey(CameraAnimationKeys.EyeZ)) eye.Z = AnimationKeys[CameraAnimationKeys.EyeZ];
+            if (AnimationKeys.ContainsKey(CameraAnimationKeys.Twist)) twist = AnimationKeys[CameraAnimationKeys.Twist];
+            if (AnimationKeys.ContainsKey(CameraAnimationKeys.Distance)) distance = AnimationKeys[CameraAnimationKeys.Distance];
+
+            var translationMatrix = Matrix4.CreateTranslation(-position);
+            var rotationMatrix = Matrix4.CreateRotationY(rotation.Y) * Matrix4.CreateRotationX(rotation.X);
+            if (RotationLookat)
+                rotationMatrix = Matrix4.LookAt(position, eye, new Vector3(0, 1, 0)) * Matrix4.CreateRotationZ(twist);
+
+            var distanceMatrix = Matrix4.CreateTranslation(0, 0, -distance);
             return translationMatrix * rotationMatrix * distanceMatrix;
         }
 
-        public void FrameBoundingSphere(Vector4 boundingSphere)
+        public void ResetAnimations()
         {
+            RotationLookat = false;
+            AnimationKeys.Clear();
+            UpdateMatrices();
+        }
+
+        public void SetKeyframe(CameraAnimationKeys keyType, float value)
+        {
+            if (AnimationKeys.ContainsKey(keyType))
+                AnimationKeys[keyType] = value;
+            else
+                AnimationKeys.Add(keyType, value);
+        }
+
+        public void FrameBoundingSphere(Vector4 boundingSphere) {
             FrameBoundingSphere(boundingSphere.Xyz, boundingSphere.W, 0);
         }
 
