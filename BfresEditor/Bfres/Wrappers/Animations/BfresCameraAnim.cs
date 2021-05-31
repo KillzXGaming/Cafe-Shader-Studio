@@ -54,8 +54,8 @@ namespace BfresEditor
                 camera.SetKeyframe(CameraAnimationKeys.RotationZ, 0);
                 camera.SetKeyframe(CameraAnimationKeys.Twist, twist);
                 camera.SetKeyframe(CameraAnimationKeys.EyeX, rotX);
-                camera.SetKeyframe(CameraAnimationKeys.EyeY, rotX);
-                camera.SetKeyframe(CameraAnimationKeys.EyeZ, rotX);
+                camera.SetKeyframe(CameraAnimationKeys.EyeY, rotY);
+                camera.SetKeyframe(CameraAnimationKeys.EyeZ, rotZ);
             }
             else
             {
