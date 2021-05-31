@@ -313,6 +313,10 @@ namespace GLFrameworkEngine
         }
 
         //Look at properties
+
+        /// <summary>
+        /// Sets the rotation type to a look at type. Generally used for animating.
+        /// </summary>
         public bool RotationLookat { get; set; }
 
         /// <summary>
@@ -323,6 +327,8 @@ namespace GLFrameworkEngine
         /// Gets or sets the Z rotation for look at rotation type.
         /// </summary>
         public float Twist { get; set; }
+
+        //Matrix handling
 
         /// <summary>
         /// Gets the calculated projection matrix.
@@ -349,21 +355,10 @@ namespace GLFrameworkEngine
             var twist = this.Twist;
             var target = this.EyeTarget;
             var distance = this.TargetDistance;
-
-            TryUpdateKeyedValue(CameraAnimationKeys.PositionX, ref position.X);
-            TryUpdateKeyedValue(CameraAnimationKeys.PositionY, ref position.Y);
-            TryUpdateKeyedValue(CameraAnimationKeys.PositionZ, ref position.Z);
-            TryUpdateKeyedValue(CameraAnimationKeys.RotationX, ref rotation.X);
-            TryUpdateKeyedValue(CameraAnimationKeys.RotationY, ref rotation.Y);
-            TryUpdateKeyedValue(CameraAnimationKeys.RotationZ, ref rotation.Z);
-            TryUpdateKeyedValue(CameraAnimationKeys.TargetX, ref target.X);
-            TryUpdateKeyedValue(CameraAnimationKeys.TargetY, ref target.Y);
-            TryUpdateKeyedValue(CameraAnimationKeys.TargetZ, ref target.Z);
-            TryUpdateKeyedValue(CameraAnimationKeys.Twist, ref twist);
-            TryUpdateKeyedValue(CameraAnimationKeys.Distance, ref distance);
-
-            if (RotationLookat)
-            {
+            //Update keyed values used for an animated camera.
+            UpdateKeyedAnimationValues(ref position, ref rotation, ref target, ref twist, ref distance);
+            //Check for different rotation handling
+            if (RotationLookat) {
                 return Matrix4.LookAt(position, target,  new Vector3(0, 1, 0)) * Matrix4.CreateRotationZ(twist);
             }
             else
@@ -378,6 +373,11 @@ namespace GLFrameworkEngine
             }
         }
 
+        //Animation handling
+
+        /// <summary>
+        /// Resets the keyed animation data for the camera.
+        /// </summary>
         public void ResetAnimations()
         {
             RotationLookat = false;
@@ -385,12 +385,9 @@ namespace GLFrameworkEngine
             UpdateMatrices();
         }
 
-        public void TryUpdateKeyedValue(CameraAnimationKeys key, ref float current)
-        {
-            if (AnimationKeys.ContainsKey(key))
-                current = AnimationKeys[key];
-        }
-
+        /// <summary>
+        /// Sets a key value for animation usage.
+        /// </summary>
         public void SetKeyframe(CameraAnimationKeys keyType, float value)
         {
             if (AnimationKeys.ContainsKey(keyType))
@@ -398,6 +395,29 @@ namespace GLFrameworkEngine
             else
                 AnimationKeys.Add(keyType, value);
         }
+
+        private void UpdateKeyedAnimationValues(ref Vector3 position, ref Vector3 rotation, ref Vector3 target, ref float twist, ref float distance)
+        {
+            TryUpdateKeyedValue(CameraAnimationKeys.PositionX, ref position.X);
+            TryUpdateKeyedValue(CameraAnimationKeys.PositionY, ref position.Y);
+            TryUpdateKeyedValue(CameraAnimationKeys.PositionZ, ref position.Z);
+            TryUpdateKeyedValue(CameraAnimationKeys.RotationX, ref rotation.X);
+            TryUpdateKeyedValue(CameraAnimationKeys.RotationY, ref rotation.Y);
+            TryUpdateKeyedValue(CameraAnimationKeys.RotationZ, ref rotation.Z);
+            TryUpdateKeyedValue(CameraAnimationKeys.TargetX, ref target.X);
+            TryUpdateKeyedValue(CameraAnimationKeys.TargetY, ref target.Y);
+            TryUpdateKeyedValue(CameraAnimationKeys.TargetZ, ref target.Z);
+            TryUpdateKeyedValue(CameraAnimationKeys.Twist, ref twist);
+            TryUpdateKeyedValue(CameraAnimationKeys.Distance, ref distance);
+        }
+
+        private void TryUpdateKeyedValue(CameraAnimationKeys key, ref float current)
+        {
+            if (AnimationKeys.ContainsKey(key))
+                current = AnimationKeys[key];
+        }
+
+        //Frame handling
 
         public void FrameBoundingSphere(Vector4 boundingSphere) {
             FrameBoundingSphere(boundingSphere.Xyz, boundingSphere.W, 0);
@@ -449,8 +469,7 @@ namespace GLFrameworkEngine
             return -cameraPosition + Vector3.Transform(invRotationMatrix, vec);
         }
 
-        public Camera()
-        {
+        public Camera() {
             UpdateMode();
         }
 
