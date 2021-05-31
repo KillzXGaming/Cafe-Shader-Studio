@@ -369,7 +369,10 @@ namespace GLFrameworkEngine
             else
             {
                 var translationMatrix = Matrix4.CreateTranslation(-position);
-                var rotationMatrix = Matrix4.CreateRotationY(rotation.Y) * Matrix4.CreateRotationX(rotation.X);
+                var rotationMatrix = Matrix4.CreateRotationY(rotation.Y) * 
+                                     Matrix4.CreateRotationX(rotation.X) * 
+                                     Matrix4.CreateRotationZ(rotation.Z);
+
                 var distanceMatrix = Matrix4.CreateTranslation(0, 0, -distance);
                 return translationMatrix * rotationMatrix * distanceMatrix;
             }
