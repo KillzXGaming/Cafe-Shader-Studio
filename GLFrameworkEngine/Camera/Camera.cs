@@ -350,17 +350,17 @@ namespace GLFrameworkEngine
             var target = this.EyeTarget;
             var distance = this.TargetDistance;
 
-            if (AnimationKeys.ContainsKey(CameraAnimationKeys.PositionX)) position.X = AnimationKeys[CameraAnimationKeys.PositionX];
-            if (AnimationKeys.ContainsKey(CameraAnimationKeys.PositionY)) position.Y = AnimationKeys[CameraAnimationKeys.PositionY];
-            if (AnimationKeys.ContainsKey(CameraAnimationKeys.PositionZ)) position.Z = AnimationKeys[CameraAnimationKeys.PositionZ];
-            if (AnimationKeys.ContainsKey(CameraAnimationKeys.RotationX)) rotation.X = AnimationKeys[CameraAnimationKeys.RotationX];
-            if (AnimationKeys.ContainsKey(CameraAnimationKeys.RotationY)) rotation.Y = AnimationKeys[CameraAnimationKeys.RotationY];
-            if (AnimationKeys.ContainsKey(CameraAnimationKeys.RotationZ)) rotation.Z = AnimationKeys[CameraAnimationKeys.RotationZ];
-            if (AnimationKeys.ContainsKey(CameraAnimationKeys.TargetX)) target.X = AnimationKeys[CameraAnimationKeys.TargetX];
-            if (AnimationKeys.ContainsKey(CameraAnimationKeys.TargetY)) target.Y = AnimationKeys[CameraAnimationKeys.TargetY];
-            if (AnimationKeys.ContainsKey(CameraAnimationKeys.TargetZ)) target.Z = AnimationKeys[CameraAnimationKeys.TargetZ];
-            if (AnimationKeys.ContainsKey(CameraAnimationKeys.Twist)) twist = AnimationKeys[CameraAnimationKeys.Twist];
-            if (AnimationKeys.ContainsKey(CameraAnimationKeys.Distance)) distance = AnimationKeys[CameraAnimationKeys.Distance];
+            TryUpdateKeyedValue(CameraAnimationKeys.PositionX, ref position.X);
+            TryUpdateKeyedValue(CameraAnimationKeys.PositionY, ref position.Y);
+            TryUpdateKeyedValue(CameraAnimationKeys.PositionZ, ref position.Z);
+            TryUpdateKeyedValue(CameraAnimationKeys.RotationX, ref rotation.X);
+            TryUpdateKeyedValue(CameraAnimationKeys.RotationY, ref rotation.Y);
+            TryUpdateKeyedValue(CameraAnimationKeys.RotationZ, ref rotation.Z);
+            TryUpdateKeyedValue(CameraAnimationKeys.TargetX, ref target.X);
+            TryUpdateKeyedValue(CameraAnimationKeys.TargetY, ref target.Y);
+            TryUpdateKeyedValue(CameraAnimationKeys.TargetZ, ref target.Z);
+            TryUpdateKeyedValue(CameraAnimationKeys.Twist, ref twist);
+            TryUpdateKeyedValue(CameraAnimationKeys.Distance, ref distance);
 
             if (RotationLookat)
             {
@@ -380,6 +380,12 @@ namespace GLFrameworkEngine
             RotationLookat = false;
             AnimationKeys.Clear();
             UpdateMatrices();
+        }
+
+        public void TryUpdateKeyedValue(CameraAnimationKeys key, ref float current)
+        {
+            if (AnimationKeys.ContainsKey(key))
+                current = AnimationKeys[key];
         }
 
         public void SetKeyframe(CameraAnimationKeys keyType, float value)
