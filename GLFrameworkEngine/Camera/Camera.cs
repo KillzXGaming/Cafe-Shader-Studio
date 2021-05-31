@@ -316,9 +316,9 @@ namespace GLFrameworkEngine
         public bool RotationLookat { get; set; }
 
         /// <summary>
-        /// Gets or sets the eye position for look at rotation type.
+        /// Gets or sets the eye target for look at rotation type.
         /// </summary>
-        public Vector3 EyePosition { get; set; }
+        public Vector3 EyeTarget { get; set; }
         /// <summary>
         /// Gets or sets the Z rotation for look at rotation type.
         /// </summary>
@@ -347,7 +347,7 @@ namespace GLFrameworkEngine
             var position = TargetPosition;
             var rotation = new Vector3(RotationX, RotationY, 0);
             var twist = this.Twist;
-            var target = this.EyePosition;
+            var target = this.EyeTarget;
             var distance = this.TargetDistance;
 
             if (AnimationKeys.ContainsKey(CameraAnimationKeys.PositionX)) position.X = AnimationKeys[CameraAnimationKeys.PositionX];
