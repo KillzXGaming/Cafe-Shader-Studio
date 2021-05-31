@@ -375,13 +375,6 @@ namespace GLFrameworkEngine
             }
         }
 
-        public Vector3 LookatAngles(Vector3 vec)
-        { 
-            return new Vector3(
-                (float)Math.Atan2(vec.Y, Math.Sqrt(vec.X * vec.X + vec.Z * vec.Z)),
-                (float)Math.Atan2(-vec.X, -vec.Z), 0.0f); 
-        }
-
         public void ResetAnimations()
         {
             RotationLookat = false;
