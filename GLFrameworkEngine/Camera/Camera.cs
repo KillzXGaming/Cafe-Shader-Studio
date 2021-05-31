@@ -347,7 +347,7 @@ namespace GLFrameworkEngine
             var position = TargetPosition;
             var rotation = new Vector3(RotationX, RotationY, 0);
             var twist = this.Twist;
-            var eye = this.EyePosition;
+            var target = this.EyePosition;
             var distance = this.TargetDistance;
 
             if (AnimationKeys.ContainsKey(CameraAnimationKeys.PositionX)) position.X = AnimationKeys[CameraAnimationKeys.PositionX];
@@ -356,19 +356,30 @@ namespace GLFrameworkEngine
             if (AnimationKeys.ContainsKey(CameraAnimationKeys.RotationX)) rotation.X = AnimationKeys[CameraAnimationKeys.RotationX];
             if (AnimationKeys.ContainsKey(CameraAnimationKeys.RotationY)) rotation.Y = AnimationKeys[CameraAnimationKeys.RotationY];
             if (AnimationKeys.ContainsKey(CameraAnimationKeys.RotationZ)) rotation.Z = AnimationKeys[CameraAnimationKeys.RotationZ];
-            if (AnimationKeys.ContainsKey(CameraAnimationKeys.EyeX)) eye.X = AnimationKeys[CameraAnimationKeys.EyeX];
-            if (AnimationKeys.ContainsKey(CameraAnimationKeys.EyeY)) eye.Y = AnimationKeys[CameraAnimationKeys.EyeY];
-            if (AnimationKeys.ContainsKey(CameraAnimationKeys.EyeZ)) eye.Z = AnimationKeys[CameraAnimationKeys.EyeZ];
+            if (AnimationKeys.ContainsKey(CameraAnimationKeys.TargetX)) target.X = AnimationKeys[CameraAnimationKeys.TargetX];
+            if (AnimationKeys.ContainsKey(CameraAnimationKeys.TargetY)) target.Y = AnimationKeys[CameraAnimationKeys.TargetY];
+            if (AnimationKeys.ContainsKey(CameraAnimationKeys.TargetZ)) target.Z = AnimationKeys[CameraAnimationKeys.TargetZ];
             if (AnimationKeys.ContainsKey(CameraAnimationKeys.Twist)) twist = AnimationKeys[CameraAnimationKeys.Twist];
             if (AnimationKeys.ContainsKey(CameraAnimationKeys.Distance)) distance = AnimationKeys[CameraAnimationKeys.Distance];
 
-            var translationMatrix = Matrix4.CreateTranslation(-position);
-            var rotationMatrix = Matrix4.CreateRotationY(rotation.Y) * Matrix4.CreateRotationX(rotation.X);
             if (RotationLookat)
-                rotationMatrix = Matrix4.LookAt(eye, position, new Vector3(0, 1, 0)) * Matrix4.CreateRotationZ(twist);
+            {
+                return Matrix4.LookAt(position, target,  new Vector3(0, 1, 0)) * Matrix4.CreateRotationZ(twist);
+            }
+            else
+            {
+                var translationMatrix = Matrix4.CreateTranslation(-position);
+                var rotationMatrix = Matrix4.CreateRotationY(rotation.Y) * Matrix4.CreateRotationX(rotation.X);
+                var distanceMatrix = Matrix4.CreateTranslation(0, 0, -distance);
+                return translationMatrix * rotationMatrix * distanceMatrix;
+            }
+        }
 
-            var distanceMatrix = Matrix4.CreateTranslation(0, 0, -distance);
-            return translationMatrix * rotationMatrix * distanceMatrix;
+        public Vector3 LookatAngles(Vector3 vec)
+        { 
+            return new Vector3(
+                (float)Math.Atan2(vec.Y, Math.Sqrt(vec.X * vec.X + vec.Z * vec.Z)),
+                (float)Math.Atan2(-vec.X, -vec.Z), 0.0f); 
         }
 
         public void ResetAnimations()

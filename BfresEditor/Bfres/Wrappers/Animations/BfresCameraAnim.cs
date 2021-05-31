@@ -26,9 +26,9 @@ namespace BfresEditor
             var group = AnimGroups[0] as CameraAnimGroup;
             var camera = context.Camera;
 
-            var posX = group.PositionX.GetFrameValue(this.Frame);
-            var posY = group.PositionY.GetFrameValue(this.Frame);
-            var posZ = group.PositionZ.GetFrameValue(this.Frame);
+            var posX = group.PositionX.GetFrameValue(this.Frame) * GLContext.PreviewScale;
+            var posY = group.PositionY.GetFrameValue(this.Frame) * GLContext.PreviewScale;
+            var posZ = group.PositionZ.GetFrameValue(this.Frame) * GLContext.PreviewScale;
             var rotX = group.RotationX.GetFrameValue(this.Frame);
             var rotY = group.RotationY.GetFrameValue(this.Frame);
             var rotZ = group.RotationZ.GetFrameValue(this.Frame);
@@ -53,9 +53,10 @@ namespace BfresEditor
                 camera.SetKeyframe(CameraAnimationKeys.RotationY, 0);
                 camera.SetKeyframe(CameraAnimationKeys.RotationZ, 0);
                 camera.SetKeyframe(CameraAnimationKeys.Twist, twist);
-                camera.SetKeyframe(CameraAnimationKeys.EyeX, rotX);
-                camera.SetKeyframe(CameraAnimationKeys.EyeY, rotY);
-                camera.SetKeyframe(CameraAnimationKeys.EyeZ, rotZ);
+                //XYZ values for eye target placement
+                camera.SetKeyframe(CameraAnimationKeys.TargetX, rotX * GLContext.PreviewScale);
+                camera.SetKeyframe(CameraAnimationKeys.TargetY, rotY * GLContext.PreviewScale);
+                camera.SetKeyframe(CameraAnimationKeys.TargetZ, rotZ * GLContext.PreviewScale);
             }
             else
             {
@@ -63,9 +64,9 @@ namespace BfresEditor
                 camera.SetKeyframe(CameraAnimationKeys.RotationY, rotY);
                 camera.SetKeyframe(CameraAnimationKeys.RotationZ, rotZ);
                 camera.SetKeyframe(CameraAnimationKeys.Twist, 0);
-                camera.SetKeyframe(CameraAnimationKeys.EyeX, 0);
-                camera.SetKeyframe(CameraAnimationKeys.EyeY, 0);
-                camera.SetKeyframe(CameraAnimationKeys.EyeZ, 0);
+                camera.SetKeyframe(CameraAnimationKeys.TargetX, 0);
+                camera.SetKeyframe(CameraAnimationKeys.TargetY, 0);
+                camera.SetKeyframe(CameraAnimationKeys.TargetZ, 0);
             }
 
             camera.UpdateMatrices();

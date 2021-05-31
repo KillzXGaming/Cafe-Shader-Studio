@@ -15,9 +15,9 @@ namespace GLFrameworkEngine
         Near,
         Far,
         FieldOfView,
-        EyeX,
-        EyeY,
-        EyeZ,
+        TargetX,
+        TargetY,
+        TargetZ,
         Twist,
         Distance,
     }
