@@ -3,7 +3,7 @@ A program to preview various materials and shaders in games.
 
 Currently supports shader viewing in:
 
-- Mario Kart 8 Deluxe
+- Mario Kart 8 U & Deluxe
 - Super Mario Odyssey (set the romfs game path in settings menu)
 - NSMBUDX
 - NSMBU
