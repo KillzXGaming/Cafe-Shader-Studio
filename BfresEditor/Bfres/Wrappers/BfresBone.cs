@@ -6,6 +6,7 @@ using BfresLibrary.GX2;
 using BfresLibrary.Helpers;
 using Toolbox.Core;
 using CafeStudio.UI;
+using OpenTK;
 
 namespace BfresEditor
 {
@@ -60,6 +61,53 @@ namespace BfresEditor
                     this.Rotation.Z,
                     this.Rotation.W);
             }
+            //Update the flags when transform has been adjusted
+            UpdateTransformFlags();
+        }
+
+        /// <summary>
+        /// Updates the current bone transform flags.
+        /// These flags determine what matrices can be ignored for matrix updating.
+        /// </summary>
+        public void UpdateTransformFlags()
+        {
+            BoneFlagsTransform flags = 0;
+
+            //SRT checks to update matrices
+            if (this.Position == Vector3.Zero)
+                flags |= BoneFlagsTransform.TranslateZero;
+            if (this.Scale == Vector3.One)
+            {
+                flags |= BoneFlagsTransform.ScaleOne;
+                flags |= BoneFlagsTransform.ScaleVolumeOne;
+            }
+            if (this.Rotation == Quaternion.Identity)
+                flags |= BoneFlagsTransform.RotateZero;
+
+            //Extra scale flags
+            if (this.Scale.X == this.Scale.Y && this.Scale.X == this.Scale.Z)
+                flags |= BoneFlagsTransform.ScaleUniform;
+
+            BoneData.FlagsTransform = flags;
+        }
+
+        /// <summary>
+        /// Gets the transformation of the bone without it's parent transform applied.
+        /// </summary>
+        public override Matrix4 GetTransform()
+        {
+            var transform = Matrix4.Identity;
+            if (BoneData.FlagsTransform.HasFlag(BoneFlagsTransform.Identity))
+                return transform;
+
+            if (!BoneData.FlagsTransform.HasFlag(BoneFlagsTransform.ScaleOne))
+                transform *= Matrix4.CreateScale(Scale);
+            if (!BoneData.FlagsTransform.HasFlag(BoneFlagsTransform.RotateZero))
+                transform *= Matrix4.CreateFromQuaternion(Rotation);
+            if (!BoneData.FlagsTransform.HasFlag(BoneFlagsTransform.TranslateZero))
+                transform *= Matrix4.CreateTranslation(Position);
+
+            return transform;
         }
 
         public void OnRenderUI(object uiInstance)
