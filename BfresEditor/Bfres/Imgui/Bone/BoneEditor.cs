@@ -57,6 +57,7 @@ namespace BfresEditor
                        transform.Scale.X, transform.Scale.Y, transform.Scale.Z);
                     bone.EulerRotation = new OpenTK.Vector3(
                        transform.Rotation.X, transform.Rotation.Y, transform.Rotation.Z);
+                    bone.UpdateTransform();
                 }
             }
             if (ImGui.CollapsingHeader("Billboard", ImGuiTreeNodeFlags.DefaultOpen))
