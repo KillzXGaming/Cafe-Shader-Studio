@@ -80,10 +80,7 @@ namespace CafeStudio.UI
             RenderEditor();
             var id = GetViewportTexture();
 
-            ImGui.Image((IntPtr)id, 
-                new System.Numerics.Vector2(width, height), 
-                new System.Numerics.Vector2(0, 1), 
-                new System.Numerics.Vector2(1, 0));
+            ImGui.Image((IntPtr)id, new System.Numerics.Vector2(width, height));
         }
 
         private bool _mouseDown;

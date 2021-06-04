@@ -12,7 +12,7 @@ namespace CafeStudio.UI
 {
     public class IconRender 
     {
-        public static int CreateTextureRender(STGenericTexture texture, int width, int height)
+        public static int CreateTextureRender(STGenericTexture texture, int width, int height, bool displayAlpha = true)
         {
             if (texture.RenderableTex == null) {
                 texture.LoadRenderableTexture();
@@ -50,7 +50,7 @@ namespace CafeStudio.UI
                     OpenGLHelper.GetSwizzle(texture.RedChannel),
                     OpenGLHelper.GetSwizzle(texture.GreenChannel),
                     OpenGLHelper.GetSwizzle(texture.BlueChannel),
-                    OpenGLHelper.GetSwizzle(texture.AlphaChannel),
+                    OpenGLHelper.GetSwizzle(displayAlpha ? texture.AlphaChannel : STChannelType.One),
             };
             ((GLTexture)texture.RenderableTex).Bind();
             GL.TexParameter(((GLTexture)texture.RenderableTex).Target, TextureParameterName.TextureSwizzleRgba, mask);

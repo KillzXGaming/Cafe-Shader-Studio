@@ -47,7 +47,7 @@ namespace CafeShaderStudio
                                     "Cafe Shader Studio",
                                     GameWindowFlags.Default,
                                     DisplayDevice.Default,
-                                    0, 0, GraphicsContextFlags.ForwardCompatible)
+                                    3, 2, GraphicsContextFlags.Default)
         {
             Title += ": OpenGL Version: " + GL.GetString(StringName.Version);
 
@@ -74,7 +74,8 @@ namespace CafeShaderStudio
             LoadAnimationFile(actor, $"{RedStarLibrary.GlobalSettings.GamePath}\\ObjectData\\PlayerAnimation.szs", animationSets);
             foreach (var file in actor.PartActors.Values)
             {
-                if (file.InitModel != null && file.InitModel.ExternalAnimationFile != null) {
+                if (file.InitModel != null && file.InitModel.ExternalAnimationFile != null)
+                {
                     LoadAnimationFile(file, $"{RedStarLibrary.GlobalSettings.GamePath}\\ObjectData\\{file.InitModel.ExternalAnimationFile}.szs", animationSets);
                 }
             }
@@ -218,7 +219,7 @@ namespace CafeShaderStudio
 
         public void LoadFileFormat(string fileName)
         {
-            if (!initGlobalShaders) 
+            if (!initGlobalShaders)
                 return;
 
             if (fileName.EndsWith(".byaml") && MapLoader.HasValidPath)
@@ -341,8 +342,8 @@ namespace CafeShaderStudio
                 }
 
                 //Generate light maps (area based lighting from directional and hemi lighting)
-               // for (int i = 0; i < 8; i++)
-               //     LightingEngine.LightSettings.UpdateLightmap(Pipeline._context, i);
+                 for (int i = 0; i < 8; i++)
+                     LightingEngine.LightSettings.UpdateLightmap(Pipeline._context, i);
             }
             if (System.IO.File.Exists($"{folder}\\course_bglpbd.szs"))
             {
@@ -405,7 +406,8 @@ namespace CafeShaderStudio
 
             //Check for the camera speed value and see if the value is changed
             //Display a UI on the changed values if it's different
-            if (camera_speed != Pipeline._camera.KeyMoveSpeed) {
+            if (camera_speed != Pipeline._camera.KeyMoveSpeed)
+            {
                 camera_speed_start_notify = (float)ImGui.GetTime();
                 camera_speed_delay = 3.0f;
             }
@@ -425,7 +427,7 @@ namespace CafeShaderStudio
             dock_id = ImGui.GetID("##DockspaceRoot");
 
             LoadFileMenu();
-             LoadWorkspaces();
+            LoadWorkspaces();
 
 
             GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
@@ -444,7 +446,8 @@ namespace CafeShaderStudio
             if (start > 0)
             {
                 var dif = ImGui.GetTime() - start;
-                if (dif > delay) {
+                if (dif > delay)
+                {
                     onNotifyEnd?.Invoke();
                     start = 0.0f;
                 }
@@ -457,7 +460,8 @@ namespace CafeShaderStudio
             int workspaceID = 0;
             var windowFlags = ImGuiWindowFlags.NoCollapse;
 
-            if (ImGui.DockBuilderGetNode(dock_id).NativePtr == null) {
+            if (ImGui.DockBuilderGetNode(dock_id).NativePtr == null)
+            {
                 ReloadDockLayout(dock_id, workspaceID);
             }
 
@@ -467,7 +471,7 @@ namespace CafeShaderStudio
             LoadWindow(GetWindowName("Viewport", workspaceID), windowFlags | ImGuiWindowFlags.MenuBar, ViewportRender);
             LoadWindow(GetWindowName("Timeline", workspaceID), windowFlags, TimelineWindow.Render);
             LoadWindow(GetWindowName("Outliner", workspaceID), windowFlags, () => Outliner.Render());
-            LoadWindow(GetWindowName("Properties", workspaceID), windowFlags, () => PropertyWindow.Render(Outliner, TimelineWindow));
+            LoadWindow(GetWindowName("Properties", workspaceID), windowFlags, () => PropertyWindow.Render(Pipeline, Outliner, TimelineWindow));
         }
 
         private void ViewportRender()
@@ -512,7 +516,7 @@ namespace CafeShaderStudio
             ImGui.End();
         }
 
-        private void ReloadDockLayout( uint dockspaceId, int workspaceID)
+        private void ReloadDockLayout(uint dockspaceId, int workspaceID)
         {
             ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags.None;
 
@@ -653,7 +657,8 @@ namespace CafeShaderStudio
             if (ImGui.BeginCombo("##model_select", selectedModel))
             {
                 bool isSelected = "All Models" == selectedModel;
-                if (ImGui.Selectable("All Models", isSelected)) {
+                if (ImGui.Selectable("All Models", isSelected))
+                {
                     selectedModel = "All Models";
                     ToggleModel();
                 }
@@ -839,7 +844,8 @@ namespace CafeShaderStudio
 
                 if (_config.HasValidSMOPath)
                 {
-                    if (ImGui.MenuItem("Mario Viewer", initGlobalShaders)) {
+                    if (ImGui.MenuItem("Mario Viewer", initGlobalShaders))
+                    {
                         TryLoadPartInfo();
                     }
                 }
@@ -849,19 +855,39 @@ namespace CafeShaderStudio
                       showLightingEditor = true;
                   }*/
 
+               /* if (ImGui.BeginMenu("Batch Render"))
+                {
+                    if (ImGui.MenuItem("Start Render"))
+                    {
+                        var Thread3 = new Thread((ThreadStart)(() =>
+                        {
+                            BatchRenderingTool batchTool = new BatchRenderingTool();
+                            batchTool.StartRender(
+                                @"G:\Games\nsw\SMO\romfs\ObjectData",
+                                "Batch", 512, 512);
+                        }));
+                        Thread3.Start();
+                    }
+                    ImGui.EndMenu();
+                }*/
+
+
                 if (ImGui.BeginMenu("Help"))
                 {
-                    if (ImGui.Selectable($"About")) {
+                    if (ImGui.Selectable($"About"))
+                    {
                         showAboutPage = true;
                     }
-                    if (ImGui.Selectable($"Donate")) {
+                    if (ImGui.Selectable($"Donate"))
+                    {
                         BrowserHelper.OpenDonation();
                     }
                     ImGui.EndMenu();
                 }
 
                 float size = ImGui.GetWindowWidth();
-                if (!string.IsNullOrEmpty(status)){
+                if (!string.IsNullOrEmpty(status))
+                {
 
                     string statusLabel = $"Status: {status}";
                     float lbSize = ImGui.CalcTextSize(statusLabel).X;
@@ -936,7 +962,8 @@ namespace CafeShaderStudio
 
             sfd.FileName = fileFormat.FileInfo.FileName;
 
-            if (sfd.ShowDialog("SAVE_FILE")) {
+            if (sfd.ShowDialog("SAVE_FILE"))
+            {
                 SaveFileFormat(fileFormat, sfd.FilePath);
             }
         }
@@ -1012,7 +1039,7 @@ namespace CafeShaderStudio
                 _mouseDown = false;
             }
 
-            Pipeline._context.OnMouseMove(mouseInfo); 
+            Pipeline._context.OnMouseMove(mouseInfo);
 
             if (_mouseDown)
                 Pipeline.OnMouseMove(mouseInfo, keyInfo);
@@ -1073,7 +1100,8 @@ namespace CafeShaderStudio
             return mouseInfo;
         }
 
-        protected override void OnFileDrop(FileDropEventArgs e) {
+        protected override void OnFileDrop(FileDropEventArgs e)
+        {
             LoadFileFormat(e.FileName);
         }
 

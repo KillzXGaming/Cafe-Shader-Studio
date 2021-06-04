@@ -1,6 +1,10 @@
 .vs/
 bin/
 obj/
+EffectLibrary/
+EffectLibrary.Test/
+Toolbox.Core/
+CurveEditorLibraryCore/
 *Google.FlatBuffers
 *NodeEditorWinforms-master
 *GL_EditorFramework-master

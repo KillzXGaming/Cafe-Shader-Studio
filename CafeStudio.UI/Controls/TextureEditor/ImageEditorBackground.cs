@@ -30,18 +30,18 @@ namespace CafeStudio.UI
 
                 Vector2[] positions = new Vector2[4]
                 {
-                    new Vector2(-1.0f, -1.0f),
-                    new Vector2(1.0f, -1.0f), 
-                    new Vector2(1.0f, 1.0f),
                     new Vector2(-1.0f, 1.0f),
+                    new Vector2(-1.0f, -1.0f),
+                    new Vector2(1.0f, 1.0f),
+                    new Vector2(1.0f, -1.0f),
                 };
 
                 Vector2[] texCoords = new Vector2[4]
                 {
-                    new Vector2(0,1),
-                    new Vector2(1,1),
-                    new Vector2(1,0),
-                    new Vector2(0,0),
+                    new Vector2(0.0f, 1.0f),
+                    new Vector2(0.0f, 0.0f),
+                    new Vector2(1.0f, 1.0f),
+                    new Vector2(1.0f, 0.0f),
                 };
 
                 List<float> list = new List<float>();
@@ -111,7 +111,7 @@ namespace CafeStudio.UI
             //Draw background
             vao.Enable(shader);
             vao.Use();
-            GL.DrawArrays(PrimitiveType.Quads, 0, Length);
+            GL.DrawArrays(PrimitiveType.TriangleStrip, 0, Length);
         }
 
         static void DrawBackground(ShaderProgram shader)
@@ -132,7 +132,7 @@ namespace CafeStudio.UI
             //Draw background
             vao.Enable(shader);
             vao.Use();
-            GL.DrawArrays(PrimitiveType.Quads, 0, Length);
+            GL.DrawArrays(PrimitiveType.TriangleStrip, 0, Length);
         }
 
         static Vector3 UpdateAspectScale(Vector3 scale, int width, int height, STGenericTexture tex)

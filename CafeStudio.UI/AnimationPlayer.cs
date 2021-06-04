@@ -67,7 +67,6 @@ namespace CafeStudio.UI
             {
                 ResetModels();
                 CurrentAnimations.Clear();
-                SetFrame(0);
             }
 
             animation.CanPlay = true;

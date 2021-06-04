@@ -16,6 +16,7 @@ namespace CafeStudio.UI
 
         public List<IRenderableFile> Files = new List<IRenderableFile>();
         public List<GenericRenderer> SceneObjects = new List<GenericRenderer>();
+        public List<CameraAnimation> CameraAnimations = new List<CameraAnimation>();
 
         public int Width { get; set; }
 
@@ -29,6 +30,7 @@ namespace CafeStudio.UI
         private DepthTexture DepthTexture;
 
         private Framebuffer PostEffects;
+        private Framebuffer BloomEffects;
         private Framebuffer ScreenBuffer;
         private Framebuffer GBuffer;
         private Framebuffer FinalBuffer;
@@ -58,6 +60,11 @@ namespace CafeStudio.UI
             PostEffects = new Framebuffer(FramebufferTarget.Framebuffer,
                  Width, Height, PixelInternalFormat.Rgba16f, 1);
             PostEffects.Resize(Width, Height);
+
+            BloomEffects = new Framebuffer(FramebufferTarget.Framebuffer,
+                 Width, Height, PixelInternalFormat.Rgba16f, 1);
+            BloomEffects.Resize(Width, Height);
+
             /*
                      DepthTexture = new DepthTexture(Width, Height, PixelInternalFormat.DepthComponent24);
 
@@ -80,6 +87,13 @@ namespace CafeStudio.UI
 
             FinalBuffer = new Framebuffer(FramebufferTarget.Framebuffer,
                 this.Width, this.Height, PixelInternalFormat.Rgba16f, 1);
+        }
+
+        //Adds a camera to the scene for path viewing
+        public void AddCameraAnimation(CameraAnimation animation)
+        {
+            CameraAnimations.Clear();
+            CameraAnimations.Add(animation);
         }
 
         public void AddFile(IRenderableFile renderFile) {
@@ -125,10 +139,12 @@ namespace CafeStudio.UI
             GL.BindFramebuffer(FramebufferTarget.DrawFramebuffer, FinalBuffer.ID);
             GL.BlitFramebuffer(0, 0, Width, Height, 0, 0, Width, Height, ClearBufferMask.DepthBufferBit, BlitFramebufferFilter.Nearest);
 
-
             _background.Draw(_context, Pass.OPAQUE);
             _floor.Draw(_context, Pass.OPAQUE);
             _context.Scene.DrawSelection(_context);
+
+            foreach (var anim in CameraAnimations)
+                anim.DrawPath(_context);
 
             FinalBuffer.Unbind();
         }
@@ -143,6 +159,7 @@ namespace CafeStudio.UI
             PostEffects?.Resize(Width, Height);
             GBuffer?.Resize(Width, Height);
             FinalBuffer?.Resize(Width, Height);
+            BloomEffects?.Resize(Width, Height);
 
             //Store the screen buffer instance for color buffer effects
             _context.ScreenBuffer = ScreenBuffer;
@@ -200,7 +217,7 @@ namespace CafeStudio.UI
             GL.Viewport(0, 0, Width, Height);
             ScreenBuffer.Bind();
 
-            GL.ClearColor(0, 0, 0, 0);
+            GL.ClearColor(0.01f, 0.01f, 0.01f, 1f);
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit | ClearBufferMask.StencilBufferBit);
 
             DrawBfresModels();
@@ -253,11 +270,20 @@ namespace CafeStudio.UI
 
         private void DrawPostScreenBuffer(Framebuffer screen)
         {
-            if (bloomPass == null)
-                 bloomPass = GLTexture2D.CreateUncompressedTexture(1, 1);
+            if (bloomPass == null) {
+                bloomPass = GLTexture2D.CreateUncompressedTexture(1, 1);
+            }
 
             var colorPass = (GLTexture2D)screen.Attachments[0];
 
+            if (_context.EnableBloom)
+            {
+                var brightnessTex = BloomExtractionTexture.FilterScreen(_context, colorPass);
+                BloomProcess.Draw(brightnessTex, BloomEffects, _context, Width, Height);
+                bloomPass = (GLTexture2D)BloomEffects.Attachments[0];
+            }
+
+            FinalBuffer.Bind();
             DeferredRenderQuad.Draw(_context, colorPass, bloomPass);
         }
 

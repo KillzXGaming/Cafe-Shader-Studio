@@ -1,16 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Drawing;
+using System.Text;
 using System.Threading.Tasks;
 using OpenTK.Graphics.OpenGL;
 using OpenTK;
-using AGraphicsLibrary;
 using GLFrameworkEngine;
 
 namespace CafeStudio.UI
 {
-    public class DeferredRenderQuad
+    public class PostEffectsQuad
     {
         public static ShaderProgram DefaultShaderProgram { get; private set; }
 
@@ -25,12 +24,40 @@ namespace CafeStudio.UI
 
             if (DefaultShaderProgram == null)
             {
-                string frag = System.IO.File.ReadAllText("Shaders/FinalHDR.frag");
-                string vert = System.IO.File.ReadAllText("Shaders/FinalHDR.vert");
+                string vert = @"#version 330
+                        layout (location = 0) in vec2 aPos;
+                        layout (location = 1) in vec2 aTexCoords;
 
+                        out vec2 TexCoords;
+
+                        void main()
+                        {
+                            gl_Position = vec4(aPos.x, aPos.y, 0.0, 1.0); 
+                            TexCoords = aTexCoords;
+                        }";
+                string frag = @"#version 330 core
+                    out vec4 FragColor;
+  
+                    in vec2 TexCoords;
+
+                    uniform sampler2D scene;
+                    uniform sampler2D bloomBlur;
+                    uniform float exposure;
+
+                    void main()
+                    {             
+                        const float gamma = 2.2;
+                        vec3 hdrColor = texture(scene, TexCoords).rgb;      
+                        vec3 bloomColor = texture(bloomBlur, TexCoords).rgb * 0.7f;
+                        hdrColor += bloomColor; // additive blending
+                        // tone mapping
+                     //   vec3 result = vec3(1.0) - exp(-hdrColor * exposure);
+                        FragColor = vec4(hdrColor, 1.0);
+                    }";
+
+                
                 DefaultShaderProgram = new ShaderProgram(
-                    new FragmentShader(frag),
-                    new VertexShader(vert));
+                    new FragmentShader(frag), new VertexShader(vert));
 
                 int buffer = GL.GenBuffer();
                 vao = new VertexBufferObject(buffer);
@@ -68,55 +95,35 @@ namespace CafeStudio.UI
                 float[] data = list.ToArray();
                 GL.BufferData(BufferTarget.ArrayBuffer, sizeof(float) * data.Length, data, BufferUsageHint.StaticDraw);
             }
+            else
+            {
+                vao.Initialize();
+                DefaultShaderProgram.Link();
+            }
         }
 
-
-        public static void Draw(GLContext control, GLTexture colorPass,  GLTexture bloomPass)
+        public static void Draw(GLContext control, GLTexture screen, GLTexture brightnessTexture)
         {
             Initialize(control);
 
-            GL.Disable(EnableCap.Blend);
-            GL.Disable(EnableCap.CullFace);
+            GL.MatrixMode(MatrixMode.Modelview);
+            GL.LoadIdentity();
 
             control.CurrentShader = DefaultShaderProgram;
 
-            DefaultShaderProgram.SetInt("ENABLE_BLOOM", 0);
-            DefaultShaderProgram.SetInt("ENABLE_LUT", 0);
-            DefaultShaderProgram.SetBoolToInt("ENABLE_SRGB", control.UseSRBFrameBuffer);
+            DefaultShaderProgram.SetFloat("exposure", 1.0f);
 
-            GL.ActiveTexture(TextureUnit.Texture1);
-            colorPass.Bind();
-            DefaultShaderProgram.SetInt("uColorTex", 1);
+            GL.ActiveTexture(TextureUnit.Texture23);
+            screen.Bind();
+            DefaultShaderProgram.SetInt("scene", 23);
 
-            if (bloomPass != null)
-            {
-                DefaultShaderProgram.SetInt("ENABLE_BLOOM", 1);
-
-                GL.ActiveTexture(TextureUnit.Texture24);
-                bloomPass.Bind();
-                DefaultShaderProgram.SetInt("uBloomTex", 24);
-            }
-
-            /*
-
-
-                        if (LightingEngine.LightSettings.ColorCorrectionTable != null)
-                        {
-                            DefaultShaderProgram.SetInt("ENABLE_LUT", 1);
-
-                            GL.ActiveTexture(TextureUnit.Texture25);
-                            LightingEngine.LightSettings.ColorCorrectionTable.Bind();
-                            DefaultShaderProgram.SetInt("uLutTex", 25);
-                        }
-                        */
+            GL.ActiveTexture(TextureUnit.Texture24);
+            brightnessTexture.Bind();
+            DefaultShaderProgram.SetInt("bloomBlur", 24);
 
             vao.Enable(DefaultShaderProgram);
             vao.Use();
-            GL.DrawArrays(PrimitiveType.TriangleStrip, 0, Length);
-            GL.BindTexture(TextureTarget.Texture2D, 0);
-
-            GL.UseProgram(0);
+            GL.DrawArrays(PrimitiveType.QuadStrip, 0, Length);
         }
     }
 }
-        

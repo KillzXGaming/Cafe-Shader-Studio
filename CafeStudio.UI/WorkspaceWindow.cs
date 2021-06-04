@@ -191,7 +191,7 @@ namespace CafeStudio.UI
                 LoadWindow(GetWindowName("Timeline", workspaceID), windowFlags, TimelineWindow.Render);
             }
 
-            LoadWindow(GetWindowName("Properties", workspaceID), windowFlags, () => PropertyWindow.Render(Outliner, TimelineWindow));
+            LoadWindow(GetWindowName("Properties", workspaceID), windowFlags, () => PropertyWindow.Render(Viewport.Pipeline, Outliner, TimelineWindow));
             LoadWindow(GetWindowName("Outliner", workspaceID), windowFlags, () => Outliner.Render());
             LoadWindow(GetWindowName("Undo History", workspaceID), windowFlags, () => UndoWindow.Render());
         }

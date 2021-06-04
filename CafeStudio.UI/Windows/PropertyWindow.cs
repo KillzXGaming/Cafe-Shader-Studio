@@ -23,7 +23,7 @@ namespace CafeStudio.UI
 
         }
 
-        public void Render(Outliner outliner, TimelineWindow timeline)
+        public void Render(Pipeline pipeline, Outliner outliner, TimelineWindow timeline)
         {
             //Display based on selected objects
             var node = outliner.SelectedNode;
@@ -40,7 +40,7 @@ namespace CafeStudio.UI
 
             //Check for editor purpose node handling
             foreach (var n in outliner.SelectedNodes)
-                CheckEditorSelectedNodes(timeline, n, valueChanged);
+                CheckEditorSelectedNodes(pipeline, timeline, n, valueChanged);
 
             //Archive files have multiple purpose editors (hex, tag properties, text previewer)
             if (node is ArchiveHiearchy)
@@ -49,18 +49,25 @@ namespace CafeStudio.UI
                 LoadProperties(node, valueChanged);
         }
 
-        private void CheckEditorSelectedNodes(TimelineWindow timeline, NodeBase node, bool valueChanged)
+        private void CheckEditorSelectedNodes(Pipeline pipeline, TimelineWindow timeline, NodeBase node, bool valueChanged)
         {
+            //Most data types are stored via tag so ignore null types
+            if (node.Tag == null)
+                return;
+
             //Check for active changes for functions that load only once on click
             if (valueChanged)
             {
-                if (node.Tag != null && node.Tag is Toolbox.Core.Animations.STAnimation) {
+                if (node.Tag is Toolbox.Core.Animations.STAnimation) {
                     var anim = (Toolbox.Core.Animations.STAnimation)node.Tag;
                     timeline.AddAnimation(anim, false);
                     timeline.SetFrame(0);
                 }
+                if (node.Tag is CameraAnimation) {
+                    pipeline.AddCameraAnimation(node.Tag as CameraAnimation);
+                }
                 //Container to batch play multiple animations at once
-                if (node.Tag != null && node.Tag is IAnimationContainer) {
+                if (node.Tag is IAnimationContainer) {
                     timeline.ClearAnimations();
                     foreach (var anim in ((IAnimationContainer)node.Tag).AnimationList)
                         timeline.AddAnimation(anim, false);
