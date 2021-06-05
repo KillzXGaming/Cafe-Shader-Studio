@@ -13,6 +13,8 @@ namespace GLFrameworkEngine
     {
         public Camera Camera { get; set; }
 
+        public Matrix4 Transform = Matrix4.Identity;
+
         VertexBufferObject vao;
 
         int Length;
@@ -30,12 +32,12 @@ namespace GLFrameworkEngine
             Camera.UpdateMatrices();
         }
 
-        public void Init()
+        public void Init(bool forceUpdate)
         {
             if (Camera == null)
                 return;
 
-            if (Length == 0)
+            if (Length == 0 || forceUpdate)
             {
                 int buffer = GL.GenBuffer();
                 int indexBuffer = GL.GenBuffer();
@@ -70,10 +72,9 @@ namespace GLFrameworkEngine
                 vertices[7][0] = farWidth; vertices[7][1] = -farHeight; vertices[7][2] = -farPlane;
 
                 // far top left
-                vertices[5][0] = -farWidth; vertices[5][1] = farHeight; vertices[5][2] = -farPlane;
+                vertices[4][0] = -farWidth; vertices[5][1] = farHeight; vertices[5][2] = -farPlane;
                 // far top right
-                vertices[4][0] = farWidth; vertices[4][1] = farHeight; vertices[4][2] = -farPlane;
-
+                vertices[5][0] = farWidth; vertices[4][1] = farHeight; vertices[4][2] = -farPlane;
 
                 List<float> list = new List<float>();
                 for (int i = 0; i < vertices.Length; i++)
@@ -103,13 +104,12 @@ namespace GLFrameworkEngine
             1, 5,  3, 7 //Top Z to -Z
         };
 
-        public void Draw(GLContext control, Pass pass,
-       Vector4 sphereColor, Vector4 outlineColor, Vector4 pickingColor)
+        public void Draw(GLContext control, Pass pass, Vector4 sphereColor, Vector4 pickingColor, bool forceUpdate)
         {
             if (pass == Pass.TRANSPARENT)
                 return;
 
-            Init();
+            Init(forceUpdate);
 
             if (Length == 0)
                 return;
@@ -117,7 +117,9 @@ namespace GLFrameworkEngine
             GL.LineWidth(5f);
 
             var shader = GlobalShaders.GetShader("BASIC");
-            shader.Enable();
+            control.CurrentShader = shader;
+
+            shader.SetMatrix4x4("mtxMdl", ref Transform);
             if (pass == Pass.OPAQUE)
             {
                 shader.SetVector4("color", sphereColor);

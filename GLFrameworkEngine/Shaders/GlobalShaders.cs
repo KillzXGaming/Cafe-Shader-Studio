@@ -15,6 +15,7 @@ namespace GLFrameworkEngine
 
         public static void Init() {
             Shaders.Add("BASIC", LoadShader("Generic/Basic"));
+            Shaders.Add("LINE", LoadShader("Generic/Line"));
             Shaders.Add("NORMALS", LoadShader("Normals/Normals"));
             Shaders.Add("BILLBOARD_TEXTURE", LoadShader("Generic/BillboardTexture"));
             Shaders.Add("SCREEN", LoadShader("Screen/Screen"));
@@ -35,13 +36,15 @@ namespace GLFrameworkEngine
             Shaders.Add("CUBEMAP_HDRDECODE", LoadShader("Cubemap/HdrDecode"));
             Shaders.Add("CUBEMAP_IRRADIANCE", LoadShader("Cubemap/Irradiance"));
             Shaders.Add("CUBEMAP_PREFILTER", LoadShader("Cubemap/Prefilter"));
+            Shaders.Add("EFFECTS_DEFAULT", LoadShader("Effects/Default"));
+            Shaders.Add("BLUR", LoadShader("Blur/GaussianBlur"));
+            Shaders.Add("BLOOM_EXTRACT", LoadShader("BloomExtract"));
 
             if (GLErrorHandler.CheckGLError())
                 System.Diagnostics.Debugger.Break();
 
             return;
 
-            Shaders.Add("BLOOM_EXTRACT", LoadShader("BloomExtract"));
             Shaders.Add("LIGHTPREPASS", LoadShader("LightPrepass"));
             Shaders.Add("PROBE", LoadShader("ProbeCubemap"));
             Shaders.Add("CUBEMAP_FILTER", LoadShader("CubemapFilter"));

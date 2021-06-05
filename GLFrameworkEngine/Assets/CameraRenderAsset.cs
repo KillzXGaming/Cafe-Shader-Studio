@@ -37,7 +37,7 @@ namespace GLFrameworkEngine
         {
             if (RenderedScreen == null) return;
 
-            Renderer.Draw(control, Pass.OPAQUE, Vector4.Zero, Vector4.Zero, Vector4.Zero);
+            Renderer.Draw(control, Pass.OPAQUE, Vector4.Zero, Vector4.Zero, false);
         }
 
         private void GenerateRender(GLContext control, EventHandler thumbnailUpdate)

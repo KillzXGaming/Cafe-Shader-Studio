@@ -30,6 +30,8 @@ namespace GLFrameworkEngine
 
         public virtual bool InFustrum { get; set; }
 
+        public Vector4 BoundingSphere { get; set; }
+
         public virtual GLFrameworkEngine.ShaderProgram GetShaderProgram() { return null; }
 
         public virtual List<string> DebugShading { get; }

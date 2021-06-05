@@ -242,6 +242,9 @@ namespace BfresEditor
 
             if (Runtime.DisplayBones)
                 DrawSkeleton(control);
+
+            if (Runtime.RenderBoundingBoxes)
+                DrawBoundings(control);
         }
 
         public void DrawSkeleton(GLContext control)
@@ -249,6 +252,73 @@ namespace BfresEditor
             foreach (BfresModelAsset model in Models)
                 if (model.IsVisible)
                     model.SkeletonRenderer.Render(control);
+        }
+
+        public void DrawBoundings(GLContext control)
+        {
+            foreach (BfresModelAsset model in Models)
+            {
+                if (!model.IsVisible)
+                    continue;
+
+                foreach (var mesh in model.Meshes)
+                {
+                    if (!mesh.IsVisible)
+                        continue;
+
+                    //Go through each bounding in the current displayed mesh
+                    var polygonGroup = mesh.Shape.PolygonGroups[mesh.LODMeshLevel] as MeshPolygonGroup;
+                    foreach (var bounding in polygonGroup.Boundings)
+                    {
+                        var min = bounding.Center - bounding.Extent;
+                        var max = bounding.Center + bounding.Extent;
+
+                        var shader = GlobalShaders.GetShader("PICKING");
+                        control.CurrentShader = shader;
+                        control.CurrentShader.SetVector4("color", new Vector4(1));
+
+                        Matrix4 transform = Matrix4.Identity;
+
+                        if (mesh.SkinCount == 0)
+                        {
+                            transform = model.ModelData.Skeleton.Bones[mesh.BoneIndex].Transform;
+                            control.CurrentShader.SetMatrix4x4("mtxMdl", ref transform);
+
+                            BoundingBoxRender.Draw(control,
+                                new Vector3(min.X, min.Y, min.Z),
+                                new Vector3(max.X, max.Y, max.Z));
+                        }
+                        else
+                        {
+                            foreach (var boneIndex in mesh.Shape.Shape.SkinBoneIndices)
+                            {
+                                transform = model.ModelData.Skeleton.Bones[boneIndex].Transform;
+                                control.CurrentShader.SetMatrix4x4("mtxMdl", ref transform);
+
+                                BoundingBoxRender.Draw(control,
+                                    new Vector3(min.X, min.Y, min.Z),
+                                    new Vector3(max.X, max.Y, max.Z));
+                            }
+                        }
+                    }
+
+
+                    /*
+                                        var center = mesh.BoundingNode.Center;
+                                        var radius = mesh.BoundingNode.Radius;
+
+                                        GL.Enable(EnableCap.Blend);
+
+                                        transform = Matrix4.CreateScale(radius) * Matrix4.CreateTranslation(center) * transform;
+                                        control.CurrentShader.SetMatrix4x4("mtxMdl", ref transform);
+                                        control.CurrentShader.SetVector4("color", new Vector4(0,0,0,0.2f));
+
+                                        SphereRender.Draw(control);
+
+                                        GL.Disable(EnableCap.Blend);*/
+                }
+            }
+            control.CurrentShader = null;
         }
 
         public void DrawColorPicking(GLContext control)

@@ -51,5 +51,16 @@ namespace GLFrameworkEngine
             { (STTextureWrapMode)4, TextureWrapMode.ClampToEdge},
             { (STTextureWrapMode)5, TextureWrapMode.ClampToEdge},
         };
+
+        public static Dictionary<STPrimitiveType, PrimitiveType> PrimitiveTypes = new Dictionary<STPrimitiveType, PrimitiveType>(){
+            { STPrimitiveType.Triangles, PrimitiveType.Triangles},
+            { STPrimitiveType.LineLoop, PrimitiveType.LineLoop},
+            { STPrimitiveType.Lines, PrimitiveType.Lines},
+            { STPrimitiveType.Points, PrimitiveType.Points},
+            { STPrimitiveType.Quad, PrimitiveType.Quads},
+            { STPrimitiveType.QuadStrips, PrimitiveType.QuadStrip},
+            { STPrimitiveType.TriangleStrips, PrimitiveType.TriangleStrip},
+            { STPrimitiveType.TriangleFans, PrimitiveType.TriangleFan},
+        };
     }
 }

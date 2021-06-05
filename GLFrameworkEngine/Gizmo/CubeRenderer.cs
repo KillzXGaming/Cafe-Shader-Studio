@@ -46,10 +46,10 @@ namespace GLFrameworkEngine
                 list.Add(Vertices[i].Normal.Z);
                 list.Add(BitConverter.ToSingle(new byte[4]
                {
-                            (byte)(Vertices[i].Color.X * 255),
-                            (byte)(Vertices[i].Color.Y * 255),
-                            (byte)(Vertices[i].Color.Z * 255),
-                            (byte)(Vertices[i].Color.W * 255)
+                    (byte)(Vertices[i].Color.X * 255),
+                    (byte)(Vertices[i].Color.Y * 255),
+                    (byte)(Vertices[i].Color.Z * 255),
+                    (byte)(Vertices[i].Color.W * 255)
                }, 0));
             }
 
@@ -86,36 +86,42 @@ namespace GLFrameworkEngine
 
         public static int[] Indices = new int[]
         {
-            0, 1, 2, 3, //Bottom & Top
-            4, 5, 6, 7, //Bottom & Top -Z
-            0, 2, 1, 3, //Bottom to Top
-            4, 6, 5, 7, //Bottom to Top -Z
-            0, 4, 6, 2, //Bottom Z to -Z
-            1, 5,  3, 7 //Top Z to -Z
+            // front face
+            0, 1, 2, 2, 3, 0,
+            // top face
+            3, 2, 6, 6, 7, 3,
+            // back face
+            7, 6, 5, 5, 4, 7,
+            // left face
+            4, 0, 3, 3, 7, 4,
+            // bottom face
+            0, 1, 5, 5, 4, 0,
+            // right face
+            1, 5, 6, 6, 2, 1,
         };
 
         public static float[][] normals = new float[][]
         {
-                new float[]{-1, -1, -1},
-                new float[]{ 1, -1, -1},
-                new float[]{ 1,  1, -1},
-                new float[]{-1,  1, -1},
-                new float[]{-1, -1,  1},
-                new float[]{ 1, -1,  1},
-                new float[]{ 1,  1,  1},
-                new float[]{-1,  1,  1},
+                new float[]{-1,-1, 1}, //Bottom Left
+                new float[]{ 1,-1, 1}, //Bottom Right
+                new float[]{ 1, 1, 1}, //Top Right
+                new float[]{-1, 1, 1}, //Top Left
+                new float[]{-1,-1,-1}, //Bottom Left -Z
+                new float[]{ 1,-1,-1}, //Bottom Right -Z
+                new float[]{ 1, 1,-1}, //Top Right -Z
+                new float[]{-1, 1,-1}  //Top Left -Z
          };
 
         public static float[][] points = new float[][]
         {
                 new float[]{-1,-1, 1}, //Bottom Left
                 new float[]{ 1,-1, 1}, //Bottom Right
-                new float[]{-1, 1, 1}, //Top Left
                 new float[]{ 1, 1, 1}, //Top Right
+                new float[]{-1, 1, 1}, //Top Left
                 new float[]{-1,-1,-1}, //Bottom Left -Z
                 new float[]{ 1,-1,-1}, //Bottom Right -Z
-                new float[]{-1, 1,-1}, //Top Left -Z
-                new float[]{ 1, 1,-1}  //Top Right -Z
+                new float[]{ 1, 1,-1}, //Top Right -Z
+                new float[]{-1, 1,-1}  //Top Left -Z
          };
 
         public struct Vertex
@@ -131,7 +137,7 @@ namespace GLFrameworkEngine
                 Initialize(size);
 
             cubeVao.Use();
-            GL.DrawElements(BeginMode.QuadStrip, Indices.Length, DrawElementsType.UnsignedInt, 0);
+            GL.DrawElements(BeginMode.Triangles, Indices.Length, DrawElementsType.UnsignedInt, 0);
         }
     }
 }

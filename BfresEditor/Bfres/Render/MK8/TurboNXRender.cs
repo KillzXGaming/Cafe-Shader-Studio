@@ -34,17 +34,21 @@ namespace BfresEditor
         public int GetAreaIndex()
         {
             var mat = (FMAT)MaterialData;
-            var areaParam = mat.ShaderParams["gsys_area_env_index_diffuse"];
+            if (mat.ShaderParams.ContainsKey("gsys_area_env_index_diffuse")) {
+                var areaParam = mat.ShaderParams["gsys_area_env_index_diffuse"];
 
-            var position = ParentRenderer.Transform.Position;
-            if (position != Vector3.Zero)
-            {
-                var area = LightingEngine.LightSettings.CollectResource.GetArea(position.X, position.Y, position.Z);
-                return area.AreaIndex;
+                var position = ParentRenderer.Transform.Position;
+                if (position != Vector3.Zero)
+                {
+                    var area = LightingEngine.LightSettings.CollectResource.GetArea(position.X, position.Y, position.Z);
+                    return area.AreaIndex;
+                }
+
+                float index = (float)areaParam.DataValue;
+                return (int)index;
             }
 
-            float index = (float)areaParam.DataValue;
-            return (int)index;
+            return 0;
         }
 
         //Render passes as labeled in bfsha binary 

@@ -176,7 +176,7 @@ namespace CafeStudio.UI
             {
                 var pos = new Vector2(e.X - originMouse.X, e.Y - originMouse.Y);
                 Camera.Position.X += pos.X;
-                Camera.Position.Y -= pos.Y;
+                Camera.Position.Y += pos.Y;
 
                 originMouse = e.Position;
             }
@@ -192,8 +192,6 @@ namespace CafeStudio.UI
             float delta = -(e.WheelPrecise - mouseWheelPrevious);
             Camera.Zoom = Math.Max(7.0f, Camera.Zoom - delta * 3.5f);
             mouseWheelPrevious = e.WheelPrecise;
-
-            Console.WriteLine("Camera.Zoom " + Camera.Zoom);
         }
     }
 }

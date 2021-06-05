@@ -69,7 +69,7 @@ namespace BfresEditor
         public bool RenderInCubeMap = false;
         public bool IsSealPass = false;
 
-        public int SubMeshLevel = 0;
+        public int LODMeshLevel = 0;
 
         public int SkinCount = 0;
         public bool HasVertexColors = false;
@@ -269,22 +269,23 @@ namespace BfresEditor
 
         public void Draw()
         {
-            GL.DrawElements(PrimitiveType.Triangles,
-              Shape.PolygonGroups[SubMeshLevel].Faces.Count,
-              DrawElementsType.UnsignedInt,
-              Shape.PolygonGroups[SubMeshLevel].FaceOffset);
+            MeshPolygonGroup polygonGroup = (MeshPolygonGroup)Shape.PolygonGroups[LODMeshLevel];
+            foreach (var subMesh in polygonGroup.SubMeshes)
+            {
+                GL.DrawElements(OpenGLHelper.PrimitiveTypes[polygonGroup.PrimitiveType],
+                    (int)subMesh.Count,
+                   polygonGroup.DrawElementsType, 
+                    (int)subMesh.Offset);
+            }
         }
 
         public bool UpdateVertexData { get; set; } = false;
 
         public override void UpdateVertexBuffer()
         {
-            var indices = Shape.GetIndices();
             var bufferData = GetBufferData();
 
-            GL.BindBuffer(BufferTarget.ElementArrayBuffer, Ibo);
-            GL.BufferData(BufferTarget.ElementArrayBuffer, indices.Length * sizeof(uint), indices, BufferUsageHint.StaticDraw);
-            GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
+            UpdateIndexBuffer();
 
             GL.BindBuffer(BufferTarget.ArrayBuffer, Vbo);
             GL.BufferData(BufferTarget.ArrayBuffer, bufferData.Length, bufferData, BufferUsageHint.StaticDraw);
@@ -294,6 +295,15 @@ namespace BfresEditor
             UpdateDefaultVaoAttributes();
 
             UpdateVertexData = false;
+        }
+
+        public void UpdateIndexBuffer()
+        {
+            var indices = ((MeshPolygonGroup)Shape.PolygonGroups[LODMeshLevel]).GetIndices();
+
+            GL.BindBuffer(BufferTarget.ElementArrayBuffer, Ibo);
+            GL.BufferData(BufferTarget.ElementArrayBuffer, indices.Length, indices, BufferUsageHint.StaticDraw);
+            GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
         }
 
         public Vector3[] MorphPositions = new Vector3[0];
@@ -393,34 +403,24 @@ namespace BfresEditor
 
         public void CalculateBounding()
         {
-            float minX = float.MaxValue;
-            float minY = float.MaxValue;
-            float minZ = float.MaxValue;
-            float maxX = float.MinValue;
-            float maxY = float.MinValue;
-            float maxZ = float.MinValue;
+            var shapeData = Shape.Shape;
+            var center = new Vector3(
+                shapeData.SubMeshBoundings[0].Center.X,
+                shapeData.SubMeshBoundings[0].Center.Y,
+                shapeData.SubMeshBoundings[0].Center.Z);
+            var extent = new Vector3(
+                 shapeData.SubMeshBoundings[0].Extent.X,
+                 shapeData.SubMeshBoundings[0].Extent.Y,
+                 shapeData.SubMeshBoundings[0].Extent.Z);
 
-            for (int i = 0; i < Shape.Vertices.Count; i++)
-            {
-                Vector3 positon = Shape.Vertices[i].Position;
-                minX = Math.Min(minX, positon.X);
-                minY = Math.Min(minY, positon.Y);
-                minZ = Math.Min(minZ, positon.Z);
-                maxX = Math.Max(maxX, positon.X);
-                maxY = Math.Max(maxY, positon.Y);
-                maxZ = Math.Max(maxZ, positon.Z);
-            }
 
-            Vector3 min = new Vector3(minX, minY, minZ);
-            Vector3 max = new Vector3(maxX, maxY, maxZ);
+            Vector3 min = center - extent;
+            Vector3 max = center + extent;
 
             BoundingNode = new BoundingNode()
             {
-                Radius = Shape.Shape.RadiusArray.FirstOrDefault(),
-                Center = new Vector3(
-                          Shape.Shape.SubMeshBoundings[0].Center.X,
-                          Shape.Shape.SubMeshBoundings[0].Center.Y,
-                          Shape.Shape.SubMeshBoundings[0].Center.Z),
+                Radius = shapeData.RadiusArray.FirstOrDefault(),
+                Center = center,
             };
             BoundingNode.Box = BoundingBox.FromMinMax(min, max);
         }

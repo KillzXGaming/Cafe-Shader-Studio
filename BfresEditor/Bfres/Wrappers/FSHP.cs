@@ -222,18 +222,6 @@ namespace BfresEditor
             this.Transform.Update();
         }
 
-        public uint[] GetIndices()
-        {
-            List<uint> faces = new List<uint>();
-            foreach (var mesh in Shape.Meshes)
-            {
-                var lodFaces = mesh.GetIndices().ToArray();
-                for (int i = 0; i < lodFaces.Length; i++)
-                    faces.Add(lodFaces[i] + mesh.FirstVertex);
-            }
-            return faces.ToArray();
-        }
-
         public Dictionary<string, KeyGroup> LoadKeyGroups()
         {
             //Load the vertex buffer into the helper to easily access the data.
@@ -485,40 +473,19 @@ namespace BfresEditor
         public void UpdatePolygonGroups()
         {
             PolygonGroups = new List<STPolygonGroup>();
+
+            int boundingIndex = 0;
             foreach (var mesh in Shape.Meshes)
             {
                 //Set group as a level of detail
-                var group = new STPolygonGroup();
+                var group = new MeshPolygonGroup(Shape, mesh, boundingIndex);
                 group.Material = Material;
-                group.GroupType = STPolygonGroupType.LevelOfDetail;
-                //Load indices into the group
-                var indices = mesh.GetIndices().ToArray();
-                for (int i = 0; i < indices.Length; i++)
-                    group.Faces.Add(indices[i]);
-
-                if (!PrimitiveTypes.ContainsKey(mesh.PrimitiveType))
-                    throw new Exception($"Unsupported primitive type! {mesh.PrimitiveType}");
-
-                //Set the primitive type
-                group.PrimitiveType = PrimitiveTypes[mesh.PrimitiveType];
-                //Set the face offset (used for level of detail meshes)
-                group.FaceOffset = (int)mesh.SubMeshes[0].Offset;
                 PolygonGroups.Add(group);
-                break;
+
+                //Todo not all versions use per mesh boundings
+                //boundingIndex += mesh.SubMeshes.Count;
             }
         }
-
-        //Converts bfres primitive types to generic types used for rendering.
-        Dictionary<GX2PrimitiveType, STPrimitiveType> PrimitiveTypes = new Dictionary<GX2PrimitiveType, STPrimitiveType>()
-        {
-            { GX2PrimitiveType.Triangles, STPrimitiveType.Triangles },
-            { GX2PrimitiveType.LineLoop, STPrimitiveType.LineLoop },
-            { GX2PrimitiveType.Lines, STPrimitiveType.Lines },
-            { GX2PrimitiveType.TriangleFan, STPrimitiveType.TriangleFans },
-            { GX2PrimitiveType.Quads, STPrimitiveType.Quad },
-            { GX2PrimitiveType.QuadStrip, STPrimitiveType.QuadStrips },
-            { GX2PrimitiveType.TriangleStrip, STPrimitiveType.TriangleStrips },
-        };
 
         public List<VaoAttribute> LoadGLAttributes()
         {

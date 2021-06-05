@@ -13,6 +13,6 @@ void main()
     float brightness = dot(color.rgb, vec3(0.2126, 0.7152, 0.0722));
 
     fragOutput = vec4(0);
-    if (brightness > 1.2)
-        fragOutput = vec4(color.rgb, 1.0) * bloom_intensity;
+    if (brightness > 1.0)
+        fragOutput = vec4(color.rgb, 1.3) * bloom_intensity;
 }  

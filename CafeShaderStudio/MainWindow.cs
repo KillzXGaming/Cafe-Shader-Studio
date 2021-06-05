@@ -563,6 +563,12 @@ namespace CafeShaderStudio
                     ImGui.InputFloat("Grid Cell Size", ref Toolbox.Core.Runtime.GridSettings.CellSize);
                     ImGui.EndMenu();
                 }
+                if (ImGui.BeginMenu("Bones"))
+                {
+                    ImGui.Checkbox("Display", ref Runtime.DisplayBones);
+                    ImGui.InputFloat("Point Size", ref Runtime.BonePointSize);
+                    ImGui.EndMenu();
+                }
 
                 if (ImGui.Checkbox("Mesh Picking", ref Pipeline._context.ColorPicker.EnablePicking))
                 {
@@ -571,6 +577,8 @@ namespace CafeShaderStudio
                 }
                 ImGui.Checkbox("Wireframe", ref Toolbox.Core.Runtime.RenderSettings.Wireframe);
                 ImGui.Checkbox("WireframeOverlay", ref Toolbox.Core.Runtime.RenderSettings.WireframeOverlay);
+                ImGui.Checkbox("Bounding Boxes", ref Toolbox.Core.Runtime.RenderBoundingBoxes);
+
                 ImGui.EndMenu();
             }
 
