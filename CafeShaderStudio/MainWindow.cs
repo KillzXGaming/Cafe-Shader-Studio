@@ -497,6 +497,9 @@ namespace CafeShaderStudio
                 ImGui.SetCursorPosX(pos.X + 20);
                 ImGui.Text($"Mode: {Pipeline._context.Camera.Mode}");
 
+                ImGui.SetCursorPosX(pos.X + 20);
+                ImGui.Text($"Bloom Enable: {Pipeline._context.EnableBloom}");
+                
                 if (camera_speed_start_notify > 0)
                 {
                     ImGui.SetCursorPosX(pos.X + 20);
@@ -578,7 +581,9 @@ namespace CafeShaderStudio
                 ImGui.Checkbox("Wireframe", ref Toolbox.Core.Runtime.RenderSettings.Wireframe);
                 ImGui.Checkbox("WireframeOverlay", ref Toolbox.Core.Runtime.RenderSettings.WireframeOverlay);
                 ImGui.Checkbox("Bounding Boxes", ref Toolbox.Core.Runtime.RenderBoundingBoxes);
+                ImGui.Checkbox("Enable Bloom", ref Pipeline._context.EnableBloom);
 
+                
                 ImGui.EndMenu();
             }
 

@@ -19,8 +19,6 @@ namespace BfresEditor
         public Shape ParentShape { get; set; }
         public Mesh Mesh { get; set; }
 
-        public bool IsShort => Stride == 2;
-
         public List<Bounding> Boundings = new List<Bounding>();
         public List<SubMesh> SubMeshes = new List<SubMesh>();
 

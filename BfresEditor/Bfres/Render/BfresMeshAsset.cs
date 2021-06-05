@@ -71,6 +71,9 @@ namespace BfresEditor
 
         public int LODMeshLevel = 0;
 
+        //Used to check for lod updates on draw
+        private int displayLodLevel = 0;
+
         public int SkinCount = 0;
         public bool HasVertexColors = false;
 
@@ -269,6 +272,11 @@ namespace BfresEditor
 
         public void Draw()
         {
+            if (LODMeshLevel != displayLodLevel) {
+                UpdateIndexBuffer();
+                displayLodLevel = LODMeshLevel;
+            }
+
             MeshPolygonGroup polygonGroup = (MeshPolygonGroup)Shape.PolygonGroups[LODMeshLevel];
             foreach (var subMesh in polygonGroup.SubMeshes)
             {
@@ -298,7 +306,7 @@ namespace BfresEditor
         }
 
         public void UpdateIndexBuffer()
-        {
+        {   
             var indices = ((MeshPolygonGroup)Shape.PolygonGroups[LODMeshLevel]).GetIndices();
 
             GL.BindBuffer(BufferTarget.ElementArrayBuffer, Ibo);

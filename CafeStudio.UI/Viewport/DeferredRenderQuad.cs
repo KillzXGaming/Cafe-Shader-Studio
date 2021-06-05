@@ -88,7 +88,7 @@ namespace CafeStudio.UI
             colorPass.Bind();
             DefaultShaderProgram.SetInt("uColorTex", 1);
 
-            if (bloomPass != null)
+            if (bloomPass != null && control.EnableBloom)
             {
                 DefaultShaderProgram.SetInt("ENABLE_BLOOM", 1);
 
