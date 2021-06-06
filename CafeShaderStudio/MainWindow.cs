@@ -47,7 +47,7 @@ namespace CafeShaderStudio
                                     "Cafe Shader Studio",
                                     GameWindowFlags.Default,
                                     DisplayDevice.Default,
-                                    3, 2, GraphicsContextFlags.Default)
+                                    3, 1, GraphicsContextFlags.Default)
         {
             Title += ": OpenGL Version: " + GL.GetString(StringName.Version);
 
