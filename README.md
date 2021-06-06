@@ -1,6 +1,8 @@
 # Cafe-Shader-Studio
 A program to preview various materials and shaders in games. 
 
+[![Build status](https://ci.appveyor.com/api/projects/status/366wvxjdim9s5xco?svg=true)](https://ci.appveyor.com/project/KillzXGaming/cafe-shader-studio)
+
 Currently supports shader viewing in:
 
 - Mario Kart 8 U & Deluxe
