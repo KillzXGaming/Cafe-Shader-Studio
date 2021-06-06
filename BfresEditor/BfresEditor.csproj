@@ -21,10 +21,12 @@
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x86'">
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <OutputPath>..\CafeShaderStudio\bin\Release\net5.0\Plugins\</OutputPath>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <OutputPath>..\CafeShaderStudio\bin\Release\net5.0\Plugins\</OutputPath>
   </PropertyGroup>
 
   <ItemGroup>
