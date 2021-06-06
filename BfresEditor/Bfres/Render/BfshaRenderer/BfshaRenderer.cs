@@ -405,7 +405,7 @@ namespace BfresEditor
 
         private void DecodeSwitchBinary(BfshaLibrary.ResShaderProgram program)
         {
-            GLShaderInfo = TegraShaderDecoder.LoadShaderProgram(ShaderModel.GetShaderVariation(program));
+            GLShaderInfo = TegraShaderDecoder.LoadShaderProgram(ShaderModel, ShaderModel.GetShaderVariation(program));
             shaderProgram = GLShaderInfo.Program;
         }
 

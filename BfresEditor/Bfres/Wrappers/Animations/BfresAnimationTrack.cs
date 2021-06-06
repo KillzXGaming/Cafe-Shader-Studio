@@ -17,11 +17,6 @@ namespace BfresEditor
         {
             if (!KeyFrames.Any(x => x.Frame == frame))
                 KeyFrames.Add(new STKeyFrame(frame, value));
-
-            switch (InterpolationType)
-            {
-
-            }
         }
 
         private float GetWrapFrame(float frame)
