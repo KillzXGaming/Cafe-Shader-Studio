@@ -289,7 +289,7 @@ namespace GLFrameworkEngine
             Unbind();
         }
 
-        public System.Drawing.Bitmap ToBitmap(bool saveAlpha = false)
+        public override System.Drawing.Bitmap ToBitmap(bool saveAlpha = false)
         {
             Bind();
 
