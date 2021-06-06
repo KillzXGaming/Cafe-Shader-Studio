@@ -20,10 +20,6 @@ Currently supports shader viewing in:
 - Animation playback with proper interpolation handling (previous tools had playback issues).
 - Shape animations, material animations and other various types supported.
 
-## Todo
-- Better camera viewing. Need to support a proper walk camera.
-- Improve default cubemaps.
-
 ## Using
 Make sure you have [net 5.0 or higher](https://dotnet.microsoft.com/download/dotnet/5.0). Download the releases zip file and run the exe. 
 
