@@ -799,6 +799,8 @@ namespace CafeShaderStudio
         bool showStyleEditor;
         bool showAboutPage;
         bool showLightingEditor;
+        bool showBatchWindow;
+
         BfresEditor.LightingEditor lightingEditor;
 
         private void LoadFileMenu()
@@ -864,26 +866,14 @@ namespace CafeShaderStudio
                 }
 
                 /*  if (ImGui.MenuItem("Lighting"))
-                  {
-                      showLightingEditor = true;
-                  }*/
+               {
+                   showLightingEditor = true;
+               }*/
 
-               /* if (ImGui.BeginMenu("Batch Render"))
+                if (ImGui.MenuItem("Batch Render"))
                 {
-                    if (ImGui.MenuItem("Start Render"))
-                    {
-                        var Thread3 = new Thread((ThreadStart)(() =>
-                        {
-                            BatchRenderingTool batchTool = new BatchRenderingTool();
-                            batchTool.StartRender(
-                                @"G:\Games\nsw\SMO\romfs\ObjectData",
-                                "Batch", 512, 512);
-                        }));
-                        Thread3.Start();
-                    }
-                    ImGui.EndMenu();
-                }*/
-
+                    showBatchWindow = true;
+                }
 
                 if (ImGui.BeginMenu("Help"))
                 {
@@ -913,7 +903,47 @@ namespace CafeShaderStudio
                 ImGui.Text($"({framerate:0.#} FPS)");
                 ImGui.EndMainMenuBar();
             }
+            if (showBatchWindow)
+            {
+                if (ImGui.Begin("Batch Window", ref showBatchWindow))
+                {
+                    ImguiCustomWidgets.PathSelector("Input Folder", ref BatchRenderingTool.InputFolder);
+                    ImguiCustomWidgets.PathSelector("Output Folder", ref BatchRenderingTool.OutputFolder);
+                    ImGui.Checkbox("Odyssey Actor", ref BatchRenderingTool.OdysseyActor);
+                    ImGui.InputInt("Image Width", ref BatchRenderingTool.ImageWidth);
+                    ImGui.InputInt("Image Height", ref BatchRenderingTool.ImageHeight);
+                    if (BatchRenderingTool.IsOperationActive)
+                    {
+                        float progress = (float)BatchRenderingTool.ProcessAmount / BatchRenderingTool.ProcessTotal;
+                        ImGui.ProgressBar(progress, new System.Numerics.Vector2(300, 20));
 
+                        ImGui.Text($"{BatchRenderingTool.ProcessName}");
+                        if (ImGui.Button("Cancel Render"))
+                        {
+                            BatchRenderingTool.CancelOperation = true;
+                        }
+                    }
+                    if (Directory.Exists(BatchRenderingTool.InputFolder) &&
+                        Directory.Exists(BatchRenderingTool.OutputFolder) &&
+                        !BatchRenderingTool.IsOperationActive)
+                    {
+                        if (ImGui.Button("Start Render"))
+                        {
+                            string path = BatchRenderingTool.InputFolder;
+                            string output = BatchRenderingTool.OutputFolder;
+                            int width = BatchRenderingTool.ImageWidth; int height = BatchRenderingTool.ImageHeight;
+
+                            var Thread3 = new Thread((ThreadStart)(() =>
+                            {
+                                BatchRenderingTool batchTool = new BatchRenderingTool();
+                                batchTool.StartRender(path, output, width, height);
+                            }));
+                            Thread3.Start();
+                        }
+                    }
+                    ImGui.End();
+                }
+            }
             if (showStyleEditor)
             {
                 if (ImGui.Begin("Style Editor", ref showStyleEditor))

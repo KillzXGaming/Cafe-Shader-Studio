@@ -1,0 +1,24 @@
+configuration: Release
+version: 1.0.{build}
+image: Visual Studio 2019
+build:
+  verbosity: minimal
+assembly_info:
+  patch: true
+before_build:
+- pwsh: nuget restore
+deploy:
+- provider: GitHub
+  tag: Latest
+  description: 'This is the latest build of the tool automatically built from the latest commit!\n\nMessage: $(APPVEYOR_REPO_COMMIT_MESSAGE)\n\n Timestamp: $(APPVEYOR_REPO_COMMIT_TIMESTAMP)'
+  release: 'Release-v$(appveyor_build_version)'
+  auth_token:
+    secure: vDPwgMnjU54ZBjDmIfPNaES/JfhJBkj1yZ1kZwNf3ls8IUjPhVEWR2FDBVV0MySO
+  artifact: CafeShaderStudio-Latest.zip
+  draft: false
+  prerelease: true
+  force_update: true  
+  
+after_build:
+  - 7z a "CafeShaderStudio-Latest.zip" "%APPVEYOR_BUILD_FOLDER%\Cafe-Shader-Studio\bin\Release\Toolbox.exe.config"
+  - appveyor PushArtifact "CafeShaderStudio-Latest.zip"

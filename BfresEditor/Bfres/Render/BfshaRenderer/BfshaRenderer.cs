@@ -625,9 +625,12 @@ namespace BfresEditor
         private void SetTexture(ShaderProgram shader, int vertexLocation, int fragmentLocation, ref int id)
         {
             if (vertexLocation != -1)
-                shader.SetInt(ConvertSamplerID(vertexLocation, true), id++);
+                shader.SetInt(ConvertSamplerID(vertexLocation, true), id);
             if (fragmentLocation != -1)
-                shader.SetInt(ConvertSamplerID(fragmentLocation, false), id++);
+                shader.SetInt(ConvertSamplerID(fragmentLocation, false), id);
+
+            //Only increase the slot once as each stage share slots.
+            id++;
         }
 
         private void RenderBlock(UniformBlock block, int programID, int vertexLocation, int fragmentLocation, int binding)

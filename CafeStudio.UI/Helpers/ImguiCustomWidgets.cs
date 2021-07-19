@@ -132,5 +132,38 @@ namespace CafeStudio.UI
                 ImGui.TreePush(label);
             return opened != 0;
         }
+
+        public static bool PathSelector(string label, ref string path, bool isValid = true)
+        {
+            if (!System.IO.Directory.Exists(path))
+                isValid = false;
+
+            bool clicked = ImGui.Button($"  -  ##{label}");
+
+            ImGui.SameLine();
+            if (!isValid)
+            {
+                ImGui.PushStyleColor(ImGuiCol.FrameBg, new Vector4(0.5f, 0, 0, 1));
+                ImGui.InputText(label, ref path, 500, ImGuiInputTextFlags.ReadOnly);
+                ImGui.PopStyleColor();
+            }
+            else
+            {
+                ImGui.PushStyleColor(ImGuiCol.FrameBg, new Vector4(0, 0.5f, 0, 1));
+                ImGui.InputText(label, ref path, 500, ImGuiInputTextFlags.ReadOnly);
+                ImGui.PopStyleColor();
+            }
+
+            if (clicked)
+            {
+                var dialog = new ImguiFolderDialog();
+                if (dialog.ShowDialog())
+                {
+                    path = dialog.SelectedPath;
+                    return true;
+                }
+            }
+            return false;
+        }
     }
 }
