@@ -23,6 +23,8 @@ namespace BfresEditor
 
         public int AreaIndex { get; set; } = -1;
 
+        public string LightMap = "";
+
         SceneMaterial sceneMaterial = new SceneMaterial();
 
         /// <summary>
@@ -76,6 +78,8 @@ namespace BfresEditor
                 mesh.RenderInCubeMap = true;
             if (mat.Material.ShaderAssign.ShaderOptions["enable_color_buffer"] == "1")
                 mesh.UseColorBufferPass = true;
+            if (mat.GetRenderInfo("gsys_light_diffuse") != null)
+                this.LightMap = mat.GetRenderInfo("gsys_light_diffuse");
 
             if (mat.Name.StartsWith("CausticsArea"))
                 mesh.Shape.IsVisible = false;
@@ -510,8 +514,8 @@ namespace BfresEditor
 
                         if (ParentRenderer.DiffuseProbeTexture != null)
                             return ParentRenderer.DiffuseProbeTexture;
-                        else if (lmap.Lightmaps.ContainsKey(AreaIndex))
-                            return lmap.Lightmaps[AreaIndex];
+                        else if (lmap.Lightmaps.ContainsKey(LightMap))
+                            return lmap.Lightmaps[LightMap];
                         else
                             return DiffuseLightmapTexture;
                     }

@@ -342,8 +342,11 @@ namespace CafeShaderStudio
                 }
 
                 //Generate light maps (area based lighting from directional and hemi lighting)
-                 for (int i = 0; i < 8; i++)
-                     LightingEngine.LightSettings.UpdateLightmap(Pipeline._context, i);
+                foreach (var lmap in lightingEngine.Resources.LightMapFiles.Values)
+                {
+                    foreach (var lightMapArea in lmap.LightAreas)
+                        LightingEngine.LightSettings.UpdateLightmap(Pipeline._context, lightMapArea.Settings.Name);
+                }
             }
             if (System.IO.File.Exists($"{folder}\\course_bglpbd.szs"))
             {

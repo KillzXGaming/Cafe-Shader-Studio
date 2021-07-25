@@ -418,13 +418,15 @@ namespace AGraphicsLibrary
         }
 
         public void GetVoxelIndices(out uint x, out uint y, out uint z, uint index)
-        {   
+        {
+            y = (uint)(index / (Stride.X * Stride.Z));
+
             uint param = (uint)(Stride.X * Stride.Z);
             uint param2 = index - (index / param) * param;
 
-            x = (uint)(param2 - (((int)param2 / Stride.X)) * Stride.X);
-            y = (uint)(index / (Stride.X * Stride.Z));
             z = param2 / (uint)(int)Stride.X;
+
+            x = (uint)(param2 - (((int)param2 / Stride.X)) * Stride.X);
         }
 
         public int GetVoxelIndex(uint x, uint y, uint z)

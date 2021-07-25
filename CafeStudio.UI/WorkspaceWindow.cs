@@ -277,8 +277,6 @@ namespace CafeStudio.UI
                 LightingEngine.LightSettings = lightingEngine;
                 LightingEngine.LightSettings.UpdateColorCorrectionTable();
 
-                for (int i = 0; i < 8; i++)
-                    LightingEngine.LightSettings.UpdateLightmap(Viewport.Pipeline._context, i);
             }
             if (System.IO.File.Exists($"{folder}\\course_bglpbd.szs"))
             {

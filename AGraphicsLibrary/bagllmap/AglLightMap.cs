@@ -12,7 +12,7 @@ namespace AGraphicsLibrary
         public List<LightArea> LightAreas = new List<LightArea>();
 
         //A lookup of lightmaps per area. Used to get the static base light map generated on level load
-        public Dictionary<int, GLTextureCube> Lightmaps = new Dictionary<int, GLTextureCube>();
+        public Dictionary<string, GLTextureCube> Lightmaps = new Dictionary<string, GLTextureCube>();
 
         //A lookup of lut data configurable per light source.
         public GLTexture TextureLUT;
@@ -79,10 +79,17 @@ namespace AGraphicsLibrary
             for (int i = 4; i < 32; i++)
                 LutTable[i] = LUTParameter.Create($"UserData{i+1}", new float[] { 0, 0, 0.5f, 0.5f, 0.5f, 0.5f, 1, 1, 0.5f, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 });
 
+            //Order matters.
+            //Games have a default lmap name list and materials pull from these.
+            string[] lmapNames = new string[] {
+                "diffuse", "diffuse1", "diffuse2", "diffuse_course4", "diffuse_course3",
+                "diffuse_course0", "diffuse3", "diffuse_course2", "diffuse_course1", "diffuse4",
+            };
+
             for (int i = 0; i < 8; i++)
             {
                 var area = new LightArea();
-                area.Settings = new LightSettings($"diffuse{i}");
+                area.Settings = new LightSettings(lmapNames[i]);
                 area.Lights.Add(new LightEnvObject("AmbientLight", "", true, true));
                 area.Lights.Add(new LightEnvObject("DirectionalLight", "MainLight0", true, false));
                 area.Lights.Add(new LightEnvObject("DirectionalLight", "", true, false));
@@ -146,7 +153,7 @@ namespace AGraphicsLibrary
             return LightAreas[index];
         }
 
-        public void GenerateLightmap(GLContext control, EnvironmentGraphics env, int areaIndex)
+        public void GenerateLightmap(GLContext control, EnvironmentGraphics env, string name)
         {
             GLTextureCube output = GLTextureCube.CreateEmptyCubemap(
              32, PixelInternalFormat.Rgb32f, PixelFormat.Rgb, PixelType.Float, 2);
@@ -159,15 +166,15 @@ namespace AGraphicsLibrary
             output.GenerateMipmaps();
             output.Unbind();
 
-            if (Lightmaps.ContainsKey(areaIndex))
-                Lightmaps[areaIndex]?.Dispose();
+            if (Lightmaps.ContainsKey(name))
+                Lightmaps[name]?.Dispose();
 
-            if (!Lightmaps.ContainsKey(areaIndex))
-                Lightmaps.Add(areaIndex, output);
+            if (!Lightmaps.ContainsKey(name))
+                Lightmaps.Add(name, output);
 
-            LightmapManager.CreateLightmapTexture(control, this, env, areaIndex, output);
+            LightmapManager.CreateLightmapTexture(control, this, env, name, output);
 
-            Lightmaps[areaIndex] = output;
+            Lightmaps[name] = output;
         }
 
         public void Setup()

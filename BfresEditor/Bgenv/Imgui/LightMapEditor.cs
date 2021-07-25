@@ -71,8 +71,9 @@ namespace BfresEditor
 
             if (lightmap.Lightmaps.Count == 0)
             {
-                    var envFile = LightingEngine.LightSettings.Resources.EnvFiles["course_area.baglenv"];
-                    lightmap.GenerateLightmap(context, envFile, selectedIndex);
+                var envFile = LightingEngine.LightSettings.Resources.EnvFiles["course_area.baglenv"];
+                string name = lightmap.LightAreas[selectedIndex].Settings.Name;
+                lightmap.GenerateLightmap(context, envFile, name);
             }
 
             ImGui.NextColumn();
@@ -104,15 +105,18 @@ namespace BfresEditor
 
         private void DisplayLightMap(GLContext context, AglLightMap lightmap, int index)
         {
+            string name = lightmap.LightAreas[index].Settings.Name;
+
             bool update = !lightmap.LightAreas[index].Initialized;
             if (update || UPDATE_LIGHTMAP_TEX)
             {
                 var envFile = LightingEngine.LightSettings.Resources.EnvFiles["course_area.baglenv"];
-                lightmap.GenerateLightmap(context, envFile, index);
+
+                lightmap.GenerateLightmap(context, envFile, name);
                 UPDATE_LIGHTMAP_TEX = false;
             }
 
-            var cubemap = lightmap.Lightmaps[index];
+            var cubemap = lightmap.Lightmaps[name];
             var tex = EquirectangularRender.CreateTextureRender(cubemap, 0, 0, update);
             ImGui.Image((IntPtr)tex.ID, new Vector2(512, 512 / 3));
         }
@@ -121,7 +125,62 @@ namespace BfresEditor
 
         private void ShowLightSourceUI(AglLightMap lmap, LightEnvObject lightSource, int index)
         {
-            if (ImGui.BeginCombo("Type", lightSource.Type))
+            var envFile = LightingEngine.LightSettings.Resources.EnvFiles["course_area.baglenv"];
+
+ 
+            if (ImGui.BeginCombo($"Name##{index}", lightSource.Name))
+            {
+                switch (lightSource.Type)
+                {
+                    case "HemisphereLight":
+                        foreach (var light in envFile.HemisphereLights)
+                        {
+                            bool selected = lightSource.Name == light.Name;
+                            if (ImGui.Selectable(light.Name, selected))
+                            {
+                                lightSource.Name = light.Name;
+                                UPDATE_LIGHTMAP_TEX = true;
+                            }
+
+                            if (selected)
+                                ImGui.SetItemDefaultFocus();
+                        }
+                    break;
+                    case "DirectionalLight":
+                        foreach (var light in envFile.DirectionalLights)
+                        {
+                            bool selected = lightSource.Name == light.Name;
+                            if (ImGui.Selectable(light.Name, selected))
+                            {
+                                lightSource.Name = light.Name;
+                                UPDATE_LIGHTMAP_TEX = true;
+                            }
+
+                            if (selected)
+                                ImGui.SetItemDefaultFocus();
+                        }
+                        break;
+                    case "AmbientLight":
+                        foreach (var light in envFile.AmbientLights)
+                        {
+                            bool selected = lightSource.Name == light.Name;
+                            if (ImGui.Selectable(light.Name, selected))
+                            {
+                                lightSource.Name = light.Name;
+                                UPDATE_LIGHTMAP_TEX = true;
+                            }
+
+                            if (selected)
+                                ImGui.SetItemDefaultFocus();
+                        }
+                        break;
+                }
+
+
+                ImGui.EndCombo();
+            }
+
+            if (ImGui.BeginCombo($"Type##{index}", lightSource.Type))
             {
                 foreach (var type in LightTypes)
                 {

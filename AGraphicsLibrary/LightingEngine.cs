@@ -94,12 +94,12 @@ namespace AGraphicsLibrary
             CubemapManager.GenerateCubemaps(renders, isWiiU);
         }
 
-        public void UpdateLightmap(GLContext control, int areaIndex)
+        public void UpdateLightmap(GLContext control, string lightMapName)
         {
             var lmap = Resources.LightMapFiles.FirstOrDefault().Value;
             var env = Resources.EnvFiles["course_area.baglenv"];
 
-            lmap.GenerateLightmap(control, env, areaIndex);
+            lmap.GenerateLightmap(control, env, lightMapName);
         }
 
         public ProbeMapManager.ProbeOutput UpdateProbeCubemap(GLContext control, GLTextureCube probeMap, OpenTK.Vector3 position)
@@ -109,12 +109,12 @@ namespace AGraphicsLibrary
 
             //Find the area to get the current light map
             var areaObj = collectRes.GetArea(position.X, position.Y, position.Z);
-            var areaIndex = areaObj.AreaIndex;
+            var lightMapName = areaObj.GetLightmapName();
 
-            if (!lmap.Lightmaps.ContainsKey(areaIndex))
-                UpdateLightmap(control, areaIndex);
+            if (!lmap.Lightmaps.ContainsKey(lightMapName))
+                UpdateLightmap(control, lightMapName);
 
-            return ProbeMapManager.Generate(control, lmap.Lightmaps[areaIndex], probeMap.ID, position);
+            return ProbeMapManager.Generate(control, lmap.Lightmaps[lightMapName], probeMap.ID, position);
         }
     }
 }

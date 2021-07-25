@@ -49,8 +49,12 @@ namespace AGraphicsLibrary
         }
 
         public static void CreateLightmapTexture(GLContext control, AglLightMap aglLightMap,
-            EnvironmentGraphics environmentSettings, int areaIndex, GLTextureCube output)
+            EnvironmentGraphics environmentSettings, string name, GLTextureCube output)
         {
+            var lightMapEnv = aglLightMap.LightAreas.FirstOrDefault(x => x.Settings.Name == name);
+            if (lightMapEnv == null)
+                return;
+
             //Force generate mipmaps to update the mip allocation so mips can be assigned.
             output.Bind();
             GL.GenerateMipmap(GenerateMipmapTarget.TextureCubeMap);
@@ -65,24 +69,25 @@ namespace AGraphicsLibrary
             GL.Disable(EnableCap.FramebufferSrgb);
 
             FilterLevel0.Bind();
-            LoadCubemapLevel(control, CUBE_SIZE, 0, aglLightMap, environmentSettings, areaIndex, output.ID);
+            LoadCubemapLevel(control, CUBE_SIZE, 0, aglLightMap, environmentSettings, lightMapEnv, output.ID);
             FilterLevel0.Unbind();
 
             FilterLevel1.Bind();
-            LoadCubemapLevel(control, CUBE_SIZE / 2, 1, aglLightMap, environmentSettings, areaIndex, output.ID);
+            LoadCubemapLevel(control, CUBE_SIZE / 2, 1, aglLightMap, environmentSettings, lightMapEnv, output.ID);
             FilterLevel1.Unbind();
 
-            output.SaveDDS($"LIGHTMAP{areaIndex}.dds");
+            output.SaveDDS($"LIGHTMAP{name}.dds");
         }
 
-        static void LoadCubemapLevel(GLContext control, int size, int level, AglLightMap aglLightMap, EnvironmentGraphics environmentSettings, int areaIndex, int ID)
+        static void LoadCubemapLevel(GLContext control, int size, int level, AglLightMap aglLightMap, 
+            EnvironmentGraphics environmentSettings, AglLightMap.LightArea lightMapEnv, int ID)
         {
             GL.Viewport(0, 0, size, size);
 
             var shader = GlobalShaders.GetShader("LIGHTMAP");
             shader.Enable();
 
-            UpdateUniforms(control, shader, level, aglLightMap, environmentSettings, areaIndex);
+            UpdateUniforms(control, shader, level, aglLightMap, environmentSettings, lightMapEnv);
 
             for (int i = 0; i < 6; i++)
             {
@@ -103,7 +108,7 @@ namespace AGraphicsLibrary
         }
 
         static void UpdateUniforms(GLContext control, ShaderProgram shader, int mipLevel,
-           AglLightMap aglLightMap,  EnvironmentGraphics environmentSettings, int areaIndex)
+           AglLightMap aglLightMap,  EnvironmentGraphics environmentSettings, AglLightMap.LightArea lightMapEnv)
         {
             if (aglLightMap.TextureLUT == null)
                 aglLightMap.Setup();
@@ -116,7 +121,6 @@ namespace AGraphicsLibrary
             aglLightMap.TextureLUT.Bind();
             shader.SetInt("uLutTex", 2);
 
-            var lightMapEnv = aglLightMap.GetLightMapArea(areaIndex);
             var settings = lightMapEnv.Settings;
 
             shader.SetFloat($"settings.rim_angle", settings.rim_angle);
