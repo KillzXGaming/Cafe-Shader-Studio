@@ -13,10 +13,10 @@ namespace AGraphicsLibrary
     {
         public static LightingEngine LightSettings = new LightingEngine();
 
-        //A lookup of lightmaps per area. Used to get the static base light map generated on level load
-        public Dictionary<int, GLTextureCube> Lightmaps = new Dictionary<int, GLTextureCube>();
         //A lookup of lightmaps per object to get probe lighting (made from static light map base)
         public Dictionary<string, GLTextureCube> ProbeLightmaps = new Dictionary<string, GLTextureCube>();
+
+        public GraphicFileParamResources Resources = new GraphicFileParamResources();
 
         public GLTexture3D ColorCorrectionTable;
         public GLTexture2DArray LightPrepassTexture;
@@ -24,54 +24,13 @@ namespace AGraphicsLibrary
 
         public bool UpdateColorCorrection = false;
 
-        public ColorCorrection ColorCorrection { get; set; }
-
-        public CubeMapGraphics CubeMaps { get; set; }
-
-        public EnvironmentGraphics CourseArea { get; set; }
-        public EnvironmentGraphics PointlightPlayer { get; set; }
-        public EnvironmentGraphics PointlightCourse { get; set; }
-
-        public ShadowGraphics StageShadows { get; set; }
-
-        public AreaCollection CollectResource { get; set; }
-
         //3D Viewer settings
         public bool DisplayFog { get; set; } = true;
         public bool DisplayBloom { get; set; } = true;
 
-        public LightingEngine()
-        {
-            ColorCorrection = new ColorCorrection();
-            CourseArea = new EnvironmentGraphics();
-            PointlightPlayer = new EnvironmentGraphics();
-            PointlightCourse = new EnvironmentGraphics();
-            StageShadows = new ShadowGraphics();
-            CubeMaps = new CubeMapGraphics();
-            CollectResource = new AreaCollection();
-
-            CubeMaps.CubeMapObjects.Add(new CubeMapObject());
-        }
-
         public void LoadArchive(List<ArchiveFileInfo> files)
         {
-            foreach (var file in files)
-            {
-                if (file.FileName.Contains("baglccr"))
-                    ColorCorrection = LoadColorCorrection(file.FileData);
-                if (file.FileName.Contains("course_area.baglenv"))
-                    CourseArea = LoadEnvironmentGraphics(file.FileData);
-                if (file.FileName.Contains("pointlight_course.baglenv"))
-                    PointlightCourse = LoadEnvironmentGraphics(file.FileData);
-                if (file.FileName.Contains("pointlight_player.baglenv"))
-                    PointlightPlayer = LoadEnvironmentGraphics(file.FileData);
-                if (file.FileName.Contains("stage.bgsdw"))
-                    StageShadows = LoadShadowGraphics(file.FileData);
-                if (file.FileName.Contains("stage.baglcube"))
-                    CubeMaps = LoadCubemapGraphics(file.FileData);
-                if (file.FileName.Contains("collect.genvres"))
-                    CollectResource = new AreaCollection(file.FileData);
-            }
+            Resources.LoadArchive(files);
             InitTextures();
         }
 
@@ -90,30 +49,9 @@ namespace AGraphicsLibrary
             //Blue - Soft shading (under kart, dynamic AO?)
             //Alpha - Usually gray
             ShadowPrepassTexture = GLTexture2D.CreateWhiteTexture(4, 4);
-        }
 
-        private ColorCorrection LoadColorCorrection(Stream file)
-        {
-            var aamp = AampFile.LoadFile(file);
-            return new ColorCorrection(aamp);
-        }
-
-        private EnvironmentGraphics LoadEnvironmentGraphics(Stream file)
-        {
-            var aamp = AampFile.LoadFile(file);
-            return new EnvironmentGraphics(aamp);
-        }
-
-        private ShadowGraphics LoadShadowGraphics(Stream file)
-        {
-            var aamp = AampFile.LoadFile(file);
-            return new ShadowGraphics(aamp);
-        }
-
-        private CubeMapGraphics LoadCubemapGraphics(Stream file)
-        {
-            var aamp = AampFile.LoadFile(file);
-            return new CubeMapGraphics(aamp);
+            foreach (var lmap in Resources.LightMapFiles.Values)
+                lmap.Setup();
         }
 
         public void UpdateColorCorrectionTable()
@@ -158,41 +96,25 @@ namespace AGraphicsLibrary
 
         public void UpdateLightmap(GLContext control, int areaIndex)
         {
-            //Todo properly reverse engineer shader
-            return;
+            var lmap = Resources.LightMapFiles.FirstOrDefault().Value;
+            var env = Resources.EnvFiles["course_area.baglenv"];
 
-            GLTextureCube output = null;
-            if (!Lightmaps.ContainsKey(areaIndex))
-            {
-                output = GLTextureCube.CreateEmptyCubemap(
-                 32, PixelInternalFormat.Rgb32f, PixelFormat.Rgb, PixelType.Float, 2);
-
-                //Allocate mip data. Need 2 seperate mip levels
-                output.Bind();
-                output.MinFilter = TextureMinFilter.LinearMipmapLinear;
-                output.MagFilter = TextureMagFilter.Linear;
-                output.UpdateParameters();
-                output.GenerateMipmaps();
-                output.Unbind();
-
-                Lightmaps.Add(areaIndex, output);
-            }
-            else
-                output = Lightmaps[areaIndex];
-
-            LightmapManager.CreateLightmapTexture(control, CourseArea, areaIndex, output);
+            lmap.GenerateLightmap(control, env, areaIndex);
         }
 
-        public bool UpdateProbeCubemap(GLContext control, GLTextureCube probeMap, OpenTK.Vector3 position)
+        public ProbeMapManager.ProbeOutput UpdateProbeCubemap(GLContext control, GLTextureCube probeMap, OpenTK.Vector3 position)
         {
+            var lmap = Resources.LightMapFiles.FirstOrDefault().Value;
+            var collectRes = Resources.CollectFiles.FirstOrDefault().Value;
+
             //Find the area to get the current light map
-            var areaObj = LightSettings.CollectResource.GetArea(position.X, position.Y, position.Z);
+            var areaObj = collectRes.GetArea(position.X, position.Y, position.Z);
             var areaIndex = areaObj.AreaIndex;
 
-            if (!Lightmaps.ContainsKey(areaIndex))
+            if (!lmap.Lightmaps.ContainsKey(areaIndex))
                 UpdateLightmap(control, areaIndex);
 
-            return ProbeMapManager.Generate(control, Lightmaps[areaIndex], probeMap.ID, position);
+            return ProbeMapManager.Generate(control, lmap.Lightmaps[areaIndex], probeMap.ID, position);
         }
     }
 }

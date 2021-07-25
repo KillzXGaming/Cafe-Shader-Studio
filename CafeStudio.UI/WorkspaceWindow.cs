@@ -117,7 +117,6 @@ namespace CafeStudio.UI
 
         bool debugWindow = false;
         bool showLightingEditor = false;
-        LightingEditor lightingEditor;
 
         public void ShowMenus()
         {
@@ -172,13 +171,6 @@ namespace CafeStudio.UI
                         ImGuiHelper.DisplayFramebufferImage(tex.ID, size);
                     ImGui.End();
                 }
-            }
-            if (showLightingEditor)
-            {
-                if (lightingEditor == null)
-                    lightingEditor = new LightingEditor();
-
-                lightingEditor.Render(Viewport.Pipeline._context);
             }
         }
 

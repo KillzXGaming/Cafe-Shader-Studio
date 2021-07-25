@@ -34,6 +34,23 @@ namespace GLFrameworkEngine
             Vertices = new Vector3[8];
         }
 
+        public bool IsInside(Vector3 position)
+        {
+            return (position.X >= Min.X && position.X <= Max.X) &&
+                   (position.Y >= Min.Y && position.Y <= Max.Y) &&
+                   (position.Z >= Min.Z && position.Z <= Max.Z);
+        }
+
+        public bool IsOverlapping(BoundingBox bounding)
+        {
+            if (Min.X <= bounding.Max.X && Max.X >= bounding.Min.X &&
+                Min.Y <= bounding.Max.Y && Max.Y >= bounding.Min.Y &&
+                Min.Z <= bounding.Max.Z && Max.Z >= bounding.Min.Z)
+                return false;
+
+            return true;
+        }
+
         public Vector3[] GetVertices() {
             //Return transformed vertices if used
             return TransformedVertices != null ? TransformedVertices : Vertices;

@@ -66,7 +66,6 @@ namespace BfresEditor
 
             if (sharcfb == null)
             {
-                Console.WriteLine($"Failed to sharcfb! {mesh.Material.ShaderArchive}");
                 return;
             }
 

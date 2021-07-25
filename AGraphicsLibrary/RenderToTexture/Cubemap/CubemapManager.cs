@@ -63,7 +63,8 @@ namespace AGraphicsLibrary
             //Get a list of cubemaps in the scene
             //The lighting engine has cube map objects with the object placement to draw
             var lightingEngine = LightingEngine.LightSettings;
-            var cubeMapUints = lightingEngine.CubeMaps.CubeMapObjects;
+            var cubemapEnvParams = lightingEngine.Resources.CubeMapFiles.FirstOrDefault().Value;
+            var cubeMapUints = cubemapEnvParams.CubeMapObjects;
             int layer = 0;
             foreach (var cubeMap in cubeMapUints)
             {

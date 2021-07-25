@@ -40,7 +40,8 @@ namespace BfresEditor
                 var position = ParentRenderer.Transform.Position;
                 if (position != Vector3.Zero)
                 {
-                    var area = LightingEngine.LightSettings.CollectResource.GetArea(position.X, position.Y, position.Z);
+                    var collectRes = LightingEngine.LightSettings.Resources.CollectFiles.FirstOrDefault().Value;
+                    var area = collectRes.GetArea(position.X, position.Y, position.Z);
                     return area.AreaIndex;
                 }
 
@@ -332,7 +333,8 @@ namespace BfresEditor
             };
 
             if (AreaIndex != -1 && LightingEngine.LightSettings.DisplayFog) {
-                var areaFog = LightingEngine.LightSettings.CourseArea.GetAreaFog(false, AreaIndex);
+                var courseArea = LightingEngine.LightSettings.Resources.EnvFiles["course_area.baglenv"];
+                var areaFog = courseArea.GetAreaFog(false, AreaIndex);
 
                 if (areaFog != null && areaFog.Enable) {
                     var color = areaFog.Color.ToColorF();
@@ -497,6 +499,8 @@ namespace BfresEditor
         public override GLTexture GetExternalTexture(GLContext control, string sampler)
         {
             var lightSettings = LightingEngine.LightSettings;
+            var lmap = lightSettings.Resources.LightMapFiles.FirstOrDefault().Value;
+
             switch (sampler)
             {
                 case "gsys_lightmap_diffuse":
@@ -506,8 +510,8 @@ namespace BfresEditor
 
                         if (ParentRenderer.DiffuseProbeTexture != null)
                             return ParentRenderer.DiffuseProbeTexture;
-                        else if (lightSettings.Lightmaps.ContainsKey(AreaIndex))
-                            return lightSettings.Lightmaps[AreaIndex];
+                        else if (lmap.Lightmaps.ContainsKey(AreaIndex))
+                            return lmap.Lightmaps[AreaIndex];
                         else
                             return DiffuseLightmapTexture;
                     }

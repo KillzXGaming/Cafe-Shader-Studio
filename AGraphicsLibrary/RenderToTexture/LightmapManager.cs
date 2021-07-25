@@ -17,10 +17,6 @@ namespace AGraphicsLibrary
         public static Framebuffer FilterLevel1;
 
         public static GLTexture2D NormalsTexture;
-        static GLTexture2D GradientTexture;
-
-        static UniformBlock LightingDirectionBlock;
-        static UniformBlock LightingColorBlock;
 
         public static Vector2 Offset { get; set; }
 
@@ -39,8 +35,8 @@ namespace AGraphicsLibrary
             FilterLevel1.SetDrawBuffers(buffers);
 
             var normalsDDS = new DDS(new System.IO.MemoryStream(Properties.Resources.normals));
+
             NormalsTexture = GLTexture2D.FromGeneric(normalsDDS, new ImageParameters());
-            GradientTexture = GLTexture2D.FromBitmap(Properties.Resources.gradient);
 
             NormalsTexture.Bind();
             NormalsTexture.WrapR = TextureWrapMode.ClampToEdge;
@@ -50,12 +46,9 @@ namespace AGraphicsLibrary
             NormalsTexture.MagFilter = TextureMagFilter.Nearest;
             NormalsTexture.UpdateParameters();
             NormalsTexture.Unbind();
-
-            LightingDirectionBlock = new UniformBlock();
-            LightingColorBlock = new UniformBlock();
         }
 
-        public static void CreateLightmapTexture(GLContext control, 
+        public static void CreateLightmapTexture(GLContext control, AglLightMap aglLightMap,
             EnvironmentGraphics environmentSettings, int areaIndex, GLTextureCube output)
         {
             //Force generate mipmaps to update the mip allocation so mips can be assigned.
@@ -72,22 +65,24 @@ namespace AGraphicsLibrary
             GL.Disable(EnableCap.FramebufferSrgb);
 
             FilterLevel0.Bind();
-            LoadCubemapLevel(control, CUBE_SIZE, 0, environmentSettings, areaIndex, output.ID);
+            LoadCubemapLevel(control, CUBE_SIZE, 0, aglLightMap, environmentSettings, areaIndex, output.ID);
             FilterLevel0.Unbind();
 
             FilterLevel1.Bind();
-            LoadCubemapLevel(control, CUBE_SIZE / 2, 1, environmentSettings, areaIndex, output.ID);
+            LoadCubemapLevel(control, CUBE_SIZE / 2, 1, aglLightMap, environmentSettings, areaIndex, output.ID);
             FilterLevel1.Unbind();
+
+            output.SaveDDS($"LIGHTMAP{areaIndex}.dds");
         }
 
-        static void LoadCubemapLevel(GLContext control, int size, int level, EnvironmentGraphics environmentSettings, int areaIndex, int ID)
+        static void LoadCubemapLevel(GLContext control, int size, int level, AglLightMap aglLightMap, EnvironmentGraphics environmentSettings, int areaIndex, int ID)
         {
             GL.Viewport(0, 0, size, size);
 
             var shader = GlobalShaders.GetShader("LIGHTMAP");
             shader.Enable();
 
-            UpdateUniforms(control, shader, level == 0, environmentSettings, areaIndex);
+            UpdateUniforms(control, shader, level, aglLightMap, environmentSettings, areaIndex);
 
             for (int i = 0; i < 6; i++)
             {
@@ -107,63 +102,112 @@ namespace AGraphicsLibrary
             GL.UseProgram(0);
         }
 
-        static void UpdateUniforms(GLContext control, ShaderProgram shader, bool isLightPass,
-             EnvironmentGraphics environmentSettings, int areaIndex)
+        static void UpdateUniforms(GLContext control, ShaderProgram shader, int mipLevel,
+           AglLightMap aglLightMap,  EnvironmentGraphics environmentSettings, int areaIndex)
         {
+            if (aglLightMap.TextureLUT == null)
+                aglLightMap.Setup();
+
             GL.ActiveTexture(TextureUnit.Texture0 + 1);
             NormalsTexture.Bind();
-            shader.SetInt("sampler0", 1);
+            shader.SetInt("uNormalTex", 1);
 
             GL.ActiveTexture(TextureUnit.Texture0 + 2);
-            GradientTexture.Bind();
-            shader.SetInt("sampler1", 2);
+            aglLightMap.TextureLUT.Bind();
+            shader.SetInt("uLutTex", 2);
 
-            //Set lighting data
-            var lightDir = environmentSettings.DirectionalLights.FirstOrDefault();
+            var lightMapEnv = aglLightMap.GetLightMapArea(areaIndex);
+            var settings = lightMapEnv.Settings;
 
-            LightingDirectionBlock.Buffer.Clear();
-            LightingDirectionBlock.Add(new Vector4(0));
-            LightingDirectionBlock.Add(new Vector4(lightDir.Direction.X, lightDir.Direction.Y, lightDir.Direction.Z, 0));
-            //Not hemi direction? 
-            LightingDirectionBlock.Add(new int[4] { -2147483648, -1082130432, -2147483648, 0 });
-            LightingDirectionBlock.RenderBuffer(shader.program, "cbuf_block4");
+            shader.SetFloat($"settings.rim_angle", settings.rim_angle);
+            shader.SetFloat($"settings.rim_width", settings.rim_width);
+            shader.SetInt($"settings.type", settings.lighting_hint);
 
-            LightingColorBlock.Buffer.Clear();
-            LightingColorBlock.Add(FillColorBlock(isLightPass, environmentSettings, areaIndex));
-            LightingColorBlock.RenderBuffer(shader.program, "cbuf_block5");
+            int index = 0;
+            //Loop through the light sources and apply them from the env settings
+            foreach (var light in lightMapEnv.Lights)
+            {
+                //If the name is empty, skip as there is no way to find it.
+                if (string.IsNullOrEmpty(light.Name))
+                    continue;
+
+                //Skip mip levels for specific light sources
+                if (!light.enable_mip0 && mipLevel == 0 || !light.enable_mip1 && mipLevel == 1)
+                    continue;
+
+                LightSource lightSource = null;
+                switch (light.Type)
+                {
+                    case "DirectionalLight":
+                        var dir = environmentSettings.DirectionalLights.FirstOrDefault(x => x.Name ==  light.Name);
+                        if (dir != null && dir.Enable)
+                            lightSource = LoadDirectionalLighting(dir);
+                        break;
+                    case "HemisphereLight":
+                        var hemi = environmentSettings.HemisphereLights.FirstOrDefault(x => x.Name == light.Name);
+                        if (hemi != null && hemi.Enable)
+                            lightSource = LoadHemiLighting(hemi);
+                        break;
+                    case "AmbientLight":
+                        var ambient = environmentSettings.AmbientLights.FirstOrDefault(x => x.Name == light.Name);
+                        if (ambient != null && ambient.Enable)
+                            lightSource = LoadAmbientLighting(ambient);
+                        break;
+                }
+
+                if (lightSource == null)
+                    continue;
+
+                //Setup shared settings
+                lightSource.LutIndex = aglLightMap.GetLUTIndex(light.LutName);
+
+                int programID = shader.program;
+
+                shader.SetVector3($"lights[{index}].dir", lightSource.Direction);
+                shader.SetVector4($"lights[{index}].lowerColor", lightSource.LowerColor);
+                shader.SetVector4($"lights[{index}].upperColor", lightSource.UpperColor);
+                shader.SetInt($"lights[{index}].lutIndex", lightSource.LutIndex);
+                index++;
+            }
+            lightMapEnv.Initialized = true;
         }
 
-        static byte[] FillColorBlock(bool isLightPass, EnvironmentGraphics environmentSettings, int areaIndex)
+        static LightSource LoadDirectionalLighting(DirectionalLight dirLight)
         {
-            var mem = new System.IO.MemoryStream();
-            using (var writer = new Toolbox.Core.IO.FileWriter(mem))
-            {
-                writer.Write(new Vector4(1, 0, 0, 0));
-                writer.Write(new Vector4(1, 0, 0, 0));
-                writer.SeekBegin(128);
-                writer.Write(new Vector4(0.015625f, 0, 0, 0));
-                writer.Write(new Vector4(0.078125f, 0, 0, 0));
-                writer.SeekBegin(256);
+            LightSource lightSource = new LightSource();
+            lightSource.Direction = new Vector3(dirLight.Direction.X, dirLight.Direction.Y, dirLight.Direction.Z);
+            lightSource.LowerColor = dirLight.BacksideColor.ToVector4() * dirLight.Intensity;
+            lightSource.UpperColor = dirLight.DiffuseColor.ToVector4() * dirLight.Intensity;
+            return lightSource;
+        }
 
-                var lightDir = environmentSettings.DirectionalLights.FirstOrDefault();
-                var hemi = environmentSettings.GetAreaHemisphereLight("course", areaIndex);
+        static LightSource LoadHemiLighting(HemisphereLight hemiLight)
+        {
+            LightSource lightSource = new LightSource();
+            lightSource.Direction = new Vector3(0, -1, 0);
+            lightSource.LowerColor = hemiLight.GroundColor.ToVector4() * hemiLight.Intensity;
+            lightSource.UpperColor = hemiLight.SkyColor.ToVector4() * hemiLight.Intensity;
+            return lightSource;
+        }
 
-                //Light pass uses directional lights.
-                if (isLightPass)
-                {
-                     writer.Write(lightDir.BacksideColor.ToVector4() * lightDir.Intensity);
-                     writer.Write(lightDir.DiffuseColor.ToVector4() * lightDir.Intensity);
-                }
-                else //No light pass for shadow areas.
-                {
-                    writer.Write(new Vector4(0, 0, 0, 1));
-                    writer.Write(new Vector4(0, 0, 0, 1));
-                }
+        static LightSource LoadAmbientLighting(AmbientLight ambLight)
+        {
+            LightSource lightSource = new LightSource();
+            lightSource.Direction = new Vector3(0, -1, 0);
+            lightSource.LowerColor = ambLight.Color.ToVector4() * ambLight.Intensity;
+            lightSource.UpperColor = ambLight.Color.ToVector4() * ambLight.Intensity;
+            return lightSource;
+        }
 
-                writer.Write(hemi.GroundColor.ToVector4() * hemi.Intensity);
-                writer.Write(hemi.SkyColor.ToVector4() * hemi.Intensity);
-            }
-            return mem.ToArray();
+        class LightSource
+        {
+            public Vector3 Direction = new Vector3(0, 0, 0);
+
+            public Vector4 LowerColor = new Vector4(0, 0, 0, 1);
+            public Vector4 UpperColor = new Vector4(0, 0, 0, 1);
+
+            //The index for the LUT texture (determines the y texture coordinate)
+            public int LutIndex;
         }
     }
 }

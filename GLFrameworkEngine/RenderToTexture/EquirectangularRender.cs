@@ -13,10 +13,15 @@ namespace GLFrameworkEngine
 
         static int ID = -1;
 
-        public static GLTexture2D CreateTextureRender(GLTexture texture, int arrayLevel, int mipLevel)
+        public static GLTexture2D CreateTextureRender(GLTexture texture, int arrayLevel, int mipLevel, bool force = false)
         {
-            if (cubemapCache.ContainsKey(texture.ID.ToString()))
+            if (!force && cubemapCache.ContainsKey(texture.ID.ToString()))
                 return cubemapCache[texture.ID.ToString()];
+            else
+            {
+                if (cubemapCache.ContainsKey(texture.ID.ToString()))
+                    cubemapCache[texture.ID.ToString()]?.Dispose();
+            }
 
             int width = texture.Width * 4;
             int height = texture.Height * 3;
@@ -65,7 +70,7 @@ namespace GLFrameworkEngine
                     textureOutput.ID, i);
 
                 shader.SetInt("arrayLevel", arrayLevel);
-                shader.SetInt("mipLevel", i);
+                shader.SetInt("mipLevel", mipLevel);
 
                 GL.ClearColor(0, 0, 0, 0);
                 GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
@@ -73,13 +78,18 @@ namespace GLFrameworkEngine
 
                 //Draw the texture onto the framebuffer
                 ScreenQuadRender.Draw();
+
+                break;
             }
 
             //Disable shader and textures
             GL.UseProgram(0);
             GL.BindTexture(TextureTarget.Texture2D, 0);
 
-            cubemapCache.Add(texture.ID.ToString(), textureOutput);
+            if (cubemapCache.ContainsKey(texture.ID.ToString()))
+                cubemapCache[texture.ID.ToString()] = textureOutput;
+            else
+                cubemapCache.Add(texture.ID.ToString(), textureOutput);
             return textureOutput;
         }
     }

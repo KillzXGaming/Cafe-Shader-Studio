@@ -27,7 +27,8 @@ namespace BfresEditor
 
         public void Render(GLContext context)
         {
-            var cubemaps = LightingEngine.LightSettings.CubeMaps.CubeMapObjects;
+            var cubemapEnvParams = LightingEngine.LightSettings.Resources.CubeMapFiles.FirstOrDefault().Value;
+            var cubemaps = cubemapEnvParams.CubeMapObjects;
 
             List<string> areas = new List<string>();
             foreach (var cmap in cubemaps)

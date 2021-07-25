@@ -59,6 +59,16 @@ namespace AGraphicsLibrary.Properties {
                 resourceCulture = value;
             }
         }
+		
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        internal static byte[] PROBESH {
+            get {
+                object obj = ResourceManager.GetObject("PROBESH", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
         
         /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
@@ -96,6 +106,16 @@ namespace AGraphicsLibrary.Properties {
         internal static byte[] lut {
             get {
                 object obj = ResourceManager.GetObject("lut", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+		
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        internal static byte[] gradientraw {
+            get {
+                object obj = ResourceManager.GetObject("gradientraw", resourceCulture);
                 return ((byte[])(obj));
             }
         }

@@ -17,6 +17,8 @@ namespace AGraphicsLibrary
 
         public List<DirectionalLight> DirectionalLights = new List<DirectionalLight>();
         public List<HemisphereLight> HemisphereLights = new List<HemisphereLight>();
+        public List<AmbientLight> AmbientLights = new List<AmbientLight>();
+
         public List<Fog> FogObjects = new List<Fog>();
         public List<BloomObj> BloomObjects = new List<BloomObj>();
         public List<OfxLargeLensFlareRig> LensFlareRigs = new List<OfxLargeLensFlareRig>();

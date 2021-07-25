@@ -65,6 +65,11 @@ namespace GLFrameworkEngine
             UpdateModelMatrix = true;
         }
 
+        public virtual void OnBeforeDraw(GLContext context)
+        {
+
+        }
+
         public virtual bool ModelInFustrum(GLFrameworkEngine.GLContext control)
         {
             return true;

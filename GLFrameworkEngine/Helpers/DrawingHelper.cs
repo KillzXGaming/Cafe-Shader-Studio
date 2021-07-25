@@ -7,7 +7,7 @@ namespace GLFrameworkEngine
 {
     public class DrawingHelper
     {
-        public static GLVertex[] GetVertices(float radius, float subdiv)
+        public static GLVertex[] GetSphereVertices(float radius, float subdiv)
         {
             List<GLVertex> vertices = new List<GLVertex>();
 

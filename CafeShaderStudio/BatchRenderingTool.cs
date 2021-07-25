@@ -87,9 +87,9 @@ namespace CafeShaderStudio
                     ProcessName = $"Processing {files[i]}";
                     BatchRenderFile(files[i]);
                 }
-                catch
+                catch (Exception ex)
                 {
-
+                    Console.WriteLine(ex.ToString());
                 }
             }
 

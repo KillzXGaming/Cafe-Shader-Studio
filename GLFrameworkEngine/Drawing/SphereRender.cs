@@ -15,7 +15,7 @@ namespace GLFrameworkEngine
 
         }
 
-        private static VertexArrayObject cubeVao;
+        private static VertexArrayObject sphereVao;
 
         private static bool initialized = false;
 
@@ -31,12 +31,13 @@ namespace GLFrameworkEngine
                 GL.GenBuffers(1, out vertexBuffer);
                 GL.GenBuffers(1, out indexBuffer);
 
-                cubeVao = new VertexArrayObject(vertexBuffer, indexBuffer);
-                cubeVao.AddAttribute(0, 3, VertexAttribPointerType.Float, false, 12, 0);
-                cubeVao.Initialize();
+                sphereVao = new VertexArrayObject(vertexBuffer, indexBuffer);
+                sphereVao.AddAttribute(0, 3, VertexAttribPointerType.Float, false, 24, 0);
+                sphereVao.AddAttribute(1, 3, VertexAttribPointerType.Float, false, 24, 12);
+                sphereVao.Initialize();
 
                 Vertices = GetVertices();
-                cubeVao.Bind();
+                sphereVao.Bind();
                 GL.BufferData(BufferTarget.ArrayBuffer, Vector3.SizeInBytes * Vertices.Length, Vertices, BufferUsageHint.StaticDraw);
 
                 initialized = true;
@@ -47,17 +48,30 @@ namespace GLFrameworkEngine
         {
             Init();
 
-            cubeVao.Use();
-            GL.DrawArrays(PrimitiveType.LineStrip, 0, Vertices.Length);
+            sphereVao.Use();
+            GL.DrawArrays(PrimitiveType.TriangleStrip, 0, Vertices.Length);
         }
 
+        public static void DrawInstances(GLContext context, int numInstances)
+        {
+            Init();
+
+            sphereVao.Use();
+            GL.DrawArraysInstanced(PrimitiveType.TriangleStrip, 0, Vertices.Length, numInstances);
+        }
         static Vector3[] GetVertices()
         {
-            var vertices = DrawingHelper.GetVertices(1, 16);
-            Vector3[] positions = new Vector3[vertices.Length];
+            var vertices = DrawingHelper.GetSphereVertices(1, 8);
+            Vector3[] buffer = new Vector3[vertices.Length * 2];
+
             for (int i = 0; i < vertices.Length; i++)
-                positions[i] = vertices[i].Position;
-            return positions;
+            {
+                int index = i * 2;
+
+                buffer[index] = vertices[i].Position;
+                buffer[index + 1] = vertices[i].Normal;
+            }
+            return buffer;
         }
     }
 }

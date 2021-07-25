@@ -15,6 +15,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AGraphicsLibrary", "AGraphi
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RedStarLibrary", "RedStarLibrary\RedStarLibrary.csproj", "{74B8B307-8755-4584-9E71-4C044F111BE6}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProbeLightTest", "ProbeLightTest\ProbeLightTest.csproj", "{2AF99D51-39D5-4258-A0EC-22433F70C54B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -97,6 +99,18 @@ Global
 		{74B8B307-8755-4584-9E71-4C044F111BE6}.Release|x64.Build.0 = Release|Any CPU
 		{74B8B307-8755-4584-9E71-4C044F111BE6}.Release|x86.ActiveCfg = Release|Any CPU
 		{74B8B307-8755-4584-9E71-4C044F111BE6}.Release|x86.Build.0 = Release|Any CPU
+		{2AF99D51-39D5-4258-A0EC-22433F70C54B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2AF99D51-39D5-4258-A0EC-22433F70C54B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2AF99D51-39D5-4258-A0EC-22433F70C54B}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{2AF99D51-39D5-4258-A0EC-22433F70C54B}.Debug|x64.Build.0 = Debug|Any CPU
+		{2AF99D51-39D5-4258-A0EC-22433F70C54B}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{2AF99D51-39D5-4258-A0EC-22433F70C54B}.Debug|x86.Build.0 = Debug|Any CPU
+		{2AF99D51-39D5-4258-A0EC-22433F70C54B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2AF99D51-39D5-4258-A0EC-22433F70C54B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2AF99D51-39D5-4258-A0EC-22433F70C54B}.Release|x64.ActiveCfg = Release|Any CPU
+		{2AF99D51-39D5-4258-A0EC-22433F70C54B}.Release|x64.Build.0 = Release|Any CPU
+		{2AF99D51-39D5-4258-A0EC-22433F70C54B}.Release|x86.ActiveCfg = Release|Any CPU
+		{2AF99D51-39D5-4258-A0EC-22433F70C54B}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

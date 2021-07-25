@@ -348,8 +348,12 @@ namespace CafeShaderStudio
             if (System.IO.File.Exists($"{folder}\\course_bglpbd.szs"))
             {
                 //Todo handle probe lighting (they alter lightmaps for map objects)
-                //ProbeMapManager.Prepare(EveryFileExplorer.YAZ0.Decompress($"{dir}\\course_bglpbd.szs"));
-                //  DataCache.ModelCache.Add(bfres.Renderer.Name, bfres.Renderer)   ;
+                ProbeMapManager.Prepare(Toolbox.Core.IO.YAZ0.Decompress($"{folder}\\course_bglpbd.szs"));
+            }
+            if (System.IO.File.Exists($"{folder}\\course.bglpbd"))
+            {
+                //Todo handle probe lighting (they alter lightmaps for map objects)
+                ProbeMapManager.Prepare(File.ReadAllBytes($"{folder}\\course.bglpbd"));
             }
         }
 
@@ -865,10 +869,10 @@ namespace CafeShaderStudio
                     }
                 }
 
-                /*  if (ImGui.MenuItem("Lighting"))
+                  if (ImGui.MenuItem("Lighting"))
                {
                    showLightingEditor = true;
-               }*/
+               }
 
                 if (ImGui.MenuItem("Batch Render"))
                 {
@@ -944,6 +948,10 @@ namespace CafeShaderStudio
                     ImGui.End();
                 }
             }
+
+            if (ProbeDebugger.DEBUG_MODE)
+                ProbeDebugger.DrawWindow();
+
             if (showStyleEditor)
             {
                 if (ImGui.Begin("Style Editor", ref showStyleEditor))
