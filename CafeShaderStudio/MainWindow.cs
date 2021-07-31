@@ -506,7 +506,7 @@ namespace CafeShaderStudio
 
                 ImGui.SetCursorPosX(pos.X + 20);
                 ImGui.Text($"Bloom Enable: {Pipeline._context.EnableBloom}");
-                
+
                 if (camera_speed_start_notify > 0)
                 {
                     ImGui.SetCursorPosX(pos.X + 20);
@@ -872,10 +872,10 @@ namespace CafeShaderStudio
                     }
                 }
 
-                  if (ImGui.MenuItem("Lighting"))
+              /*    if (ImGui.MenuItem("Lighting"))
                {
                    showLightingEditor = true;
-               }
+               }*/
 
                 if (ImGui.MenuItem("Batch Render"))
                 {
