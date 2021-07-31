@@ -296,6 +296,9 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <None Update="cimgui.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="GFD\gx2shader-decompiler.exe">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
