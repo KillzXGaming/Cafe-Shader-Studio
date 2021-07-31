@@ -12,7 +12,7 @@ namespace BfresEditor
 {
     public class ProbeDebugger
     {
-        public static bool DEBUG_MODE = true;
+        public static bool DEBUG_MODE = false;
 
         public static Vector3 Position = new Vector3(-1123.112f, 2249.845f, 1601.477f);
 
