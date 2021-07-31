@@ -52,6 +52,11 @@ namespace GLFrameworkEngine
         /// </summary>
         public bool EnableBloom;
 
+        /// <summary>
+        /// Toggles fog usage.
+        /// </summary>
+        public bool EnableFog = true;
+
         public GLContext() { SetActive(); }
 
         public void SetActive()

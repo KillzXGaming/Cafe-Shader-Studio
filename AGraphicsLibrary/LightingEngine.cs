@@ -24,10 +24,6 @@ namespace AGraphicsLibrary
 
         public bool UpdateColorCorrection = false;
 
-        //3D Viewer settings
-        public bool DisplayFog { get; set; } = true;
-        public bool DisplayBloom { get; set; } = true;
-
         public void LoadArchive(List<ArchiveFileInfo> files)
         {
             Resources.LoadArchive(files);

@@ -83,6 +83,12 @@ namespace BfresEditor
 
             if (mat.Name.StartsWith("CausticsArea"))
                 mesh.Shape.IsVisible = false;
+
+            /*if (mat.Material.ShaderAssign.ShaderOptions["enable_static_depth_shadow"] == "1")
+                mesh.CastStaticDepthShadow = true;
+
+            if (mat.Material.ShaderAssign.ShaderOptions["enable_dynamic_depth_shadow"] == "1")
+                mesh.CastDynamicDepthShadow = true;*/
         }
 
         public override void ReloadProgram(BfresMeshAsset mesh)
@@ -279,7 +285,7 @@ namespace BfresEditor
                     SetBoneMatrixBlock(this.ParentModel.Skeleton, bfresMesh.SkinCount > 1, block);
                     break;
                 case "gsys_environment":
-                    SetEnvUniforms(block);
+                    SetEnvUniforms(control, block);
                     break;
                 case "gsys_scene_material":
                     SetSceneMatUniforms(block);
@@ -322,7 +328,7 @@ namespace BfresEditor
             return screenBuffer;
         }
 
-        private void SetEnvUniforms(UniformBlock block)
+        private void SetEnvUniforms(GLContext control, UniformBlock block)
         {
             Fog[] fog = new Fog[4];
             for (int i = 0; i < 4; i++)
@@ -336,7 +342,7 @@ namespace BfresEditor
                 Direciton = new Vector3(0, 1, 0),
             };
 
-            if (AreaIndex != -1 && LightingEngine.LightSettings.DisplayFog) {
+            if (AreaIndex != -1 && control.EnableFog) {
                 var courseArea = LightingEngine.LightSettings.Resources.EnvFiles["course_area.baglenv"];
                 var areaFog = courseArea.GetAreaFog(false, AreaIndex);
 
