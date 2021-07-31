@@ -37,7 +37,7 @@ namespace CafeStudio.UI
 
         public int GetViewportTexture() => ((GLTexture)FinalBuffer.Attachments[0]).ID;
 
-        const bool USE_GBUFFER = true;
+        const bool USE_GBUFFER = false;
 
         public void InitScene()
         {
@@ -121,6 +121,10 @@ namespace CafeStudio.UI
 
             _context.Camera.UpdateMatrices();
             _context.Scene.ShadowRenderer.Render(_context, new OpenTK.Vector3(0.2f, 0.7f, 0.1f));
+
+            ResourceTracker.NumDrawCalls = 0;
+            ResourceTracker.NumDrawFaces = 0;
+            ResourceTracker.NumDrawVertices = 0;
 
             DrawModels();
             GL.UseProgram(0);
