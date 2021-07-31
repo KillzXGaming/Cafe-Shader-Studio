@@ -277,14 +277,31 @@ namespace BfresEditor
                 displayLodLevel = LODMeshLevel;
             }
 
+            DrawCombinedMesh();
+        }
+
+        private void DrawSubMesh()
+        {
             MeshPolygonGroup polygonGroup = (MeshPolygonGroup)Shape.PolygonGroups[LODMeshLevel];
             foreach (var subMesh in polygonGroup.SubMeshes)
             {
                 GL.DrawElements(OpenGLHelper.PrimitiveTypes[polygonGroup.PrimitiveType],
                     (int)subMesh.Count,
-                   polygonGroup.DrawElementsType, 
+                   polygonGroup.DrawElementsType,
                     (int)subMesh.Offset);
+
+                ResourceTracker.NumDrawCalls += 1;
+                ResourceTracker.NumDrawFaces += (int)subMesh.Count;
             }
+        }
+
+        private void DrawCombinedMesh()
+        {
+            MeshPolygonGroup polygonGroup = (MeshPolygonGroup)Shape.PolygonGroups[LODMeshLevel];
+            GL.DrawElements(OpenGLHelper.PrimitiveTypes[polygonGroup.PrimitiveType],
+                (int)polygonGroup.Faces.Count,
+               polygonGroup.DrawElementsType,
+                (int)0);
         }
 
         public bool UpdateVertexData { get; set; } = false;
