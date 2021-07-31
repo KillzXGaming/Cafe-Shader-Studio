@@ -277,6 +277,7 @@ namespace BfresEditor
                 displayLodLevel = LODMeshLevel;
             }
 
+
             DrawCombinedMesh();
         }
 
@@ -289,9 +290,6 @@ namespace BfresEditor
                     (int)subMesh.Count,
                    polygonGroup.DrawElementsType,
                     (int)subMesh.Offset);
-
-                ResourceTracker.NumDrawCalls += 1;
-                ResourceTracker.NumDrawFaces += (int)subMesh.Count;
             }
         }
 
