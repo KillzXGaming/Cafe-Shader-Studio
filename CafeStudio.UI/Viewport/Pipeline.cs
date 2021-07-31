@@ -123,8 +123,7 @@ namespace CafeStudio.UI
             _context.Scene.ShadowRenderer.Render(_context, new OpenTK.Vector3(0.2f, 0.7f, 0.1f));
 
             ResourceTracker.NumDrawCalls = 0;
-            ResourceTracker.NumDrawFaces = 0;
-            ResourceTracker.NumDrawVertices = 0;
+            ResourceTracker.NumDrawTriangles = 0;
 
             DrawModels();
             GL.UseProgram(0);

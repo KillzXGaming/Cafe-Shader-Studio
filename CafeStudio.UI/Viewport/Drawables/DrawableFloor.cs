@@ -13,8 +13,8 @@ namespace CafeStudio.UI
     {
         public static System.Numerics.Vector4 GridColor = new System.Numerics.Vector4(0.3f, 0.3f, 0.3f, 1.0f);
 
-        public static int CellAmount;
-        public static int CellSize;
+        public static int CellAmount = 10;
+        public static int CellSize = 1;
 
         public static bool Display = true;
 

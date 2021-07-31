@@ -79,13 +79,9 @@ namespace GLFrameworkEngine
         /// <summary>
         /// Checks if the given bounding box is contained within the plane fustrum.
         /// </summary>
-        static Fustrum ContainsBox(Vector4[] planes, BoundingBox box, bool overlap = true)
+        static Fustrum ContainsBox(Vector4[] planes, BoundingBox box)
         {
             Fustrum finalResult = Fustrum.FULL;
-            if (overlap && AABB.IsOverlapping(box)) {
-                return Fustrum.FULL;
-            }
-
             for (int p = 0; p < 6; p++)
             {
                 var result = TestIntersct(planes[p],

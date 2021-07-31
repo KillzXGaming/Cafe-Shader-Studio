@@ -89,8 +89,6 @@ namespace GLFrameworkEngine
         }
 
         public Vector3[] GetVertices() {
-            return Vertices;
-
             //Return transformed vertices if used
             return TransformedVertices != null ? TransformedVertices : Vertices;
         }

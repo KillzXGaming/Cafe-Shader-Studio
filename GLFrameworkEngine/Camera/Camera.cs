@@ -282,6 +282,13 @@ namespace GLFrameworkEngine
             CameraFustrum.UpdateCamera(this);
         }
 
+        /// <summary>
+        /// Checks if a bounding node is within the camera fustrum.
+        /// </summary>
+        public bool InFustrum(BoundingNode boundingNode) {
+           return CameraFustrum.CheckIntersection(this, boundingNode);
+        }
+
         public Vector3 GetViewPostion() {
             return viewMatrix.Column3.Xyz;
         }

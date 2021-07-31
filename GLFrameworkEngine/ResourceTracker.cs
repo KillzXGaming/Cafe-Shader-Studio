@@ -6,8 +6,7 @@ namespace GLFrameworkEngine
 {
     public class ResourceTracker
     {
-        public static int NumDrawVertices;
-        public static int NumDrawFaces;
+        public static int NumDrawTriangles;
         public static int NumDrawCalls;
     }
 }

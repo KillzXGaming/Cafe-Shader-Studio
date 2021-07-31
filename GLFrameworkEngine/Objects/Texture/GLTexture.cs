@@ -132,32 +132,36 @@ namespace GLFrameworkEngine
             {
                 var surface = texture.GetDeswizzledSurface(i, 0);
                 int depth = 1;
-                int mipLevel = 0;
 
                 bool loadAsBitmap = !IsPower2(width, height) && texture.IsBCNCompressed() && false;
                 if (texture.IsASTC() || parameters.FlipY)
                     loadAsBitmap = true;
 
-                if (loadAsBitmap || parameters.UseSoftwareDecoder)
-                {
-                    var rgbaData = texture.GetDecodedSurface(i, mipLevel);
-                    if (parameters.FlipY)
-                        rgbaData = FlipVertical(width, height, rgbaData);
+                int numMips = 1;
 
-                    var formatInfo = GLFormatHelper.ConvertPixelFormat(TexFormat.RGBA8_UNORM);
-                    if (texture.IsSRGB) formatInfo.InternalFormat = PixelInternalFormat.Srgb8Alpha8;
+                for (int mipLevel = 0; mipLevel < numMips; mipLevel++)
+                {
+                    if (loadAsBitmap || parameters.UseSoftwareDecoder)
+                    {
+                        var rgbaData = texture.GetDecodedSurface(i, mipLevel);
+                        if (parameters.FlipY)
+                            rgbaData = FlipVertical(width, height, rgbaData);
 
-                    GLTextureDataLoader.LoadImage(Target, width, height, depth, formatInfo, rgbaData, mipLevel);
-                }
-                else if (texture.IsBCNCompressed())
-                {
-                    var internalFormat = GLFormatHelper.ConvertCompressedFormat(format, true);
-                    GLTextureDataLoader.LoadCompressedImage(Target, width, height, depth, internalFormat, surface, mipLevel);
-                }
-                else
-                {
-                    var formatInfo = GLFormatHelper.ConvertPixelFormat(format);
-                    GLTextureDataLoader.LoadImage(Target, width, height, depth, formatInfo, surface, mipLevel);
+                        var formatInfo = GLFormatHelper.ConvertPixelFormat(TexFormat.RGBA8_UNORM);
+                        if (texture.IsSRGB) formatInfo.InternalFormat = PixelInternalFormat.Srgb8Alpha8;
+
+                        GLTextureDataLoader.LoadImage(Target, width, height, depth, formatInfo, rgbaData, mipLevel);
+                    }
+                    else if (texture.IsBCNCompressed())
+                    {
+                        var internalFormat = GLFormatHelper.ConvertCompressedFormat(format, true);
+                        GLTextureDataLoader.LoadCompressedImage(Target, width, height, depth, internalFormat, surface, mipLevel);
+                    }
+                    else
+                    {
+                        var formatInfo = GLFormatHelper.ConvertPixelFormat(format);
+                        GLTextureDataLoader.LoadImage(Target, width, height, depth, formatInfo, surface, mipLevel);
+                    }
                 }
 
                 if (texture.MipCount > 1 && texture.Platform.OutputFormat != TexFormat.BC5_SNORM)
