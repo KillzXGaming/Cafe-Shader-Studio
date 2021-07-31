@@ -173,6 +173,29 @@ namespace BfresEditor
             GL.UseProgram(0);
         }
 
+        public void DrawCaustics(GLContext control, GLTexture gbuffer, GLTexture linearDepth)
+        {
+            //These textures are essential for displaying.
+            if (!this.ParentRender.Textures.ContainsKey("CausticsIndirect") ||
+                !this.ParentRender.Textures.ContainsKey("CausticsPattern"))
+                return;
+
+            var indirectTexture = this.ParentRender.Textures["CausticsIndirect"];
+            var patternTexture = this.ParentRender.Textures["CausticsPattern"];
+            if (indirectTexture.RenderableTex == null) indirectTexture.LoadRenderableTexture();
+            if (patternTexture.RenderableTex == null) patternTexture.LoadRenderableTexture();
+
+            //Prepare the material and draw the caustic region.
+            AGraphicsLibrary.CausticLightManager.PrepareMaterial(control,
+                (GLTexture)indirectTexture.RenderableTex,
+               (GLTexture)patternTexture.RenderableTex,
+               gbuffer,
+               linearDepth);
+
+            foreach (var mesh in Meshes)
+                DrawSolidColorMesh(control.CurrentShader, mesh);
+        }
+
         public void DrawColorPicking(GLContext control)
         {
             if (disposed || !IsVisible)
@@ -363,15 +386,12 @@ namespace BfresEditor
                 RenderMesh(control, mesh, 2);
             }
 
-            control.CurrentShader = null;
-
             GL.Enable(EnableCap.DepthTest);
             GL.Disable(EnableCap.TextureCubeMapSeamless);
             GL.Disable(EnableCap.AlphaTest);
             GL.Disable(EnableCap.Blend);
             GL.Enable(EnableCap.CullFace);
             GL.CullFace(CullFaceMode.Back);
-            GL.UseProgram(0);
         }
 
         public void DrawShadowModel(GLFrameworkEngine.GLContext control, BfresRender parentRender)
@@ -385,18 +405,14 @@ namespace BfresEditor
                      mesh.IsCubeMap || mesh.UseColorBufferPass)
                     continue;
 
-                RenderMesh(control, mesh, 1);
+                var lightSpaceMatrix = control.Scene.ShadowRenderer.GetLightSpaceMatrix();
+
+                var mtxMdl = this.ParentRender.Transform.TransformMatrix;
+                control.CurrentShader.SetMatrix4x4("mtxMdl", ref mtxMdl);
+                control.CurrentShader.SetMatrix4x4("lightSpaceMatrix", ref lightSpaceMatrix);
+
+                DrawSolidColorMesh(control.CurrentShader, mesh);
             }
-
-            control.CurrentShader = null;
-
-            GL.Enable(EnableCap.DepthTest);
-            GL.Disable(EnableCap.TextureCubeMapSeamless);
-            GL.Disable(EnableCap.AlphaTest);
-            GL.Disable(EnableCap.Blend);
-            GL.Enable(EnableCap.CullFace);
-            GL.CullFace(CullFaceMode.Back);
-            GL.UseProgram(0);
         }
 
         public void DrawDepthBuffer(GLFrameworkEngine.GLContext control, BfresRender parentRender)
@@ -435,6 +451,9 @@ namespace BfresEditor
 
         public void RenderMesh(GLContext control, BfresMeshAsset mesh, int stage = 0)
         {
+            if (!mesh.InFustrum)
+                return;
+
             if (mesh.UpdateVertexData)
                 mesh.UpdateVertexBuffer();
 
@@ -477,6 +496,7 @@ namespace BfresEditor
                 return;
             }
 
+            materialAsset.ShaderIndex = stage;
             materialAsset.CheckProgram(control, mesh, stage);
 
             if (control.CurrentShader != materialAsset.Shader)

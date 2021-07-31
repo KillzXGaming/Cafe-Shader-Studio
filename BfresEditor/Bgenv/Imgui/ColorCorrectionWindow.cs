@@ -50,7 +50,6 @@ namespace CafeStudio.UI
 
         void PropertyChanged(GLContext context)
         {
-
             var colorCorrection = LightingEngine.LightSettings.Resources.ColorCorrectionFiles.FirstOrDefault().Value;
 
             colorCorrection.Saturation = _saturation;

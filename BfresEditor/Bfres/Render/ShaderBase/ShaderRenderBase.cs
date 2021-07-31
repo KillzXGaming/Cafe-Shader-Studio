@@ -24,7 +24,14 @@ namespace BfresEditor
         /// Shader information from the decoded shader.
         /// This is used to store constants and source information.
         /// </summary>
-        public virtual ShaderInfo GLShaderInfo { get; set; }
+        public ShaderInfo GLShaderInfo => GLShaders[ShaderIndex];
+
+        /// <summary>
+        /// Gets or sets a list of shaders used.
+        /// </summary>
+        public ShaderInfo[] GLShaders = new ShaderInfo[10];
+
+        public int ShaderIndex { get; set; } = 0;
 
         /// <summary>
         /// Determines when to use this renderer for the given material.

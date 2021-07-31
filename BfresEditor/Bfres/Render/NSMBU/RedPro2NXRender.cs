@@ -220,7 +220,7 @@ namespace BfresEditor
                 {
                     GL.ActiveTexture(TextureUnit.Texture0 + id);
                     ShadowMapTexture.Bind();
-                    shader.SetInt(ConvertSamplerID((int)ProgramPasses[ProgramIndex].SamplerLocations[i].FragmentLocation), id++);
+                    shader.SetInt(ConvertSamplerID((int)ProgramPasses[ShaderIndex].SamplerLocations[i].FragmentLocation), id++);
                 }
 
                 GL.ActiveTexture(TextureUnit.Texture0);

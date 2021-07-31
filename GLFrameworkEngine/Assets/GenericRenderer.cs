@@ -95,6 +95,11 @@ namespace GLFrameworkEngine
 
         }
 
+        public virtual void DrawCaustics(GLContext control, GLTexture gbuffer, GLTexture linearDepth)
+        {
+
+        }
+
         public virtual void DrawCubeMapScene(GLContext control)
         {
 

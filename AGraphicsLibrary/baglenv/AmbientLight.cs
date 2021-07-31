@@ -10,7 +10,7 @@ namespace AGraphicsLibrary
     {
         internal override ParamObject Parent { get; set; }
 
-        [BindGUI("Diffuse Color", Category = "Properties")]
+        [BindGUI("Color", Category = "Properties")]
         public STColor Color
         {
             get { return Parent.GetEntryValue<Vector4F>("Color").ToSTColor(); }

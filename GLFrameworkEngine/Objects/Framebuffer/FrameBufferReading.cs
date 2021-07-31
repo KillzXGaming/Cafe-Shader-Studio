@@ -8,7 +8,7 @@ using OpenTK.Graphics.OpenGL;
 
 namespace GLFrameworkEngine
 {
-    public sealed partial class Framebuffer
+    public partial class Framebuffer
     {
         public System.Drawing.Bitmap ReadImagePixels(bool saveAlpha = false, ReadBufferMode bufferMode = ReadBufferMode.ColorAttachment0)
         {

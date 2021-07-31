@@ -68,17 +68,10 @@ void main()
     vec3 normal4 = vec3( -nrm.z,  nrm.y, -nrm.x );
     vec3 normal5 = vec3(  nrm.z,  nrm.y,  nrm.x );
 
-    if (settings.type == 0)
-    {
-        FragColor0 = CalculateCubeFaceColor(normal0, 0);
-        FragColor1 = CalculateCubeFaceColor(normal1, 1);
-        FragColor2 = CalculateCubeFaceColor(normal2, 2);
-        FragColor3 = CalculateCubeFaceColor(normal3, 3);
-        FragColor4 = CalculateCubeFaceColor(normal4, 4);
-        FragColor5 = CalculateCubeFaceColor(normal5, 5);
-    }
-    else
-    {
-
-    }
+    FragColor0 = CalculateCubeFaceColor(normal0, 0);
+    FragColor1 = CalculateCubeFaceColor(normal1, 1);
+    FragColor2 = CalculateCubeFaceColor(normal2, 2);
+    FragColor3 = CalculateCubeFaceColor(normal3, 3);
+    FragColor4 = CalculateCubeFaceColor(normal4, 4);
+    FragColor5 = CalculateCubeFaceColor(normal5, 5);
 }

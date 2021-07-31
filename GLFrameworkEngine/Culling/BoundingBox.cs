@@ -19,9 +19,28 @@ namespace GLFrameworkEngine
         /// </summary>
         public Vector3 Max { get; set; }
 
+        /// <summary>
+        /// Gets the center of the bounding box.
+        /// </summary>
         public Vector3 GetCenter()
         {
-            return new Vector3((Min + Max) / 2);
+            return new Vector3((Min + Max) * 0.5f);
+        }
+
+        /// <summary>
+        /// Gets the extent of the bounding box.
+        /// </summary>
+        public Vector3 GetExtent()
+        {
+            return GetSize() * 0.5f;
+        }
+
+        /// <summary>
+        /// Gets the size of the bounding box.
+        /// </summary>
+        public Vector3 GetSize()
+        {
+            return Max - Min;
         }
 
         //Vertices of the box (local space)
@@ -32,6 +51,24 @@ namespace GLFrameworkEngine
 
         public BoundingBox() {
             Vertices = new Vector3[8];
+        }
+
+        public void Set(Vector4[] vertices)
+        {
+            Vector3 max = new Vector3(float.MinValue);
+            Vector3 min = new Vector3(float.MaxValue);
+            for (int i = 0; i < vertices.Length; i++)
+            {
+                max.X = MathF.Max(max.X, vertices[i].X);
+                max.Y = MathF.Max(max.Y, vertices[i].Y);
+                max.Z = MathF.Max(max.Z, vertices[i].Z);
+                min.X = MathF.Min(min.X, vertices[i].X);
+                min.Y = MathF.Min(min.Y, vertices[i].Y);
+                min.Z = MathF.Min(min.Z, vertices[i].Z);
+            }
+            Min = min;
+            Max = max;
+            FromMinMax(min, max);
         }
 
         public bool IsInside(Vector3 position)
@@ -52,6 +89,8 @@ namespace GLFrameworkEngine
         }
 
         public Vector3[] GetVertices() {
+            return Vertices;
+
             //Return transformed vertices if used
             return TransformedVertices != null ? TransformedVertices : Vertices;
         }

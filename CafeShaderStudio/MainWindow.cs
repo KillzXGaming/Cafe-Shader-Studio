@@ -322,6 +322,13 @@ namespace CafeShaderStudio
                 LightingEngine.LightSettings = lightingEngine;
                 LightingEngine.LightSettings.UpdateColorCorrectionTable();
 
+                //Generate light maps (area based lighting from directional and hemi lighting)
+                foreach (var lmap in lightingEngine.Resources.LightMapFiles.Values)
+                {
+                    foreach (var lightMapArea in lmap.LightAreas)
+                        LightingEngine.LightSettings.UpdateLightmap(Pipeline._context, lightMapArea.Settings.Name);
+                }
+
                 if (MapLoader.HasValidPath)
                 {
                     //Create a list of models that can render onto cubemaps
@@ -338,14 +345,7 @@ namespace CafeShaderStudio
 
                     //Todo need to fixup cubemap generation as it typically has bugs on certain hardware.
                     //Certain games are also missing cubemap array support atm.
-                    //LightingEngine.LightSettings.UpdateCubemap(cubemapRenderModels, false);
-                }
-
-                //Generate light maps (area based lighting from directional and hemi lighting)
-                foreach (var lmap in lightingEngine.Resources.LightMapFiles.Values)
-                {
-                    foreach (var lightMapArea in lmap.LightAreas)
-                        LightingEngine.LightSettings.UpdateLightmap(Pipeline._context, lightMapArea.Settings.Name);
+                    LightingEngine.LightSettings.UpdateCubemap(cubemapRenderModels, false);
                 }
             }
             if (System.IO.File.Exists($"{folder}\\course_bglpbd.szs"))

@@ -66,8 +66,6 @@ namespace AGraphicsLibrary
 
             int CUBE_SIZE = output.Width;
 
-            GL.Disable(EnableCap.FramebufferSrgb);
-
             FilterLevel0.Bind();
             LoadCubemapLevel(control, CUBE_SIZE, 0, aglLightMap, environmentSettings, lightMapEnv, output.ID);
             FilterLevel0.Unbind();
@@ -126,6 +124,14 @@ namespace AGraphicsLibrary
             shader.SetFloat($"settings.rim_angle", settings.rim_angle);
             shader.SetFloat($"settings.rim_width", settings.rim_width);
             shader.SetInt($"settings.type", settings.lighting_hint);
+
+            for (int i = 0; i < 6; i++)
+            {
+                shader.SetVector3($"lights[{i}].dir", new Vector3(0));
+                shader.SetVector4($"lights[{i}].lowerColor", new Vector4(0));
+                shader.SetVector4($"lights[{i}].upperColor", new Vector4(0));
+                shader.SetInt($"lights[{i}].lutIndex", 0);
+            }
 
             int index = 0;
             //Loop through the light sources and apply them from the env settings

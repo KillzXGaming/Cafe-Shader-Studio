@@ -48,6 +48,11 @@ namespace BfresEditor
         {
             bool edited = false;
 
+            edited |= ImGuiHelper.InputFromBoolean($"Enable{id}", ambLight, "Enable");
+
+            edited |= EditColor($"Color", $"{id}_0", ambLight, "Color");
+            edited |= ImGuiHelper.InputFromFloat($"Intensity{id}", ambLight, "Intensity");
+
             return edited;
         }
 

@@ -11,7 +11,17 @@ namespace GLFrameworkEngine
     {
         public ITransformAction ActiveAction = null;
 
+        public ShadowMainRenderer ShadowRenderer;
+
         public List<IPickable> PickableObjects = new List<IPickable>();
+        public List<GenericRenderer> Objects = new List<GenericRenderer>();
+
+        public void AddRenderObject(GenericRenderer render)
+        {
+            Objects.Add(render);
+            if (render is IPickable)
+                PickableObjects.Add((IPickable)render);
+        }
 
         public List<IPickable> GetSelected() {
             return PickableObjects.Where(x => x.IsSelected).ToList();

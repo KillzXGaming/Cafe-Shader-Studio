@@ -216,6 +216,7 @@ namespace CafeShaderStudio
                 tex.RenderableTex?.Dispose();
 
             Control.Scene.PickableObjects.Clear();
+            Control.Scene.Objects.Clear();
             DataCache.ModelCache.Clear();
             Runtime.TextureCache.Clear();
             BfresEditor.BfresRender.ClearShaderCache();

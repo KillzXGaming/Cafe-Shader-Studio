@@ -91,13 +91,16 @@ namespace BfresEditor
 
         public void UpdateProbeLighting(GLContext control)
         {
-            if (!UpdateProbeMap || TurboNXRender.DiffuseLightmapTexture == null || Transform.Position == Vector3.Zero)
+            if (Name != "Coin")
+                return;
+
+            if (!UpdateProbeMap || TurboNXRender.DiffuseLightmapTexture == null /*|| Transform.Position == Vector3.Zero*/)
                 return;
 
             if (DiffuseProbeTexture == null)
             {
                 DiffuseProbeTexture = GLTextureCube.CreateEmptyCubemap(
-                 32, PixelInternalFormat.R11fG11fB10f, PixelFormat.Rgb, PixelType.UnsignedInt10F11F11FRev, 2);
+                 32, PixelInternalFormat.Rgb32f, PixelFormat.Rgb, PixelType.Float, 2);
 
                 //Allocate mip data. Need 2 seperate mip levels
                 DiffuseProbeTexture.Bind();
@@ -105,14 +108,30 @@ namespace BfresEditor
                 DiffuseProbeTexture.Unbind();
             }
 
-            bool generated = LightingEngine.LightSettings.UpdateProbeCubemap(control,
-                DiffuseProbeTexture, Transform.Position);
+            
+            Transform.Position = new Vector3(ProbeDebugger.Position.X, ProbeDebugger.Position.Y, ProbeDebugger.Position.Z);
+            Transform.UpdateMatrix(true);
 
-            DiffuseProbeTexture.Save($"LIGHTMAP_PROBE");
+            var output = LightingEngine.LightSettings.UpdateProbeCubemap(control,
+                DiffuseProbeTexture, new Vector3(
+                    ProbeDebugger.Position.X, 
+                    ProbeDebugger.Position.Y,
+                    ProbeDebugger.Position.Z));
 
-            if (!generated)
+            if (output == null)
                 return;
 
+            ProbeDebugger.Generated = output.Generated;
+
+            if (output.Generated)
+                ProbeDebugger.probeData = output.ProbeData;
+
+            ProbeDebugger.DiffuseProbeTexture = DiffuseProbeTexture;
+
+           // DiffuseProbeTexture.SaveDDS("LIGHT_PROBE.dds");
+          //  DiffuseProbeTexture.Save($"LIGHTMAP_PROBE.png");
+
+            ProbeDebugger.ForceUpdate = false;
             UpdateProbeMap = false;
         }
 
@@ -180,12 +199,16 @@ namespace BfresEditor
         public bool UpdateModelFustrum(GLContext control)
         {
             bool inFustrum = false;
-            for (int i = 0; i < PickableMeshes.Count; i++)
+            foreach (BfresModelAsset model in Models)
             {
-                //Update the fustrum boolean. This function only gets called once per mesh on updated frame
-                PickableMeshes[i].InFustrum = IsMeshInFustrum(control, PickableMeshes[i]);
-                if (PickableMeshes[i].InFustrum)
-                    inFustrum = true;
+                for (int i = 0; i < model.Meshes.Count; i++)
+                {
+                    //Update the fustrum boolean. This function only gets called once per mesh on updated frame
+                    model.Meshes[i].InFustrum = IsMeshInFustrum(control, model.Meshes[i]);
+                    if (PickableMeshes[i].InFustrum)
+                        inFustrum = true;
+                }
+
             }
             return inFustrum;
         }
@@ -196,7 +219,7 @@ namespace BfresEditor
         /// </summary>
         public override bool ModelInFustrum(GLContext control)
         {
-            if (StayInFustrum) return true;
+         //   if (StayInFustrum) return true;
 
             InFustrum = UpdateModelFustrum(control);
             if (!Name.Contains("course")) //Draw distance map objects
@@ -216,8 +239,8 @@ namespace BfresEditor
         /// </summary>
         private bool IsMeshInFustrum(GLContext control, GenericPickableMesh mesh)
         {
-            if (StayInFustrum)
-                return true;
+            /* if (StayInFustrum)
+                 return true;*/
 
             var msh = (BfresMeshAsset)mesh;
             msh.BoundingNode.UpdateTransform(Transform.TransformMatrix);
@@ -228,6 +251,9 @@ namespace BfresEditor
         {
             if (!ModelInFustrum(control) || !IsVisible)
                 return;
+
+            if (ProbeDebugger.ForceUpdate)
+                UpdateProbeMap = true;
 
             if (Runtime.DebugRendering != Runtime.DebugRender.Default)
                 control.CurrentShader = GlobalShaders.GetShader("DEBUG");
@@ -247,6 +273,25 @@ namespace BfresEditor
                 DrawBoundings(control);
         }
 
+        /// <summary>
+        /// Draws the caustics from "CausticsArea" models.
+        /// </summary>
+        public override void DrawCaustics(GLContext context, GLTexture gbuffer, GLTexture linearDepth)
+        {
+            foreach (BfresModelAsset model in Models)
+            {
+                //Model resource used for caustic light projection in light pre pass
+                if (model.Name == "CausticsArea")
+                    model.DrawCaustics(context, gbuffer, linearDepth);
+            }
+        }
+
+        public override void OnBeforeDraw(GLContext context)
+        {
+            if (UpdateProbeMap)
+                UpdateProbeLighting(context);
+        }
+
         public void DrawSkeleton(GLContext control)
         {
             foreach (BfresModelAsset model in Models)
@@ -263,7 +308,7 @@ namespace BfresEditor
 
                 foreach (var mesh in model.Meshes)
                 {
-                    if (!mesh.IsVisible)
+                    if (!mesh.IsVisible || !mesh.InFustrum)
                         continue;
 
                     //Go through each bounding in the current displayed mesh
@@ -284,9 +329,8 @@ namespace BfresEditor
                             transform = model.ModelData.Skeleton.Bones[mesh.BoneIndex].Transform;
                             control.CurrentShader.SetMatrix4x4("mtxMdl", ref transform);
 
-                            BoundingBoxRender.Draw(control,
-                                new Vector3(min.X, min.Y, min.Z),
-                                new Vector3(max.X, max.Y, max.Z));
+                            var bnd = mesh.BoundingNode.Box;
+                            BoundingBoxRender.Draw(control, bnd.Min, bnd.Max);
                         }
                         else
                         {

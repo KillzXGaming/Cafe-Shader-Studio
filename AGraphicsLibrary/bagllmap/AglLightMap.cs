@@ -85,6 +85,10 @@ namespace AGraphicsLibrary
                 "diffuse", "diffuse1", "diffuse2", "diffuse_course4", "diffuse_course3",
                 "diffuse_course0", "diffuse3", "diffuse_course2", "diffuse_course1", "diffuse4",
             };
+            string[] hemiNames = new string[] {
+                "HemiLight_chara0", "HemiLight_chara1", "HemiLight_chara2", "HemiLight_course4", "HemiLight_course3",
+                "HemiLight_course0", "HemiLight_chara3", "HemiLight_course2", "HemiLight_course1", "HemiLight_chara4",
+            };
 
             for (int i = 0; i < 8; i++)
             {
@@ -95,7 +99,7 @@ namespace AGraphicsLibrary
                 area.Lights.Add(new LightEnvObject("DirectionalLight", "", true, false));
                 area.Lights.Add(new LightEnvObject("DirectionalLight", "", true, false));
                 area.Lights.Add(new LightEnvObject("DirectionalLight", "", true, false));
-                area.Lights.Add(new LightEnvObject("HemisphereLight", "HemiLight_chara0", true, true));
+                area.Lights.Add(new LightEnvObject("HemisphereLight", hemiNames[i], true, true));
                 LightAreas.Add(area);
             }
         }

@@ -37,6 +37,8 @@ namespace CafeStudio.UI
 
         public int GetViewportTexture() => ((GLTexture)FinalBuffer.Attachments[0]).ID;
 
+        const bool USE_GBUFFER = true;
+
         public void InitScene()
         {
             _floor = new DrawableFloor();
@@ -47,6 +49,8 @@ namespace CafeStudio.UI
             _context.Camera = _camera;
             _context.ScreenBuffer = ScreenBuffer;
             _context.Camera.ResetViewportTransform();
+
+            _context.Scene.ShadowRenderer = new ShadowMainRenderer(_camera);
         }
 
         public void InitBuffers()
@@ -65,25 +69,27 @@ namespace CafeStudio.UI
                  Width, Height, PixelInternalFormat.Rgba16f, 1);
             BloomEffects.Resize(Width, Height);
 
-            /*
-                     DepthTexture = new DepthTexture(Width, Height, PixelInternalFormat.DepthComponent24);
+            if (USE_GBUFFER)
+            {
+                DepthTexture = new DepthTexture(Width, Height, PixelInternalFormat.DepthComponent24);
 
-                     //Set the GBuffer (Depth, Normals and another output)
-                  GBuffer = new Framebuffer(FramebufferTarget.Framebuffer);
-                     GBuffer.AddAttachment(FramebufferAttachment.ColorAttachment0,
-                         GLTexture2D.CreateUncompressedTexture(Width, Height, PixelInternalFormat.R11fG11fB10f, PixelFormat.Rgba, PixelType.Float));
-                     GBuffer.AddAttachment(FramebufferAttachment.ColorAttachment3,
-                         GLTexture2D.CreateUncompressedTexture(Width, Height, PixelInternalFormat.Rgb10A2, PixelFormat.Rgba, PixelType.Float));
-                     GBuffer.AddAttachment(FramebufferAttachment.ColorAttachment4,
-                         GLTexture2D.CreateUncompressedTexture(Width, Height, PixelInternalFormat.Rgb10A2, PixelFormat.Rgba, PixelType.Float));
-                     GBuffer.AddAttachment(FramebufferAttachment.DepthAttachment, DepthTexture);
+                //Set the GBuffer (Depth, Normals and another output)
+                GBuffer = new Framebuffer(FramebufferTarget.Framebuffer);
+                GBuffer.AddAttachment(FramebufferAttachment.ColorAttachment0,
+                    GLTexture2D.CreateUncompressedTexture(Width, Height, PixelInternalFormat.R11fG11fB10f, PixelFormat.Rgba, PixelType.Float));
+                GBuffer.AddAttachment(FramebufferAttachment.ColorAttachment3,
+                    GLTexture2D.CreateUncompressedTexture(Width, Height, PixelInternalFormat.Rgb10A2, PixelFormat.Rgba, PixelType.Float));
+                GBuffer.AddAttachment(FramebufferAttachment.ColorAttachment4,
+                    GLTexture2D.CreateUncompressedTexture(Width, Height, PixelInternalFormat.Rgb10A2, PixelFormat.Rgba, PixelType.Float));
+                GBuffer.AddAttachment(FramebufferAttachment.DepthAttachment, DepthTexture);
 
-                     GBuffer.SetReadBuffer(ReadBufferMode.None);
-                     GBuffer.SetDrawBuffers(
-                         DrawBuffersEnum.ColorAttachment0, DrawBuffersEnum.None, DrawBuffersEnum.None,
-                         DrawBuffersEnum.ColorAttachment3, DrawBuffersEnum.ColorAttachment4);
-                     GBuffer.Unbind();
-                     */
+                GBuffer.SetReadBuffer(ReadBufferMode.None);
+                GBuffer.SetDrawBuffers(
+                    DrawBuffersEnum.ColorAttachment0, DrawBuffersEnum.None, DrawBuffersEnum.None,
+                    DrawBuffersEnum.ColorAttachment3, DrawBuffersEnum.ColorAttachment4);
+                GBuffer.Unbind();
+
+            }
 
             FinalBuffer = new Framebuffer(FramebufferTarget.Framebuffer,
                 this.Width, this.Height, PixelInternalFormat.Rgba16f, 1);
@@ -98,14 +104,12 @@ namespace CafeStudio.UI
 
         public void AddFile(IRenderableFile renderFile) {
             Files.Add(renderFile);
-            if (renderFile.Renderer is IPickable)
-                _context.Scene.PickableObjects.Add((IPickable)renderFile.Renderer);
+            _context.Scene.AddRenderObject(renderFile.Renderer);
         }
 
         public void AddFile(GenericRenderer renderFile) {
             SceneObjects.Add(renderFile);
-            if (renderFile is IPickable)
-                _context.Scene.PickableObjects.Add((IPickable)renderFile);
+            _context.Scene.AddRenderObject(renderFile);
         }
 
         public void RenderScene()
@@ -116,6 +120,7 @@ namespace CafeStudio.UI
             GL.Enable(EnableCap.DepthTest);
 
             _context.Camera.UpdateMatrices();
+            _context.Scene.ShadowRenderer.Render(_context, new OpenTK.Vector3(0.2f, 0.7f, 0.1f));
 
             DrawModels();
             GL.UseProgram(0);
@@ -212,7 +217,13 @@ namespace CafeStudio.UI
                   AGraphicsLibrary.LightingEngine.LightSettings.UpdateColorCorrection)
                   AGraphicsLibrary.LightingEngine.LightSettings.UpdateColorCorrectionTable();*/
 
-            //  DrawGBuffer();
+            foreach (var render in SceneObjects)
+                render.OnBeforeDraw(_context);
+            foreach (var model in Files)
+                model.Renderer.OnBeforeDraw(_context);
+
+            if (USE_GBUFFER)
+                DrawGBuffer();
 
             GL.Viewport(0, 0, Width, Height);
             ScreenBuffer.Bind();
@@ -221,6 +232,8 @@ namespace CafeStudio.UI
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit | ClearBufferMask.StencilBufferBit);
 
             DrawBfresModels();
+
+            AGraphicsLibrary.ProbeDebugDrawer.Draw(_context);
 
             //Update depth information of the current mouse.
             _context.ColorPicker.UpdatePickingDepth(_context, _context.CurrentMousePoint);
@@ -259,7 +272,7 @@ namespace CafeStudio.UI
             GBuffer.Unbind();
 
             AGraphicsLibrary.LightingEngine.LightSettings.UpdateLightPrepass(_context,
-                 ((GLTexture2D)GBuffer.Attachments[1]).ID, DepthTexture.ID);
+                 ((GLTexture2D)GBuffer.Attachments[1]), DepthTexture);
 
             /*    AGraphicsLibrary.LightingEngine.LightSettings.UpdateShadowPrepass(this,
                      ShadowRenderer.ShadowMapID,

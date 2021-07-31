@@ -222,12 +222,12 @@ namespace GLFrameworkEngine
         public bool InvertRotationY { get; set; } = false;
 
         /// <summary>
-        /// The factor of the camera fustrum on the X axis.
+        /// The horizontal aspect factor of the camera fustrum.
         /// </summary>
         public float FactorX => (2f * (float)Math.Tan(Fov * 0.5f) * AspectRatio) / Width;
 
         /// <summary>
-        /// The factor of the camera fustrum on the Y axis.
+        /// The verticle aspect factor of the camera fustrum.
         /// </summary>
         public float FactorY => (2f * (float)Math.Tan(Fov * 0.5f) * AspectRatio) / Height;
 
@@ -277,9 +277,18 @@ namespace GLFrameworkEngine
             viewMatrix = GetViewMatrix();
             ViewProjectionMatrix = viewMatrix * projectionMatrix;
             invRotationMatrix = Matrix3.CreateRotationX(-RotationX) *
-                                     Matrix3.CreateRotationY(-RotationY);
+                                Matrix3.CreateRotationY(-RotationY);
 
             CameraFustrum.UpdateCamera(this);
+        }
+
+        public Vector3 GetViewPostion() {
+            return viewMatrix.Column3.Xyz;
+        }
+
+        public Vector3 GetViewDirection()
+        {
+            return viewMatrix.Column2.Xyz;
         }
 
         private CameraMode cameraMode = CameraMode.Inspect;

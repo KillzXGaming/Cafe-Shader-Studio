@@ -60,6 +60,13 @@ namespace GLFrameworkEngine
             GL.DeleteProgram(program);
         }
 
+        public void SetTexture(GLTexture tex, string uniform, int id)
+        {
+            GL.ActiveTexture(TextureUnit.Texture0 + id);
+            tex.Bind();
+            this.SetInt(uniform, id);
+        }
+
         public void SetVector4(string name, Vector4 value)
         {
             if (uniforms.ContainsKey(name))

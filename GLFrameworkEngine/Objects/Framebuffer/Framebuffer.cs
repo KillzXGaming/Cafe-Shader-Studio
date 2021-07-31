@@ -7,15 +7,15 @@ using OpenTK.Graphics.OpenGL;
 
 namespace GLFrameworkEngine
 {
-    public sealed partial class Framebuffer : GLObject
+    public partial class Framebuffer : GLObject
     {
         public FramebufferTarget Target { get; }
 
-        public PixelInternalFormat PixelInternalFormat { get; }
+        public PixelInternalFormat PixelInternalFormat { get; internal set; }
 
-        public int Width { get; private set; }
+        public int Width { get; internal set; }
 
-        public int Height { get; private set; }
+        public int Height { get; internal set; }
 
         public List<IFramebufferAttachment> Attachments { get; }
 

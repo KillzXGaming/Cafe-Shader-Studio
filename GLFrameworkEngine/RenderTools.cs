@@ -32,12 +32,13 @@ namespace GLFrameworkEngine
             uvTestPattern = null;
         }
 
+        static int cubeVAO = 0;
+        static int cubeVBO = 0;
+
         //Draws a 3D cube which can be used to render cubemaps onto
         public static void DrawCube()
         {
-            int cubeVBO = 0;
-
-            if (cubeVBO == 0)
+            if (cubeVAO == 0)
             {
                 float[] vertices = {
             // back face
@@ -84,11 +85,11 @@ namespace GLFrameworkEngine
             -1.0f,  1.0f,  1.0f,  0.0f,  1.0f,  0.0f, 0.0f, 0.0f  // bottom-left        
         };
 
-                GL.GenVertexArrays(1, out cubeVBO);
+                GL.GenVertexArrays(1, out cubeVAO);
                 GL.GenBuffers(1, out cubeVBO);
                 GL.BindBuffer(BufferTarget.ArrayBuffer, cubeVBO);
                 GL.BufferData(BufferTarget.ArrayBuffer, 4 * vertices.Length, vertices, BufferUsageHint.StaticDraw);
-                GL.BindVertexArray(cubeVBO);
+                GL.BindVertexArray(cubeVAO);
                 GL.EnableVertexAttribArray(0);
                 GL.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, 8 * sizeof(float), (IntPtr)0);
                 GL.EnableVertexAttribArray(1);
@@ -98,7 +99,7 @@ namespace GLFrameworkEngine
                 GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
                 GL.BindVertexArray(0);
             }
-            GL.BindVertexArray(cubeVBO);
+            GL.BindVertexArray(cubeVAO);
             GL.DrawArrays(PrimitiveType.Triangles, 0, 36);
             GL.BindVertexArray(0);
         }

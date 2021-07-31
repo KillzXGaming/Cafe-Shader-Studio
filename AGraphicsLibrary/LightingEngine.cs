@@ -42,6 +42,12 @@ namespace AGraphicsLibrary
             LightPrepassTexture = GLTexture2DArray.CreateUncompressedTexture(4, 4, 1, 1,
                 PixelInternalFormat.Rgba16f, PixelFormat.Rgba, PixelType.Float);
 
+            LightPrepassTexture.Bind();
+            LightPrepassTexture.MagFilter = TextureMagFilter.Linear;
+            LightPrepassTexture.MinFilter = TextureMinFilter.Linear;
+            LightPrepassTexture.UpdateParameters();
+            LightPrepassTexture.Unbind();
+
             //Shadows
             //Channel usage:
             //Red - Dynamic shadows
@@ -72,12 +78,17 @@ namespace AGraphicsLibrary
             UpdateColorCorrection = false;
         }
 
-        public void UpdateLightPrepass(GLContext control, int normalsTexture, int depthTexture) {
+        public void UpdateLightPrepass(GLContext control, GLTexture gbuffer, GLTexture linearDepth) {
             if (LightPrepassTexture == null) {
                 LightPrepassTexture = GLTexture2DArray.CreateUncompressedTexture(control.Width, control.Height, 1, 1,
                      PixelInternalFormat.R11fG11fB10f, PixelFormat.Rgb, PixelType.UnsignedInt10F11F11FRev);
+                LightPrepassTexture.Bind();
+                LightPrepassTexture.MagFilter = TextureMagFilter.Linear;
+                LightPrepassTexture.MinFilter = TextureMinFilter.Linear;
+                LightPrepassTexture.UpdateParameters();
+                LightPrepassTexture.Unbind();
             }
-            LightPrepassManager.CreateLightPrepassTexture(control,  normalsTexture, depthTexture, LightPrepassTexture);
+            LightPrepassManager.CreateLightPrepassTexture(control, gbuffer, linearDepth, LightPrepassTexture);
         }
 
         public void UpdateShadowPrepass(GLContext control, int shadowMap, int depthTexture)

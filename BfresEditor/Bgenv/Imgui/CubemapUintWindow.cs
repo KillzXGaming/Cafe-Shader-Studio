@@ -59,6 +59,8 @@ namespace BfresEditor
                 var tex = EquirectangularRender.CreateTextureRender(cubemap, 0, 0);
                 ImGui.Image((IntPtr)tex.ID, new Vector2(width, width / 3));
             }
+            else
+                throw new Exception();
         }
 
         void UpdateSelected(CubeMapUint cubemapUint)
@@ -68,8 +70,8 @@ namespace BfresEditor
             zFar = cubemapUint.Far;
             zNear = cubemapUint.Near;
             illuminant_dist = cubemapUint.IlluminantDistance;
-            gaussian_repetition_num = (int)cubemapUint.Gaussian_Repetition_Num;
-            rendering_repetition_num = (int)cubemapUint.Rendering_Repetition_Num;
+            gaussian_repetition_num = cubemapUint.Gaussian_Repetition_Num;
+            rendering_repetition_num = cubemapUint.Rendering_Repetition_Num;
         }
 
         void PropertyChanged(CubeMapUint cubemapUint) {
@@ -78,8 +80,8 @@ namespace BfresEditor
             cubemapUint.Far = this.zFar;
             cubemapUint.Near = this.zNear;
             cubemapUint.IlluminantDistance = this.illuminant_dist;
-            cubemapUint.Gaussian_Repetition_Num = (uint)this.gaussian_repetition_num;
-            cubemapUint.Rendering_Repetition_Num = (uint)this.rendering_repetition_num;
+            cubemapUint.Gaussian_Repetition_Num = this.gaussian_repetition_num;
+            cubemapUint.Rendering_Repetition_Num = this.rendering_repetition_num;
         }
     }
 }

@@ -14,8 +14,6 @@ namespace AGraphicsLibrary
     {
         public static Framebuffer Filter;
 
-        public static Vector3 PointPosition;
-
         public static void Init(int width, int height)
         {
             Filter = new Framebuffer(FramebufferTarget.Framebuffer, width, height, PixelInternalFormat.R11fG11fB10f, 0, false);
@@ -25,7 +23,7 @@ namespace AGraphicsLibrary
         }
 
         public static void CreateLightPrepassTexture(GLContext control, 
-            int normalsTexture, int depthTexture, GLTexture output)
+            GLTexture normalsTexture, GLTexture depthTexture, GLTexture output)
         {
             GL.BindTexture(output.Target, 0);
 
@@ -55,10 +53,6 @@ namespace AGraphicsLibrary
 
             GL.Viewport(0, 0, control.Width, control.Height);
 
-            var shader = GlobalShaders.GetShader("LIGHTPREPASS");
-            shader.Enable();
-            UpdateUniforms(shader, control.Camera, normalsTexture, depthTexture);
-
             for (int i = 0; i < 1; i++)
             {
                 if (output is GLTexture2DArray)
@@ -73,10 +67,12 @@ namespace AGraphicsLibrary
                 }
             }
 
+
             GL.ClearColor(0, 0, 0, 0);
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
-            ScreenQuadRender.Draw();
+            SceneLightManager.DrawSceneLights(control.Camera, normalsTexture, depthTexture);
+            CausticLightManager.DrawCaustics(control, normalsTexture, depthTexture);
 
             var errorcheck = GL.CheckFramebufferStatus(FramebufferTarget.Framebuffer);
             if (errorcheck != FramebufferErrorCode.FramebufferComplete)
@@ -84,59 +80,7 @@ namespace AGraphicsLibrary
 
             GL.UseProgram(0);
             Filter.Unbind();
-
-            if (GL.GetError() == ErrorCode.InvalidOperation) Debugger.Break();
         }
 
-        static void UpdateUniforms(ShaderProgram shader, Camera camera,
-          int normalsTexture, int depthTexture)
-        {
-            GL.ActiveTexture(TextureUnit.Texture0 + 1);
-            GL.BindTexture(TextureTarget.Texture2D, normalsTexture);
-            shader.SetInt("normalsTexture", 1);
-
-            GL.ActiveTexture(TextureUnit.Texture0 + 2);
-            GL.BindTexture(TextureTarget.Texture2D, depthTexture);
-            shader.SetInt("depthTexture", 2);
-
-            int programID = shader.program;
-
-            var projectionMatrixInverse = camera.ProjectionMatrix.Inverted();
-            var viewMatrixInverse = camera.ViewMatrix.Inverted();
-            var mtxProjView = camera.ProjectionMatrix * camera.ViewMatrix;
-
-            shader.SetMatrix4x4("mtxProjInv", ref projectionMatrixInverse);
-            shader.SetMatrix4x4("mtxViewInv", ref viewMatrixInverse);
-            shader.SetVector3("cameraPosition", camera.TargetPosition);
-
-            
-            float projectionA = camera.ZFar / (camera.ZFar - camera.ZNear);
-            float projectionB = (-camera.ZFar * camera.ZNear) / (camera.ZFar - camera.ZNear);
-            shader.SetFloat("projectionA", projectionA);
-            shader.SetFloat("projectionB", projectionB);
-            shader.SetFloat("z_range", camera.ZFar - camera.ZNear);
-            shader.SetFloat("fov_x", camera.Fov);
-            shader.SetFloat("fov_y", camera.Fov);
-
-            PointLight[] pointLights = new PointLight[32];
-            for (int i = 0; i < 32; i++)
-            {
-                pointLights[i] = new PointLight();
-                if (i == 0)
-                {
-                    pointLights[i].Position = PointPosition;
-                    pointLights[i].Color = new Vector4(1, 0, 0, 1);
-                }
-
-                GL.Uniform4(GL.GetUniformLocation(programID, $"pointLights[{i}].uColor"), pointLights[i].Color);
-                GL.Uniform3(GL.GetUniformLocation(programID, $"pointLights[{i}].uPosition"), pointLights[i].Position);
-            }
-        }
-
-        class PointLight
-        {
-            public Vector3 Position { get; set; }
-            public Vector4 Color { get; set; }
-        }
     }
 }

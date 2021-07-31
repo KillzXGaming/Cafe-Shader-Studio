@@ -65,7 +65,7 @@ namespace BfresEditor
                 var model = GetShaderModel();
 
                 var bfshaAsset = (BfshaRenderer)MaterialAsset;
-                return bfshaAsset.ProgramPasses[bfshaAsset.ProgramIndex];
+                return bfshaAsset.ProgramPasses[bfshaAsset.ShaderIndex];
             }
             return null;
         }

@@ -27,12 +27,6 @@ namespace BfresEditor
         /// </summary>
         public override bool HasValidProgram => ShaderModel != null;
 
-        /// <summary>
-        /// Shader information from the decoded shader.
-        /// This is used to store constants and source information.
-        /// </summary>
-        public override ShaderInfo GLShaderInfo { get; set; }
-
         public int VariationBaseIndex { get; set; } = -1;
         public int BinaryIndex => ShaderModel.GetBinaryIndex(VariationBaseIndex);
 
@@ -305,7 +299,7 @@ namespace BfresEditor
             var vertexData = ShaderModel.ParentFile.Binaries[BinaryIndex];
             var pixelData = ShaderModel.ParentFile.Binaries[BinaryIndex + 1];
 
-            GLShaderInfo = CafeShaderDecoder.LoadShaderProgram(vertexData.DataBytes, pixelData.DataBytes);
+            GLShaders[ShaderIndex] = CafeShaderDecoder.LoadShaderProgram(vertexData.DataBytes, pixelData.DataBytes);
             shaderProgram = GLShaderInfo.Program;
 
             UpdateShader = false;

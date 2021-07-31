@@ -61,11 +61,6 @@ namespace BfresEditor
         public override bool HasValidProgram => ProgramPasses.Count > 0;
 
         /// <summary>
-        /// The program index of the active ProgramPasses program.
-        /// </summary>
-        public int ProgramIndex { get; set; }
-
-        /// <summary>
         /// Determines to reload the glsl shader file or not.
         /// </summary>
         private bool UpdateShader = false;
@@ -74,12 +69,6 @@ namespace BfresEditor
         /// The opengl shader used to render.
         /// </summary>
         public override ShaderProgram Shader => shaderProgram;
-
-        /// <summary>
-        /// Shader information from the decoded shader.
-        /// This is used to store constants and source information.
-        /// </summary>
-        public override ShaderInfo GLShaderInfo { get; set; }
 
         /// <summary>
         /// Determines when to use this renderer for the given material.
@@ -258,7 +247,7 @@ namespace BfresEditor
                 string name = ShaderModel.UniformBlocks.GetKey(i);
                 var uniformBlock = ShaderModel.UniformBlocks[i];
 
-                var locationInfo = ProgramPasses[this.ProgramIndex].UniformBlockLocations[i];
+                var locationInfo = ProgramPasses[this.ShaderIndex].UniformBlockLocations[i];
                 int fragLocation = locationInfo.FragmentLocation;
                 int vertLocation = locationInfo.VertexLocation;
 
@@ -373,11 +362,11 @@ namespace BfresEditor
                 return;
             }
 
-            if (Shader == null || pass != ProgramIndex || UpdateShader) {
+            ShaderIndex = pass;
+            if (GLShaders[pass] == null || UpdateShader) {
                 ReloadGLSLShaderFile(ProgramPasses[pass]);
             }
-
-            ProgramIndex = pass;
+            shaderProgram = GLShaders[pass].Program;
         }
 
         /// <summary>
@@ -394,7 +383,7 @@ namespace BfresEditor
             var matBlock = ShaderModel.UniformBlocks.Values.FirstOrDefault(x => x.Type == BfshaLibrary.UniformBlock.BlockType.Material);
             if (matBlock != null && GLShaderInfo != null)
             {
-                var locationInfo = ProgramPasses[this.ProgramIndex].UniformBlockLocations[matBlock.Index];
+                var locationInfo = ProgramPasses[this.ShaderIndex].UniformBlockLocations[matBlock.Index];
                 string blockNameFSH = IsSwitch ? $"fp_c{locationInfo.FragmentLocation + 3}_data" : $"CBUFFER_{locationInfo.FragmentLocation}.values";
                 string blockNameVSH = IsSwitch ? $"vp_c{locationInfo.VertexLocation + 3}_data" : $"CBUFFER_{locationInfo.VertexLocation}.values";
 
@@ -405,7 +394,7 @@ namespace BfresEditor
 
         private void DecodeSwitchBinary(BfshaLibrary.ResShaderProgram program)
         {
-            GLShaderInfo = TegraShaderDecoder.LoadShaderProgram(ShaderModel, ShaderModel.GetShaderVariation(program));
+            GLShaders[ShaderIndex] = TegraShaderDecoder.LoadShaderProgram(ShaderModel, ShaderModel.GetShaderVariation(program));
             shaderProgram = GLShaderInfo.Program;
         }
 
@@ -414,7 +403,7 @@ namespace BfresEditor
             var vertexShader = BfshaGX2ShaderHelper.CreateVertexShader(ShaderModel, program);
             var pixelShader = BfshaGX2ShaderHelper.CreatePixelShader(ShaderModel, program);
 
-            GLShaderInfo = CafeShaderDecoder.LoadShaderProgram(vertexShader, pixelShader);
+            GLShaders[ShaderIndex] = CafeShaderDecoder.LoadShaderProgram(vertexShader, pixelShader);
             shaderProgram = GLShaderInfo.Program;
         }
 
@@ -563,7 +552,7 @@ namespace BfresEditor
             //Go through all the shader samplers
             for (int i = 0; i < ShaderModel.Samplers.Count; i++)
             {
-                var locationInfo = ProgramPasses[ProgramIndex].SamplerLocations[i];
+                var locationInfo = ProgramPasses[ShaderIndex].SamplerLocations[i];
                 //Currently only using the vertex and fragment stages
                 if (locationInfo.VertexLocation == -1 && locationInfo.FragmentLocation == -1)
                     continue;

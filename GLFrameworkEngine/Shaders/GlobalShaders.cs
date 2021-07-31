@@ -39,14 +39,21 @@ namespace GLFrameworkEngine
             Shaders.Add("EFFECTS_DEFAULT", LoadShader("Effects/Default"));
             Shaders.Add("BLUR", LoadShader("Blur/GaussianBlur"));
             Shaders.Add("BLOOM_EXTRACT", LoadShader("BloomExtract"));
+            /*Shaders.Add("PROBE", LoadShader("ProbeCubemap"));
+            Shaders.Add("PROBE_DRAWER", LoadShader("ProbeDrawer"));
+            Shaders.Add("PROBE_VOXEL", LoadShader("ProbeVoxelDrawer"));*/
+            Shaders.Add("LIGHTPREPASS", LoadShader("LightPrepass"));
+            Shaders.Add("LPP_CAUSTICS", LoadShader("Caustics"));
+
+
+
+
 
             if (GLErrorHandler.CheckGLError())
                 System.Diagnostics.Debugger.Break();
 
             return;
 
-            Shaders.Add("LIGHTPREPASS", LoadShader("LightPrepass"));
-            Shaders.Add("PROBE", LoadShader("ProbeCubemap"));
             Shaders.Add("CUBEMAP_FILTER", LoadShader("CubemapFilter"));
             Shaders.Add("IRRADIANCE_CUBEMAP", LoadShader("IrradianceCubemap"));
             Shaders.Add("SHADOWPREPASS", LoadShader("ShadowPrepass"));

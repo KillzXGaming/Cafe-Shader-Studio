@@ -46,16 +46,16 @@ namespace AGraphicsLibrary
         }
 
         [BindGUI("Gaussian_Repetition_Num", Category = "Cube Map Uint")]
-        public uint Gaussian_Repetition_Num
+        public int Gaussian_Repetition_Num
         {
-            get { return Parent.GetEntryValue<uint>("gaussian_repetition_num"); }
+            get { return Parent.GetEntryValue<int>("gaussian_repetition_num"); }
             set { Parent.SetEntryValue("gaussian_repetition_num", value); }
         }
 
         [BindGUI("Rendering_Repetition_Num", Category = "Cube Map Uint")]
-        public uint Rendering_Repetition_Num
+        public int Rendering_Repetition_Num
         {
-            get { return Parent.GetEntryValue<uint>("rendering_repetition_num"); }
+            get { return Parent.GetEntryValue<int>("rendering_repetition_num"); }
             set { Parent.SetEntryValue("rendering_repetition_num", value); }
         }
 
