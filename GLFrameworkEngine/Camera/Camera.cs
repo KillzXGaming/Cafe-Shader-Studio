@@ -279,18 +279,18 @@ namespace GLFrameworkEngine
             invRotationMatrix = Matrix3.CreateRotationX(-RotationX) *
                                 Matrix3.CreateRotationY(-RotationY);
 
-            CameraFustrum.UpdateCamera(this);
+            CameraFrustum.UpdateCamera(this);
         }
 
         /// <summary>
         /// Checks if a bounding node is within the camera fustrum.
         /// </summary>
         public bool InFustrum(BoundingNode boundingNode) {
-           return CameraFustrum.CheckIntersection(this, boundingNode);
+           return CameraFrustum.CheckIntersection(this, boundingNode);
         }
 
         public Vector3 GetViewPostion() {
-            return viewMatrix.Column3.Xyz;
+            return viewMatrix.Row3.Xyz;
         }
 
         public Vector3 GetViewDirection()
