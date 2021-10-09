@@ -194,7 +194,6 @@ namespace CafeStudio.UI
                 if (selectAction)
                 {
                     pickable.IsSelected = true;
-                    _context.Scene.SetTransformAction(pickable.Transform, GLScene.TransformActions.Translate);
                 }
             }
 

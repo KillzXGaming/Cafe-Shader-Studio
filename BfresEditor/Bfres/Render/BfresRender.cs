@@ -91,8 +91,7 @@ namespace BfresEditor
 
         public void UpdateProbeLighting(GLContext control)
         {
-            if (Name != "Coin")
-                return;
+            return;
 
             if (!UpdateProbeMap || TurboNXRender.DiffuseLightmapTexture == null /*|| Transform.Position == Vector3.Zero*/)
                 return;
@@ -219,7 +218,7 @@ namespace BfresEditor
         /// </summary>
         public override bool ModelInFrustum(GLContext control)
         {
-         //   if (StayInFustrum) return true;
+            if (StayInFustrum) return true;
 
             InFustrum = UpdateModelFrustum(control);
             if (!Name.Contains("course")) //Draw distance map objects
@@ -239,8 +238,8 @@ namespace BfresEditor
         /// </summary>
         private bool IsMeshInFrustum(GLContext control, GenericPickableMesh mesh)
         {
-            /* if (StayInFustrum)
-                 return true;*/
+             if (StayInFustrum)
+                 return true;
 
             var msh = (BfresMeshAsset)mesh;
             msh.BoundingNode.UpdateTransform(Transform.TransformMatrix);

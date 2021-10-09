@@ -101,8 +101,8 @@ namespace GLFrameworkEngine
             if (File.Exists(frag)) shaders.Add(new FragmentShader(File.ReadAllText(frag)));
             if (File.Exists(geom)) shaders.Add(new GeomertyShader(File.ReadAllText(geom)));
 
-            if (shaders.Count == 0)
-                throw new Exception($"Failed to find shaders at {name}");
+           // if (shaders.Count == 0)
+           //     throw new Exception($"Failed to find shaders at {name}");
 
             return new ShaderProgram(shaders.ToArray());
         }
