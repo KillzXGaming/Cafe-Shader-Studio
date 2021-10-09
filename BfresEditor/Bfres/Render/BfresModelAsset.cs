@@ -451,7 +451,7 @@ namespace BfresEditor
 
         public void RenderMesh(GLContext control, BfresMeshAsset mesh, int stage = 0)
         {
-            if (!mesh.InFustrum)
+            if (!mesh.InFrustum)
                 return;
 
             if (mesh.UpdateVertexData)

@@ -70,7 +70,7 @@ namespace GLFrameworkEngine
 
         }
 
-        public virtual bool ModelInFustrum(GLFrameworkEngine.GLContext control)
+        public virtual bool ModelInFrustum(GLFrameworkEngine.GLContext control)
         {
             return true;
         }

@@ -196,7 +196,7 @@ namespace BfresEditor
         /// Returns true if any are in view.
         /// </summary>
         /// <returns></returns>
-        public bool UpdateModelFustrum(GLContext control)
+        public bool UpdateModelFrustum(GLContext control)
         {
             bool inFustrum = false;
             foreach (BfresModelAsset model in Models)
@@ -204,8 +204,8 @@ namespace BfresEditor
                 for (int i = 0; i < model.Meshes.Count; i++)
                 {
                     //Update the fustrum boolean. This function only gets called once per mesh on updated frame
-                    model.Meshes[i].InFustrum = IsMeshInFustrum(control, model.Meshes[i]);
-                    if (PickableMeshes[i].InFustrum)
+                    model.Meshes[i].InFrustum = IsMeshInFrustum(control, model.Meshes[i]);
+                    if (PickableMeshes[i].InFrustum)
                         inFustrum = true;
                 }
 
@@ -217,11 +217,11 @@ namespace BfresEditor
         /// Checks for when the current render is in the fustrum of the camera
         /// Returns true if in view.
         /// </summary>
-        public override bool ModelInFustrum(GLContext control)
+        public override bool ModelInFrustum(GLContext control)
         {
          //   if (StayInFustrum) return true;
 
-            InFustrum = UpdateModelFustrum(control);
+            InFustrum = UpdateModelFrustum(control);
             if (!Name.Contains("course")) //Draw distance map objects
                 InFustrum = InFustrum && this.IsInRange(renderDistance, renderDistanceSquared,
                                 control.Camera.TargetPosition);
@@ -237,19 +237,19 @@ namespace BfresEditor
         /// Checks for when the given mesh render is in the fustrum of the camera
         /// Returns true if in view.
         /// </summary>
-        private bool IsMeshInFustrum(GLContext control, GenericPickableMesh mesh)
+        private bool IsMeshInFrustum(GLContext control, GenericPickableMesh mesh)
         {
             /* if (StayInFustrum)
                  return true;*/
 
             var msh = (BfresMeshAsset)mesh;
             msh.BoundingNode.UpdateTransform(Transform.TransformMatrix);
-            return CameraFustrum.CheckIntersection(control.Camera, msh.BoundingNode);
+            return CameraFrustum.CheckIntersection(control.Camera, msh.BoundingNode);
         }
 
         public override void DrawModel(GLContext control, GLFrameworkEngine.Pass pass, Vector4 highlightColor)
         {
-            if (!ModelInFustrum(control) || !IsVisible)
+            if (!ModelInFrustum(control) || !IsVisible)
                 return;
 
             if (ProbeDebugger.ForceUpdate)
@@ -308,7 +308,7 @@ namespace BfresEditor
 
                 foreach (var mesh in model.Meshes)
                 {
-                    if (!mesh.IsVisible || !mesh.InFustrum)
+                    if (!mesh.IsVisible || !mesh.InFrustum)
                         continue;
 
                     //Go through each bounding in the current displayed mesh
@@ -367,7 +367,7 @@ namespace BfresEditor
 
         public void DrawColorPicking(GLContext control)
         {
-            if (!ModelInFustrum(control) || !IsVisible)
+            if (!ModelInFrustum(control) || !IsVisible)
                 return;
 
             Transform.UpdateMatrix();
@@ -386,7 +386,7 @@ namespace BfresEditor
 
         public override void DrawShadowModel(GLContext control)
         {
-            if (!ModelInFustrum(control) || !IsVisible)
+            if (!ModelInFrustum(control) || !IsVisible)
                 return;
 
             foreach (BfresModelAsset model in Models)
@@ -396,7 +396,7 @@ namespace BfresEditor
 
         public override void DrawGBuffer(GLContext control)
         {
-            if (!ModelInFustrum(control) || !IsVisible)
+            if (!ModelInFrustum(control) || !IsVisible)
                 return;
 
             foreach (BfresModelAsset model in Models) {
@@ -407,7 +407,7 @@ namespace BfresEditor
 
         public void DrawDepthBuffer(GLContext control)
         {
-            if (!ModelInFustrum(control) || !IsVisible)
+            if (!ModelInFrustum(control) || !IsVisible)
                 return;
 
             foreach (BfresModelAsset model in Models) {

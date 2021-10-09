@@ -18,7 +18,7 @@ namespace GLFrameworkEngine
 
         public bool Hovered;
 
-        public bool InFustrum = true;
+        public bool InFrustum = true;
 
         public virtual MaterialAsset MaterialAsset { get; set; }
 
