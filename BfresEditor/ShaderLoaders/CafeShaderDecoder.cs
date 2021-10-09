@@ -76,10 +76,20 @@ namespace BfresEditor
 
         static ShaderInfo DecodeSharcBinary(string directory, List<ShaderStage> stages)
         {
+            var vertextage = stages.FirstOrDefault(x => x.Command == "-v");
+            var pixelStage = stages.FirstOrDefault(x => x.Command == "-p");
+
+            ShaderInfo info = new ShaderInfo();
+            info.VertPath = $"{directory}/{vertextage.Name}{vertextage.Extension}";
+            info.FragPath = $"{directory}/{pixelStage.Name}{pixelStage.Extension}";
+
+            if (File.Exists(info.VertPath) && File.Exists(info.FragPath))
+                return info;
+
             string ex = ConvertStages(stages);
             for (int i = 0; i < stages.Count; i++)
             {
-                string outputFilePath = $"{directory}/Cache/{stages[i].Name}{stages[i].Extension}";
+                string outputFilePath = $"{directory}/{stages[i].Name}{stages[i].Extension}";
 
                 if (!File.Exists(outputFilePath))
                 {
@@ -99,12 +109,6 @@ namespace BfresEditor
                     File.Delete($"GFD/{stage.Name}{stage.Extension}.spv");
             }
 
-            var vertextage = stages.FirstOrDefault(x => x.Command == "-v");
-            var pixelStage = stages.FirstOrDefault(x => x.Command == "-p");
-
-            ShaderInfo info = new ShaderInfo();
-            info.VertPath = $"{directory}/Cache/{vertextage.Name}{vertextage.Extension}";
-            info.FragPath = $"{directory}/Cache/{pixelStage.Name}{pixelStage.Extension}";
             return info;
         }
 
