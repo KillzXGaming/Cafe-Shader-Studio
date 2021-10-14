@@ -91,6 +91,20 @@ namespace BfresEditor
 
             shader.SetInt("SkinCount", bfresMesh.SkinCount);
             shader.SetInt("BoneIndex", bfresMesh.BoneIndex);
+
+            shader.SetBool("alphaTest", bfresMaterial.BlendState.AlphaTest);
+            shader.SetFloat("alphaRefValue", bfresMaterial.BlendState.AlphaValue);
+            shader.SetInt("alphaFunc", GetAlphaFunc(bfresMaterial.BlendState.AlphaFunction));
+        }
+
+        static int GetAlphaFunc(AlphaFunction func)
+        {
+            if (func == AlphaFunction.Gequal) return 0;
+            if (func == AlphaFunction.Greater) return 1;
+            if (func == AlphaFunction.Equal) return 2;
+            if (func == AlphaFunction.Less) return 3;
+            if (func == AlphaFunction.Lequal) return 4;
+            return 0;
         }
 
         public virtual void SetBlendState(FMAT material)
@@ -106,7 +120,6 @@ namespace BfresEditor
                 return;
             }
 
-            blend.RenderAlphaTest();
             blend.RenderBlendState();
         }
 

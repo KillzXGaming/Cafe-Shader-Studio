@@ -18,6 +18,10 @@ in vec4 vertexColor;
 in vec3 normal;
 in vec3 viewNormal;
 
+uniform bool alphaTest;
+uniform int alphaFunc;
+uniform float alphaRefValue;
+
 out vec4 fragOutput;
 out vec4 brightnessOutput;
 
@@ -47,4 +51,41 @@ void main(){
     fragOutput = vec4(diffuseMapColor.rgb * halfLambert, diffuseMapColor.a);
     brightnessOutput = bloom;
 
+    //Alpha test. Todo handle these via macros
+    if (alphaTest)
+    {
+        switch (alphaFunc)
+        {
+            case 0: //gequal
+                if (fragOutput.a <= alphaRefValue)
+                {
+                     discard;
+                }
+            break;
+            case 1: //greater
+                if (fragOutput.a < alphaRefValue)
+                {
+                     discard;
+                }
+            break;
+            case 2: //equal
+                if (fragOutput.a == alphaRefValue)
+                {
+                     discard;
+                }
+            break;
+            case 3: //less
+                if (fragOutput.a > alphaRefValue)
+                {
+                     discard;
+                }
+            break;
+            case 4: //lequal
+                if (fragOutput.a >= alphaRefValue)
+                {
+                     discard;
+                }
+            break;
+        }
+     }
 }
