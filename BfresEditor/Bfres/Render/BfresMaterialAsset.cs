@@ -176,8 +176,7 @@ namespace BfresEditor
                     case "_ms0": shader.SetBoolToInt("hasAlphaMap", hasTexture);
                         break;
                 }
-
-                if (binded != null)
+                if (hasTexture || sampler == "_a0")
                     shader.SetInt(uniformName, id++);
             }
 
@@ -189,8 +188,8 @@ namespace BfresEditor
         {
             switch (sampler)
             {
-                case "_a0": return "diffuseMap";
-                case "_ms0": return  "alphaMap";
+                case "_a0":  return "diffuseMap";
+                case "_ms0": return "alphaMap";
             }
             return "";
         }
