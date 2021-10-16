@@ -168,6 +168,7 @@ namespace BfresEditor
                 var binded = BindTexture(shader, GetTextures(), mat.TextureMaps[i], name, id);
                 bool hasTexture = binded != null;
 
+
                 switch (sampler)
                 {
                     //Always load diffuse map with a placeholder texture 
