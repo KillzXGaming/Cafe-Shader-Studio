@@ -161,28 +161,39 @@ namespace BfresEditor
                 if (bfresMaterial.AnimatedSamplers.ContainsKey(sampler))
                     name = bfresMaterial.AnimatedSamplers[sampler];
 
-                string uniformName = "";
-                switch (sampler)
-                {
-                    case "_a0":
-                        uniformName = "diffuseMap";
-                        shader.SetBoolToInt("hasDiffuseMap", true);
-                        break;
-                    case "_ms0":
-                        uniformName = "alphaMap";
-                        shader.SetBoolToInt("hasAlphaMap", true);
-                        break;
-                }
-
+                string uniformName = GetSamplerUniform(sampler);
                 if (uniformName == string.Empty)
                     continue;
 
                 var binded = BindTexture(shader, GetTextures(), mat.TextureMaps[i], name, id);
-                shader.SetInt(uniformName, id++);
+                bool hasTexture = binded != null;
+
+
+                switch (sampler)
+                {
+                    //Always load diffuse map with a placeholder texture 
+                    case "_a0": shader.SetBoolToInt("hasDiffuseMap", true); 
+                        break;
+                    case "_ms0": shader.SetBoolToInt("hasAlphaMap", hasTexture);
+                        break;
+                }
+
+                if (binded != null)
+                    shader.SetInt(uniformName, id++);
             }
 
             GL.ActiveTexture(TextureUnit.Texture0);
             GL.BindTexture(TextureTarget.Texture2D, 0);
+        }
+
+        string GetSamplerUniform(string sampler)
+        {
+            switch (sampler)
+            {
+                case "_a0": return "diffuseMap";
+                case "_ms0": return  "alphaMap";
+            }
+            return "";
         }
 
         public static GLTexture BindTexture(ShaderProgram shader, Dictionary<string, STGenericTexture> textures,
