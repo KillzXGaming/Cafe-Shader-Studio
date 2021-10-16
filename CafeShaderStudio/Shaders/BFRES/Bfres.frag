@@ -35,54 +35,60 @@ void main(){
     vec4 alphaMapColor = vec4(1);
     if (hasAlphaMap == 1) {
         alphaMapColor = texture(alphaMap, texCoord0);
-
-        if (alphaMapColor.r == 0) {
-            discard;
-        }
     }
     
 
     vec4 diffuseMapColor = vec4(1);
     if (hasDiffuseMap == 1) {
         diffuseMapColor = texture(diffuseMap,texCoord0);
+        if (hasAlphaMap == 1) {
+            diffuseMapColor.a = alphaMapColor.r;
+        }
 
         //Alpha test. Todo handle these via macros
-    if (alphaTest)
-    {
-        switch (alphaFunc)
+        if (alphaTest)
         {
-            case 0: //gequal
-                if (diffuseMapColor.a <= alphaRefValue)
-                {
-                    discard;
-                }
-            break;
-            case 1: //greater
-                if (diffuseMapColor.a < alphaRefValue)
-                {
-                    discard;
-                }
-            break;
-            case 2: //equal
-                if (diffuseMapColor.a == alphaRefValue)
-                {
-                    discard;
-                }
-            break;
-            case 3: //less
-                if (diffuseMapColor.a > alphaRefValue)
-                {
-                    discard;
-                }
-            break;
-            case 4: //lequal
-                if (diffuseMapColor.a >= alphaRefValue)
-                {
-                    discard;
-                }
-            break;
+            switch (alphaFunc)
+            {
+                case 0: //gequal
+                    if (diffuseMapColor.a <= alphaRefValue)
+                    {
+                        discard;
+                    }
+                break;
+                case 1: //greater
+                    if (diffuseMapColor.a < alphaRefValue)
+                    {
+                        discard;
+                    }
+                break;
+                case 2: //equal
+                    if (diffuseMapColor.a == alphaRefValue)
+                    {
+                        discard;
+                    }
+                break;
+                case 3: //less
+                    if (diffuseMapColor.a > alphaRefValue)
+                    {
+                        discard;
+                    }
+                break;
+                case 4: //lequal
+                    if (diffuseMapColor.a >= alphaRefValue)
+                    {
+                        discard;
+                    }
+                break;
+            }
         }
-     }
+    }
+    else {
+        if (hasAlphaMap == 1) {
+            if (alphaMapColor.r == 0) {
+                discard;
+            }
+        }
     }
 
     if (colorOverride == 1)
