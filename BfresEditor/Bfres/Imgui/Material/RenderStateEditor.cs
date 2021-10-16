@@ -73,6 +73,9 @@ namespace BfresEditor
 
         static void ReloadMaterial(FMAT mat)
         {
+            mat.Material.RenderState.PolygonControl.CullBack = mat.CullBack;
+            mat.Material.RenderState.PolygonControl.CullFront = mat.CullFront;
+
             mat.UpdateRenderState();
             foreach (FSHP mesh in mat.GetMappedMeshes()) {
                 mesh.ReloadShader();
