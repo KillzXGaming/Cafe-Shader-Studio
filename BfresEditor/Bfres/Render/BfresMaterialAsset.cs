@@ -149,6 +149,9 @@ namespace BfresEditor
             GL.ActiveTexture(TextureUnit.Texture0 + 1);
             GL.BindTexture(TextureTarget.Texture2D, RenderTools.defaultTex.ID);
 
+            shader.SetBoolToInt("hasDiffuseMap", false);
+            shader.SetBoolToInt("hasAlphaMap", false);
+
             int id = 1;
             for (int i = 0; i < bfresMaterial.TextureMaps?.Count; i++)
             {
@@ -159,7 +162,6 @@ namespace BfresEditor
                     name = bfresMaterial.AnimatedSamplers[sampler];
 
                 string uniformName = "";
-                shader.SetBoolToInt("hasAlphaMap", false);
                 switch (sampler)
                 {
                     case "_a0":
