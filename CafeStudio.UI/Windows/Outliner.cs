@@ -36,6 +36,10 @@ namespace CafeStudio.UI
             return dragDroppedNode;
         }
 
+        public bool IsFocused = false;
+
+        public bool ClipNodes = true;
+
         //Rename handling
         private NodeBase renameNode;
         private bool isNameEditing = false;
@@ -47,7 +51,49 @@ namespace CafeStudio.UI
         private bool isSearch = false;
         private string _searchText = "";
 
+        private float ItemHeight;
+
+        //Scroll handling
+        public float ScrollX;
+        public float ScrollY;
+
+        bool updateScroll = false;
+
+        //Selection range
+        private bool SelectRange;
+
+        private int SelectedIndex;
+        private int SelectedRangeIndex;
+
         public Outliner() {
+        }
+
+        public void UpdateScroll(float scrollX, float scrollY)
+        {
+            ScrollX = scrollX;
+            ScrollY = scrollY;
+            updateScroll = true;
+        }
+
+        public void ScrollToSelected(NodeBase target)
+        {
+            if (target == null || target.Visible)
+                return;
+
+            //Do not scroll to displayed selected node
+            if (SelectedNodes.Contains(target))
+                return;
+
+            //Calculate position node is at.
+            //Expand parents if necessary
+            float pos = 0;
+            foreach (var node in Nodes)
+                GetNodePosition(target, node, ref pos, ItemHeight);
+
+            target.ExpandParent();
+
+            ScrollY = pos;
+            updateScroll = true;
         }
 
         public void Render()
@@ -78,17 +124,56 @@ namespace CafeStudio.UI
             ImGui.PushStyleColor(ImGuiCol.HeaderHovered, active);
             ImGui.PushStyleColor(ImGuiCol.NavHighlight, new Vector4(0));
 
-            if (ImGui.BeginChild("##tree_view1"))
+            ItemHeight = ImGui.GetTextLineHeightWithSpacing() + 3;
+
+            //Check if node is within range
+            if (SelectRange)
             {
-                foreach (var child in Nodes)
-                    DrawNode(child);
-                ImGui.EndChild();
+                foreach (var node in this.Nodes)
+                    SelectNodeRange(node);
+                SelectRange = false;
             }
 
+            foreach (var node in this.Nodes)
+                SetupNodes(node);
+
+            int count = 0;
+            foreach (var node in this.Nodes)
+                CalculateCount(node, ref count);
+
+            if (ClipNodes)
+            {
+                foreach (var node in this.Nodes)
+                    SetupNodes(node);
+
+                ImGuiNative.igSetNextWindowContentSize(new System.Numerics.Vector2(0.0f, count * ItemHeight));
+                ImGui.BeginChild("##tree_view1");
+            }
+            else
+                ImGui.BeginChild("##tree_view1");
+
+            IsFocused = ImGui.IsWindowFocused();
+
+            if (updateScroll)
+            {
+                ImGui.SetScrollX(ScrollX);
+                ImGui.SetScrollY(ScrollY);
+                updateScroll = false;
+            }
+            else
+            {
+                ScrollX = ImGui.GetScrollX();
+                ScrollY = ImGui.GetScrollY();
+            }
+
+            foreach (var child in Nodes)
+                DrawNode(child, ItemHeight);
+
+            ImGui.EndChild();
             ImGui.PopStyleColor(2);
         }
 
-        public void DrawNode(NodeBase node)
+        public void DrawNode(NodeBase node, float itemHeight)
         {
             bool HasText = node.Header != null &&
                  node.Header.IndexOf(_searchText, StringComparison.OrdinalIgnoreCase) >= 0;
@@ -216,7 +301,7 @@ namespace CafeStudio.UI
                     }
                     ImGui.PopStyleVar();
 
-                    ImGui.SameLine();
+                    ImGui.SameLine(); ImGuiHelper.IncrementCursorPosX(3);
                 }
 
                 //Load the icon
@@ -324,6 +409,16 @@ namespace CafeStudio.UI
                                 n.IsSelected = false;
                             SelectedNodes.Clear();
                         }
+
+                        //Check selection range
+                        if (ImGui.GetIO().KeyShift)
+                        {
+                            SelectedRangeIndex = node.DisplayIndex;
+                            SelectRange = true;
+                        }
+                        else
+                            SelectedIndex = node.DisplayIndex;
+
                         //Add the clicked node to selection.
                         SelectedNodes.Add(node);
                         node.IsSelected = true;
@@ -364,18 +459,45 @@ namespace CafeStudio.UI
                 }
             }
 
-            if (isSearch)
+            if (isSearch || node.IsExpanded)
             {
-                foreach (var child in node.Children)
-                    DrawNode(child);
-            }
-            else if (node.IsExpanded)
-            {
-                foreach (var child in node.Children)
-                    DrawNode(child);
+                //Todo find a better alternative to clip parents
+                //Clip only the last level
+                if (ClipNodes && node.Children.Count > 0 && node.Children[0].Children.Count == 0)
+                {
+                    var children = node.Children.ToList();
+                    if (isSearch)
+                        children = GetSearchableNodes(children);
 
-                ImGui.TreePop();
+                    var clipper = new ImGuiListClipper2(children.Count, itemHeight);
+                    clipper.ItemsCount = children.Count;
+
+                    for (int line_i = clipper.DisplayStart; line_i < clipper.DisplayEnd; line_i++) // display only visible items
+                    {
+                        DrawNode(children[line_i], itemHeight);
+                    }
+                }
+                else
+                {
+                    foreach (var child in node.Children)
+                        DrawNode(child, itemHeight);
+                }
+
+                if (!isSearch)
+                    ImGui.TreePop();
             }
+        }
+
+        private List<NodeBase> GetSearchableNodes(List<NodeBase> nodes)
+        {
+            List<NodeBase> nodeList = new List<NodeBase>();
+            foreach (var node in nodes)
+            {
+                bool hasText = node.Header != null && node.Header.IndexOf(_searchText, StringComparison.OrdinalIgnoreCase) >= 0;
+                if (hasText)
+                    nodeList.Add(node);
+            }
+            return nodeList;
         }
 
         private void LoadTextureIcon(NodeBase node)
@@ -479,6 +601,67 @@ namespace CafeStudio.UI
             node.IsSelected = false;
             foreach (var c in node.Children)
                 DeselectAll(c);
+        }
+
+        private void SetupNodes(NodeBase node)
+        {
+            node.Visible = false;
+            foreach (var c in node.Children)
+                SetupNodes(c);
+        }
+
+        private void CalculateCount(NodeBase node, ref int counter)
+        {
+            bool HasText = node.Header != null &&
+             node.Header.IndexOf(_searchText, StringComparison.OrdinalIgnoreCase) >= 0;
+
+            if (isSearch && HasText || !isSearch)
+            {
+                node.DisplayIndex = counter;
+                counter++;
+            }
+
+            if (!node.IsExpanded)
+                return;
+
+            foreach (var c in node.Children)
+                CalculateCount(c, ref counter);
+        }
+
+        private void SelectNodeRange(NodeBase node)
+        {
+            if (SelectedIndex != -1 && SelectedRangeIndex != -1)
+            {
+                var pos = node.DisplayIndex;
+                if (SelectedIndex >= pos && pos >= SelectedRangeIndex ||
+                    SelectedIndex <= pos && pos <= SelectedRangeIndex)
+                {
+                    node.IsSelected = true;
+                    SelectedNodes.Add(node);
+                }
+            }
+
+            if (!node.IsExpanded)
+                return;
+
+            foreach (var c in node.Children)
+                SelectNodeRange(c);
+        }
+
+        private bool GetNodePosition(NodeBase target, NodeBase parent, ref float pos, float itemHeight)
+        {
+            if (parent == target)
+                return true;
+
+            pos += itemHeight;
+
+            foreach (var child in parent.Children)
+            {
+                if (GetNodePosition(target, child, ref pos, itemHeight))
+                    return true;
+            }
+
+            return false;
         }
     }
 }
