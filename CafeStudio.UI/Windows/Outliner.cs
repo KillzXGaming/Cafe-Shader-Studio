@@ -201,6 +201,24 @@ namespace CafeStudio.UI
                     ImGui.PopID();
                 }
 
+                if (node.HasCheckBox)
+                {
+                    ImGui.SetItemAllowOverlap();
+
+                    ImGui.PushStyleVar(ImGuiStyleVar.FramePadding, new Vector2(2, 2));
+
+                    bool check = node.IsChecked;
+
+                    if (ImGui.Checkbox($"##check{node.ID}", ref check))
+                    {
+                        foreach (var n in SelectedNodes)
+                            n.IsChecked = check;
+                    }
+                    ImGui.PopStyleVar();
+
+                    ImGui.SameLine();
+                }
+
                 //Load the icon
                 if (node.Tag is STGenericTexture) {
                     LoadTextureIcon(node);
