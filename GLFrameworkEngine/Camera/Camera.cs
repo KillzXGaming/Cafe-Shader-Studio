@@ -564,7 +564,7 @@ namespace GLFrameworkEngine
 
         public void MouseMove(MouseEventInfo e, KeyEventInfo k, Vector2 previousLocation)
         {
-            var position = new Vector2(e.X, e.Y);
+            var position = new Vector2(e.FullPosition.X, e.FullPosition.Y);
             var movement = position - previousLocation;
 
             if ((e.LeftButton == ButtonState.Pressed ||
@@ -670,7 +670,7 @@ namespace GLFrameworkEngine
 
         public void MouseMove(MouseEventInfo e, KeyEventInfo k, Vector2 previousLocation)
         {
-            var position = e.Position;
+            var position = e.FullPosition;
             var movement = new Vector2(position.X, position.Y) - previousLocation;
 
             if (e.RightButton == ButtonState.Pressed && !_camera.LockRotation)
@@ -694,7 +694,6 @@ namespace GLFrameworkEngine
             {
                 Pan(movement.X * _camera.PanSpeed, movement.Y * _camera.PanSpeed);
             }
-
             _camera.UpdateMatrices();
         }
 
