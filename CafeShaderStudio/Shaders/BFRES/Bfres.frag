@@ -2,9 +2,11 @@
 
 //Samplers
 uniform sampler2D diffuseMap;
+uniform sampler2D alphaMap;
 
 //Toggles
 uniform int hasDiffuseMap;
+uniform int hasAlphaMap;
 
 //GL
 uniform mat4 mtxCam;
@@ -28,6 +30,57 @@ out vec4 brightnessOutput;
 float GetComponent(int Type, vec4 Texture);
 
 void main(){
+    vec2 texCoord0 = f_texcoord0;
+
+    vec4 diffuseMapColor = vec4(1);
+    if (hasDiffuseMap == 1) {
+        diffuseMapColor = texture(diffuseMap,texCoord0);
+    }
+
+
+    //Alpha test. Todo handle these via macros
+    if (alphaTest)
+    {
+        vec4 alphaMapColor = vec4(1);
+        if (hasAlphaMap == 1) {
+            alphaMapColor = texture(alphaMap, texCoord0);
+            diffuseMapColor.a = alphaMapColor.r;
+        }
+
+        switch (alphaFunc)
+        {
+            case 0: //gequal
+                if (diffuseMapColor.a <= alphaRefValue)
+                {
+                    discard;
+                }
+            break;
+            case 1: //greater
+                if (diffuseMapColor.a < alphaRefValue)
+                {
+                    discard;
+                }
+            break;
+            case 2: //equal
+                if (diffuseMapColor.a == alphaRefValue)
+                {
+                    discard;
+                }
+            break;
+            case 3: //less
+                if (diffuseMapColor.a > alphaRefValue)
+                {
+                    discard;
+                }
+            break;
+            case 4: //lequal
+                if (diffuseMapColor.a >= alphaRefValue)
+                {
+                    discard;
+                }
+            break;
+        }
+    }
 
     if (colorOverride == 1)
     {
@@ -40,52 +93,7 @@ void main(){
     vec3 N = normal;
     vec3 displayNormal = (N.xyz * 0.5) + 0.5;
 
-    vec4 diffuseMapColor = vec4(1);
-    vec2 texCoord0 = f_texcoord0;
-
-    if (hasDiffuseMap == 1) {
-        diffuseMapColor = texture(diffuseMap,texCoord0);
-    }
-
     float halfLambert = max(displayNormal.y,0.5);
     fragOutput = vec4(diffuseMapColor.rgb * halfLambert, diffuseMapColor.a);
     brightnessOutput = bloom;
-
-    //Alpha test. Todo handle these via macros
-    if (alphaTest)
-    {
-        switch (alphaFunc)
-        {
-            case 0: //gequal
-                if (fragOutput.a <= alphaRefValue)
-                {
-                     discard;
-                }
-            break;
-            case 1: //greater
-                if (fragOutput.a < alphaRefValue)
-                {
-                     discard;
-                }
-            break;
-            case 2: //equal
-                if (fragOutput.a == alphaRefValue)
-                {
-                     discard;
-                }
-            break;
-            case 3: //less
-                if (fragOutput.a > alphaRefValue)
-                {
-                     discard;
-                }
-            break;
-            case 4: //lequal
-                if (fragOutput.a >= alphaRefValue)
-                {
-                     discard;
-                }
-            break;
-        }
-     }
 }

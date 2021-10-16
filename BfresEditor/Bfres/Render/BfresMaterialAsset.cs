@@ -125,7 +125,7 @@ namespace BfresEditor
 
         private void SetUniforms(ShaderProgram shader, FMAT mat)
         {
-
+            
         }
 
         public virtual void SetRenderState(FMAT mat)
@@ -159,10 +159,17 @@ namespace BfresEditor
                     name = bfresMaterial.AnimatedSamplers[sampler];
 
                 string uniformName = "";
-                if (mat.TextureMaps[i].Type == STTextureType.Diffuse)
+                shader.SetBoolToInt("hasAlphaMap", false);
+                switch (sampler)
                 {
-                    uniformName = "diffuseMap";
-                    shader.SetBoolToInt("hasDiffuseMap", true);
+                    case "_a0":
+                        uniformName = "diffuseMap";
+                        shader.SetBoolToInt("hasDiffuseMap", true);
+                        break;
+                    case "_ms0":
+                        uniformName = "alphaMap";
+                        shader.SetBoolToInt("hasAlphaMap", true);
+                        break;
                 }
 
                 if (uniformName == string.Empty)

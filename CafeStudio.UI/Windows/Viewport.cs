@@ -245,6 +245,8 @@ namespace CafeStudio.UI
         }
 
         private bool onEnter = false;
+        private bool _firstClick = true;
+        private OpenTK.Vector2 _refPos;
 
         private void UpdateCamera()
         {
@@ -266,7 +268,15 @@ namespace CafeStudio.UI
             }
 
             if (_mouseDown)
-                Pipeline.OnMouseMove(mouseInfo, keyInfo);
+            {
+                if (_firstClick)
+                    _refPos = new OpenTK.Vector2(mouseInfo.X, mouseInfo.Y);
+                _firstClick = false;
+
+                Pipeline.OnMouseMove(mouseInfo, keyInfo, _refPos);
+            }
+            else
+                _firstClick = true;
             if (ImGuiController.ApplicationHasFocus)
                 Pipeline.OnMouseWheel(mouseInfo, keyInfo);
 

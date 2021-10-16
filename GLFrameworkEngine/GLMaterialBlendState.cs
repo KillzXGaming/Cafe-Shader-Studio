@@ -55,17 +55,6 @@ namespace GLFrameworkEngine
                 GL.Disable(EnableCap.DepthTest);
         }
 
-        public void RenderAlphaTest()
-        {
-            if (AlphaTest)
-            {
-                GL.Enable(EnableCap.AlphaTest);
-                GL.AlphaFunc(AlphaFunction, AlphaValue);
-            }
-            else
-                GL.Disable(EnableCap.AlphaTest);
-        }
-
         public void RenderBlendState()
         {
             if (BlendColor || BlendMask)

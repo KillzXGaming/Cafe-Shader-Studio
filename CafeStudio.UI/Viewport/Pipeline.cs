@@ -25,8 +25,6 @@ namespace CafeStudio.UI
         public GLContext _context;
         public Camera _camera;
 
-        private OpenTK.Vector2 _previousPosition = OpenTK.Vector2.Zero;
-
         private DepthTexture DepthTexture;
 
         private Framebuffer PostEffects;
@@ -302,12 +300,9 @@ namespace CafeStudio.UI
             DeferredRenderQuad.Draw(_context, colorPass, bloomPass);
         }
 
-        public void OnMouseMove(MouseEventInfo e, KeyEventInfo k)
+        public void OnMouseMove(MouseEventInfo e, KeyEventInfo k, OpenTK.Vector2 refPos)
         {
             _context.OnMouseMove(e);
-
-            if (!e.HasValue)
-                e.Position = new Point((int)_previousPosition.X, (int)_previousPosition.Y);
 
             int transformState = 0;
             if (_context.Scene.ActiveAction != null)
@@ -316,8 +311,8 @@ namespace CafeStudio.UI
             if (transformState != 0)
                 return;
 
-            _context.Camera.Controller.MouseMove(e, k, _previousPosition);
-            _previousPosition = new OpenTK.Vector2(e.X, e.Y);
+            _context.Camera.Controller.MouseMove(e, k, refPos);
+            e.FullPosition = new Point((int)refPos.X, (int)refPos.Y);
         }
 
         private float previousMouseWheel;
@@ -340,15 +335,11 @@ namespace CafeStudio.UI
         {
             if (_context.Scene.ActiveAction != null)
                 _context.Scene.ActiveAction.OnMouseUp(_context, e);
-
-            _previousPosition = new OpenTK.Vector2(e.X, e.Y);
         }
 
         public void OnMouseDown(MouseEventInfo e, KeyEventInfo k)
         {
             _context.OnMouseDown(e);
-
-            _previousPosition = new OpenTK.Vector2(e.X, e.Y);
 
             if (_context.Scene.ActiveAction != null)
             {
