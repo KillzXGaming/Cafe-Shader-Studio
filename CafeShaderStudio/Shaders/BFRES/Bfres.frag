@@ -36,9 +36,7 @@ void main(){
     if (hasAlphaMap == 1) {
         alphaMapColor = texture(alphaMap, texCoord0);
 
-        if (alphaMapColor.r == 0) {
-            discard;
-        }
+        diffuseMapColor.a = alphaMapColor.r;
     }
     
 
