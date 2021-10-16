@@ -750,7 +750,7 @@ namespace GLFrameworkEngine
         {
             // Increase zoom speed when zooming out. 
             float zoomScale = 1;
-            if (scaleByDistanceToOrigin && _camera._targetDistance > 0)
+            if (scaleByDistanceToOrigin && _camera._targetDistance > 1)
                 zoomScale *= _camera._targetDistance;
             else
                 zoomScale = 1f;
