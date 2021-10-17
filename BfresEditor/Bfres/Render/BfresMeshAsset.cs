@@ -263,7 +263,7 @@ namespace BfresEditor
         private void DrawModelWireframe(ShaderProgram shader)
         {
             // use vertex color for wireframe color
-            GL.PolygonMode(MaterialFace.Front, PolygonMode.Line);
+            GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Line);
             GL.Enable(EnableCap.LineSmooth);
             GL.LineWidth(1.5f);
             Draw();
