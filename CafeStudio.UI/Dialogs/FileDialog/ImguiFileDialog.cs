@@ -20,8 +20,6 @@ namespace CafeStudio.UI
         public string FilePath => FilePaths.FirstOrDefault();
         public string FileName { get; set; }
 
-        public bool MultiSelect = false;
-
         string dialogKey;
 
         readonly List<FileFilter> filters = new List<FileFilter>();
@@ -36,7 +34,7 @@ namespace CafeStudio.UI
             filters.Add(filter);
         }
 
-        public bool ShowDialog(string key)
+        public bool ShowDialog(string key, bool multiSelect = false)
         {
             dialogKey = key;
 
@@ -54,7 +52,7 @@ namespace CafeStudio.UI
             }
             else
             {
-                var ofd = TinyFileDialog.OpenFileDialog(filters, FileName, MultiSelect);
+                var ofd = TinyFileDialog.OpenFileDialog(filters, FileName, multiSelect);
                 if (!string.IsNullOrEmpty(ofd))
                 {
 

@@ -1039,7 +1039,7 @@ namespace CafeShaderStudio
         private void OpenFileWithDialog()
         {
             ImguiFileDialog ofd = new ImguiFileDialog();
-            if (ofd.ShowDialog("OPEN_FILE"))
+            if (ofd.ShowDialog("OPEN_FILE", true))
             {
                 foreach (var file in ofd.FilePaths)
                     LoadFileFormat(file);
