@@ -257,7 +257,7 @@ namespace CafeShaderStudio
             {
                 foreach (var file in (((IArchiveFile)fileFormat).Files))
                 {
-                    if (file.FileName.EndsWith(".bfres"))
+                    if (file.FileName.EndsWith(".bfres") || file.FileName.EndsWith("sbfres"))
                     {
                         var bfres = file.OpenFile();
                         AddDrawable(bfres);
