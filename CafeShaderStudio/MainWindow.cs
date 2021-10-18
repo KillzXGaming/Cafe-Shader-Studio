@@ -257,7 +257,7 @@ namespace CafeShaderStudio
             {
                 foreach (var file in (((IArchiveFile)fileFormat).Files))
                 {
-                    if (file.FileName.EndsWith(".bfres"))
+                    if (file.FileName.EndsWith(".bfres") || file.FileName.EndsWith("sbfres"))
                     {
                         var bfres = file.OpenFile();
                         AddDrawable(bfres);
@@ -1039,7 +1039,7 @@ namespace CafeShaderStudio
         private void OpenFileWithDialog()
         {
             ImguiFileDialog ofd = new ImguiFileDialog();
-            if (ofd.ShowDialog("OPEN_FILE"))
+            if (ofd.ShowDialog("OPEN_FILE", true))
             {
                 foreach (var file in ofd.FilePaths)
                     LoadFileFormat(file);

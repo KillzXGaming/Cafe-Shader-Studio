@@ -40,7 +40,7 @@ namespace CafeStudio.UI
         public static string SaveFileDialog(List<FileFilter> filters, string fileName)
         {
             string[] filterList = toFilterArray(filters);
-            return stringFromAnsi(tinyfd_saveFileDialog("Save File", fileName, filterList.Length, filterList, "")); ;
+            return stringFromAnsi(tinyfd_saveFileDialog("Save File", fileName, filterList.Length, filterList, ""));
         }
 
         public static string SelectFolderDialog(string title, string defaultPathAndFile)
