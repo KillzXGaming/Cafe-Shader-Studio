@@ -14,6 +14,7 @@ namespace GLFrameworkEngine
         {
             var debugShader = context.CurrentShader;
             debugShader.SetInt("debugShading", (int)Runtime.DebugRendering);
+            debugShader.SetInt("frequency", frequency);
             debugShader.SetInt("weightRampType", 2);
             debugShader.SetInt("selectedBoneIndex", Runtime.SelectedBoneIndex);
 
@@ -29,5 +30,7 @@ namespace GLFrameworkEngine
             tex.Bind();
             shader.SetInt(uniform, slot);
         }
+
+        public static int frequency;
     }
 }

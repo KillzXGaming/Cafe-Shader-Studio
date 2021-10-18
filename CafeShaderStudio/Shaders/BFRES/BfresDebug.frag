@@ -5,6 +5,8 @@ uniform sampler2D UVTestPattern;
 
 uniform int debugShading;
 
+uniform int frequency;
+
 in vec2 texCoord0;
 in vec3 normal;
 in vec3 boneWeightsColored;
@@ -24,6 +26,7 @@ const int DISPLAY_UV_PATTERN = 6;
 const int DISPLAY_WEIGHTS = 7;
 const int DISPLAY_TANGENT = 8;
 const int DISPLAY_BITANGENT = 9;
+const int DISPLAY_FREQUENCY = 10;
 
 void main(){
     vec4 outputColor = vec4(0);
@@ -31,29 +34,34 @@ void main(){
 
     vec3 N = normal;
 
-    if (debugShading == DISPLAY_NORMALS)
+    if (debugShading == DISPLAY_FREQUENCY)
+    {
+        outputColor.rgb = vec3(frequency, 0, 0);
+    }
+
+    else if (debugShading == DISPLAY_NORMALS)
     {
         vec3 displayNormal = (N * 0.5) + 0.5;
         outputColor.rgb = displayNormal;
     }
 
-    if (debugShading == DISPLAY_UV)
+    else if (debugShading == DISPLAY_UV)
          outputColor.rgb = vec3(displayTexCoord.x, displayTexCoord.y, 1.0);
-    if (debugShading == DISPLAY_UV_PATTERN)
+    else if (debugShading == DISPLAY_UV_PATTERN)
         outputColor.rgb = texture(UVTestPattern, displayTexCoord).rgb;
-    if (debugShading == DISPLAY_WEIGHTS)
+    else if (debugShading == DISPLAY_WEIGHTS)
         outputColor.rgb = boneWeightsColored;
-    if (debugShading == DISPLAY_TANGENT)
+    else if (debugShading == DISPLAY_TANGENT)
     {
         vec3 displayTangent = (tangent * 0.5) + 0.5;
         outputColor.rgb = displayTangent;
     }
-    if (debugShading == DISPLAY_BITANGENT)
+    else if (debugShading == DISPLAY_BITANGENT)
     {
         vec3 displayBitangent = (bitangent * 0.5) + 0.5;
         outputColor.rgb = displayBitangent;
     }
-    if (debugShading == DISPLAY_VTX_CLR)
+    else if (debugShading == DISPLAY_VTX_CLR)
     {
         outputColor.rgb = vertexColor.rgb;
     }
