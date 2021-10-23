@@ -466,19 +466,38 @@ namespace BfresEditor
                 DrawCustomShaderRender(control, mesh, stage);
                 return;
             }
+            else if (Runtime.RenderSettings.Wireframe)
+                DrawModelWireframe(control, mesh);
             else //Draw default if not using game shader rendering.
             {
-                if (!control.IsShaderActive(BfresRender.DefaultShader))
-                    control.CurrentShader = BfresRender.DefaultShader;
-
-                var mtxMdl = this.ParentRender.Transform.TransformMatrix;
-                var mtxCam = control.Camera.ViewProjectionMatrix;
-                control.CurrentShader.SetMatrix4x4("mtxMdl", ref mtxMdl);
-                control.CurrentShader.SetMatrix4x4("mtxCam", ref mtxCam);
-
-                mesh.MaterialAsset.Render(control, control.CurrentShader, mesh);
-                DrawSolidColorMesh(control.CurrentShader, mesh);
+                DrawModel(control, mesh);
             }
+        }
+
+        private void DrawModelWireframe(GLContext control, BfresMeshAsset mesh)
+        {
+            // use vertex color for wireframe color
+            GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Line);
+            GL.Enable(EnableCap.LineSmooth);
+            GL.LineWidth(1.5f);
+
+            DrawModel(control, mesh);
+
+            GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
+        }
+
+        private void DrawModel(GLContext control, BfresMeshAsset mesh)
+        {
+            if (!control.IsShaderActive(BfresRender.DefaultShader))
+                control.CurrentShader = BfresRender.DefaultShader;
+
+            var mtxMdl = this.ParentRender.Transform.TransformMatrix;
+            var mtxCam = control.Camera.ViewProjectionMatrix;
+            control.CurrentShader.SetMatrix4x4("mtxMdl", ref mtxMdl);
+            control.CurrentShader.SetMatrix4x4("mtxCam", ref mtxCam);
+
+            mesh.MaterialAsset.Render(control, control.CurrentShader, mesh);
+            DrawSolidColorMesh(control.CurrentShader, mesh);
         }
 
         private void DrawCustomShaderRender(GLContext control, BfresMeshAsset mesh, int stage = 0)
