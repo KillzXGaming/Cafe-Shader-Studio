@@ -20,6 +20,8 @@ namespace BfresEditor
         /// </summary>
         public bool IsVisible { get; set; } = true;
 
+        public NodeBase ParentNode { get; set; }
+
         /// <summary>
         /// The shape section storing face indices and bounding data.
         /// </summary>

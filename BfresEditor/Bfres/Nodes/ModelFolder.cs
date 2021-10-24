@@ -27,24 +27,30 @@ namespace BfresEditor
                 node.AddChild(new MaterialFolder("Materials"));
                 node.AddChild(new BfresNodeBase("Skeleton"));
 
-                foreach (var mesh in fmdl.Meshes)
+                foreach (FSHP mesh in fmdl.Meshes)
                 {
                     var meshNode= new BfresNodeBase(mesh.Name)
                     {
                         Tag = mesh,
                         Icon = "/Images/Mesh.png"
                     };
+                    mesh.ParentNode = meshNode;
                     mesh.MeshSelected = (o, s) => {
                         meshNode.IsSelected = (bool)o;
                     };
                     node.Children[0].AddChild(meshNode);
                 }
 
-                foreach (var mat in fmdl.Materials)
-                    node.Children[1].AddChild(new BfresNodeBase(mat.Name) 
+                foreach (FMAT mat in fmdl.Materials)
+                {
+                    var matNode = new BfresNodeBase(mat.Name)
                     {
-                        Tag = mat, Icon = ((FMAT)mat).Icon,
-                    });
+                        Tag = mat,
+                        Icon = ((FMAT)mat).Icon,
+                    };
+                    mat.ParentNode = matNode;
+                    node.Children[1].AddChild(matNode);
+                }
                 foreach (var bone in ((FSKL)fmdl.Skeleton).CreateBoneHierarchy())
                     node.Children[2].AddChild(bone);
             }

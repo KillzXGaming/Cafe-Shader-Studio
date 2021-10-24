@@ -21,7 +21,8 @@ namespace BfresEditor
         private bool isSelected = false;
         public bool IsSelected
         {
-            get { return isSelected; }
+            get { return isSelected || Shape.ParentNode.IsSelected || 
+                    Shape.Material.ParentNode.IsSelected; }
             set
             {
                 this.Shape.MeshSelected?.Invoke(value, EventArgs.Empty);
@@ -224,8 +225,6 @@ namespace BfresEditor
 
             if (Runtime.RenderSettings.Wireframe)
                 DrawModelWireframe(shader);
-            else if (IsSelected)
-                Draw();
             else
                 Draw();
 
@@ -249,7 +248,7 @@ namespace BfresEditor
             selectionShader.SetVector4("color", new Vector4(1, 1, 1, 1));
 
             GL.Enable(EnableCap.StencilTest);
-            GL.PolygonMode(MaterialFace.Front, PolygonMode.Line);
+            GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Line);
             GL.Enable(EnableCap.LineSmooth);
             GL.LineWidth(1.5f);
             Draw();

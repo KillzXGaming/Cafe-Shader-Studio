@@ -314,7 +314,7 @@ namespace BfresEditor
         private void DrawWireframeOutline(GLContext control)
         {
             GL.Enable(EnableCap.StencilTest);
-            GL.PolygonMode(MaterialFace.Front, PolygonMode.Line);
+            GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Line);
             GL.Enable(EnableCap.LineSmooth);
             GL.LineWidth(1.5f);
 
@@ -326,35 +326,28 @@ namespace BfresEditor
                 DrawSolidColorMesh(selectionShader, mesh);
 
             GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
-
+            GL.Disable(EnableCap.StencilTest);
             GL.Enable(EnableCap.DepthTest);
         }
 
         private void DrawSelection(GLContext control, bool parentSelected)
         {
-            GL.Disable(EnableCap.AlphaTest);
-            GL.Disable(EnableCap.Blend);
-
-            GL.LineWidth(3.0f);
-            GL.StencilFunc(StencilFunction.Equal, 0x0, 0x1);
-            GL.StencilOp(StencilOp.Keep, StencilOp.Keep, StencilOp.Replace);
-
-            GL.PolygonMode(MaterialFace.Front, PolygonMode.Line);
+            GL.Enable(EnableCap.StencilTest);
+            GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Line);
+            GL.Enable(EnableCap.LineSmooth);
+            GL.LineWidth(1.5f);
 
             var selectionShader = GlobalShaders.GetShader("PICKING");
             control.CurrentShader = selectionShader;
-            selectionShader.SetVector4("color", new Vector4(1,1,1,1));
+            selectionShader.SetVector4("color", new Vector4(1, 1, 1, 1));
 
-            foreach (var mesh in Meshes) {
-                if (mesh.IsSelected) {
+            foreach (var mesh in Meshes)
+                if (mesh.IsSelected)
                     DrawSolidColorMesh(selectionShader, mesh);
-                }
-            }
 
             GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
-
             GL.Disable(EnableCap.StencilTest);
-            GL.LineWidth(1);
+            GL.Enable(EnableCap.DepthTest);
         }
 
         private void DrawSolidColorMesh(GLFrameworkEngine.ShaderProgram shader, BfresMeshAsset mesh)

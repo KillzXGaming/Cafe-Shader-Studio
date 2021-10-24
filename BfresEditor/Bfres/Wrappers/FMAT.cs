@@ -5,6 +5,7 @@ using System.Text;
 using Toolbox.Core;
 using GLFrameworkEngine;
 using CafeStudio.UI;
+using Toolbox.Core.ViewModels;
 
 namespace BfresEditor
 {
@@ -15,6 +16,8 @@ namespace BfresEditor
         /// The material section of the bfres.
         /// </summary>
         public Material Material { get; set; }
+
+        public NodeBase ParentNode { get; set; }
 
         /// <summary>
         /// Thee model in which the data in this section is parented to.
