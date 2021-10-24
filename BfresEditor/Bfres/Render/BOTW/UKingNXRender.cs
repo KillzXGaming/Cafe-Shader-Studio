@@ -5,7 +5,6 @@ using System.Text;
 using System.Threading.Tasks;
 using OpenTK.Graphics.OpenGL;
 using OpenTK;
-using MapStudio.Rendering;
 using Toolbox.Core;
 using System.IO;
 using BfresEditor.Properties;
@@ -78,8 +77,8 @@ namespace BfresEditor
                     continue;
 
                 options["gsys_assign_type"] = option;
-              //  if (options["gsys_assign_type"] != "gsys_assign_gbuffer")
-               //     continue;
+                if (options["gsys_assign_type"] != "gsys_assign_gbuffer")
+                    continue;
 
                 int programIndex = ShaderModel.GetProgramIndex(options);
                 if (programIndex == -1)
@@ -172,9 +171,23 @@ namespace BfresEditor
             if (CubeMapTexture == null)
                 InitTextures();
 
-         //   control.ScreenBuffer.SetDrawBuffers(
-          //  DrawBuffersEnum.None, DrawBuffersEnum.None, DrawBuffersEnum.None, DrawBuffersEnum.ColorAttachment0);
+            control.ScreenBuffer.SetDrawBuffers(
+       DrawBuffersEnum.None,  //Color IDs
+       DrawBuffersEnum.ColorAttachment0,  //Diffuse
+       DrawBuffersEnum.None, //None?
+       DrawBuffersEnum.ColorAttachment3, //Normals + spec
+       DrawBuffersEnum.None, //None?
+       DrawBuffersEnum.ColorAttachment5); //Emissive
 
+            /*
+            control.ScreenBuffer.SetDrawBuffers(
+                DrawBuffersEnum.ColorAttachment0,  //Color IDs
+                DrawBuffersEnum.ColorAttachment1,  //Diffuse
+                DrawBuffersEnum.None, //None?
+                DrawBuffersEnum.ColorAttachment3, //Normals + spec
+                DrawBuffersEnum.None, //None?
+                DrawBuffersEnum.ColorAttachment5); //Emissive
+            */
             base.Render(control, shader, mesh);
 
             if (((BfresMeshAsset)mesh).UseColorBufferPass)
@@ -304,6 +317,7 @@ namespace BfresEditor
                 throw new Exception("Invalid gsys_scene_material size");
         }
 
+
         private void SetViewportUniforms(Camera camera, UniformBlock block)
         {
             Matrix4 mdlMat = camera.ModelMatrix;
@@ -368,12 +382,10 @@ namespace BfresEditor
                 writer.Write(new Vector4(1.0f / zDistance, znear / zDistance, camera.AspectRatio, 1.0f / camera.AspectRatio));
                 writer.Write(new Vector4(zDistance, 0, 0, 0));
 
+
                 writer.SeekBegin(656);
                 writer.Write(0.55f);
                 writer.Write(1);
-
-                for (int i = 0; i < 200; i++)
-                    writer.Write(new Vector4(1));
 
                 writer.SeekBegin(1024);
                 //Cubemap params
@@ -392,48 +404,6 @@ namespace BfresEditor
             block.Buffer.Clear();
             block.Add(new Vector4(2.007874f, 0.4f, 0.586611f, 0.114478f));
             block.Add(new Vector4(1.666667f, 0, 0, 0));
-        }
-
-        public override void SetTextureUniforms(GLContext control, ShaderProgram shader, STGenericMaterial mat)
-        {
-            var bfresMaterial = (FMAT)mat;
-
-            GL.ActiveTexture(TextureUnit.Texture0 + 1);
-            GL.BindTexture(TextureTarget.Texture2D, RenderTools.defaultTex.ID);
-
-            List<string> shaderSamplers = new List<string>();
-            foreach (var sampler in ShaderModel.Samplers.GetKeys())
-                if (!string.IsNullOrEmpty(sampler))
-                    shaderSamplers.Add(sampler);
-
-            int id = 1;
-            foreach (var sampler in bfresMaterial.Material.ShaderAssign.SamplerAssigns)
-            {
-                var fragOutput = sampler.Key;
-                var bfresInput = sampler.Value;
-
-                var textureIndex = bfresMaterial.TextureMaps.FindIndex(x => x.Sampler == bfresInput);
-                if (textureIndex == -1)
-                    continue;
-
-                var texMap = mat.TextureMaps[textureIndex];
-
-                var name = texMap.Name;
-                //Lookup samplers targeted via animations and use that texture instead if possible
-                if (bfresMaterial.AnimatedSamplers.ContainsKey(bfresInput))
-                    name = bfresMaterial.AnimatedSamplers[bfresInput];
-
-                int index = shaderSamplers.IndexOf(fragOutput);
-
-                var uniformName = $"{ConvertSamplerID(index)}";
-                var binded = BindTexture(shader, GetTextures(), texMap, name, id);
-                shader.SetInt(uniformName, id++);
-            }
-
-            LoadLightingTextures(shader, id);
-
-            GL.ActiveTexture(TextureUnit.Texture0);
-            GL.BindTexture(TextureTarget.Texture2D, 0);
         }
 
         void LoadLightingTextures(ShaderProgram shader, int id)
