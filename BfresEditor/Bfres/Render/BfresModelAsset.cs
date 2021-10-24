@@ -352,6 +352,9 @@ namespace BfresEditor
 
         private void DrawSolidColorMesh(GLFrameworkEngine.ShaderProgram shader, BfresMeshAsset mesh)
         {
+            if (!mesh.IsVisible)
+                return;
+
             if (mesh.SkinCount > 0)
                 SetModelMatrix(shader.program, ModelData.Skeleton, mesh.SkinCount > 1);
 
