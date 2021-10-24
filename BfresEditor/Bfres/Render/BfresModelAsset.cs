@@ -263,6 +263,7 @@ namespace BfresEditor
                 RenderMesh(control, mesh);
             }
 
+            GL.DepthMask(true);
             GL.BindTexture(TextureTarget.Texture2D, 0);
             GL.Enable(EnableCap.DepthTest);
             GL.Disable(EnableCap.TextureCubeMapSeamless);
@@ -296,6 +297,7 @@ namespace BfresEditor
             if (pass == GLFrameworkEngine.Pass.TRANSPARENT)
                 DrawSelection(control, parentRender.IsSelected || this.IsSelected);
 
+            GL.DepthMask(true);
             GL.Enable(EnableCap.DepthTest);
             GL.Disable(EnableCap.TextureCubeMapSeamless);
             GL.Disable(EnableCap.AlphaTest);
