@@ -335,16 +335,18 @@ namespace BfresEditor
 
             GL.LineWidth(3.0f);
             GL.StencilFunc(StencilFunction.Equal, 0x0, 0x1);
-            GL.StencilOp(StencilOp.Keep, StencilOp.Keep, StencilOp.Replace);
+            GL.StencilOp(StencilOp.Replace, StencilOp.Keep, StencilOp.Replace);
 
-            GL.PolygonMode(MaterialFace.Front, PolygonMode.Line);
+            GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Line);
 
             var selectionShader = GlobalShaders.GetShader("PICKING");
             control.CurrentShader = selectionShader;
             selectionShader.SetVector4("color", new Vector4(1,1,1,1));
 
-            foreach (var mesh in Meshes) {
-                if (mesh.IsSelected) {
+            foreach (var mesh in Meshes)
+            {
+                if (mesh.IsSelected)
+                {
                     DrawSolidColorMesh(selectionShader, mesh);
                 }
             }
@@ -466,7 +468,7 @@ namespace BfresEditor
                 DrawCustomShaderRender(control, mesh, stage);
                 return;
             }
-            else if (Runtime.RenderSettings.Wireframe)
+            else if (Runtime.RenderSettings.Wireframe || IsSelected)
                 DrawModelWireframe(control, mesh);
             else //Draw default if not using game shader rendering.
             {
