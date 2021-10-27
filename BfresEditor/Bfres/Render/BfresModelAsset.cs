@@ -263,6 +263,7 @@ namespace BfresEditor
                 RenderMesh(control, mesh);
             }
 
+            GL.DepthMask(true);
             GL.BindTexture(TextureTarget.Texture2D, 0);
             GL.Enable(EnableCap.DepthTest);
             GL.Disable(EnableCap.TextureCubeMapSeamless);
@@ -296,6 +297,7 @@ namespace BfresEditor
             if (pass == GLFrameworkEngine.Pass.TRANSPARENT)
                 DrawSelection(control, parentRender.IsSelected || this.IsSelected);
 
+            GL.DepthMask(true);
             GL.Enable(EnableCap.DepthTest);
             GL.Disable(EnableCap.TextureCubeMapSeamless);
             GL.Disable(EnableCap.AlphaTest);
@@ -312,7 +314,7 @@ namespace BfresEditor
         private void DrawWireframeOutline(GLContext control)
         {
             GL.Enable(EnableCap.StencilTest);
-            GL.PolygonMode(MaterialFace.Front, PolygonMode.Line);
+            GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Line);
             GL.Enable(EnableCap.LineSmooth);
             GL.LineWidth(1.5f);
 
@@ -324,7 +326,7 @@ namespace BfresEditor
                 DrawSolidColorMesh(selectionShader, mesh);
 
             GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
-
+            GL.Disable(EnableCap.StencilTest);
             GL.Enable(EnableCap.DepthTest);
         }
 
@@ -359,6 +361,9 @@ namespace BfresEditor
 
         private void DrawSolidColorMesh(GLFrameworkEngine.ShaderProgram shader, BfresMeshAsset mesh)
         {
+            if (!mesh.IsVisible)
+                return;
+
             if (mesh.SkinCount > 0)
                 SetModelMatrix(shader.program, ModelData.Skeleton, mesh.SkinCount > 1);
 
