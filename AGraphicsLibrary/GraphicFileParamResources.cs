@@ -68,7 +68,7 @@ namespace AGraphicsLibrary
                 ColorCorrectionFiles.Add("map.baglccr", new ColorCorrection());
             if (LightMapFiles.Count == 0)
                 LightMapFiles.Add("map.bagllmap", new AglLightMap());
-            if (CubeMapFiles.Count == 0)
+            if (!CubeMapFiles.ContainsKey("stage.baglcube"))
                 CubeMapFiles.Add("stage.baglcube", new CubeMapGraphics());
 
             CubeMapFiles["stage.baglcube"].CubeMapObjects.Add(new CubeMapObject());
