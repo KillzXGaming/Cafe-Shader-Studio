@@ -38,13 +38,13 @@ namespace BfresEditor
                 return MemoryMarshal.Cast<byte, T>(new ReadOnlySpan<byte>(_data).Slice((int)address))[0];
             }
 
-            /*  public int QueryHostStorageBufferOffsetAlignment() => _storageBufferOffsetAlignment.Value;
+              public int QueryHostStorageBufferOffsetAlignment() => _storageBufferOffsetAlignment.Value;
               public bool QueryHostSupportsFragmentShaderInterlock() => _supportsFragmentShaderInterlock.Value;
               public bool QueryHostSupportsFragmentShaderOrderingIntel() => _supportsFragmentShaderOrdering.Value;
               public bool QueryHostSupportsShaderBallot() => _supportsShaderBallot.Value;
               public bool QueryHostSupportsNonConstantTextureOffset() => _supportsNonConstantTextureOffset;
               public bool QueryHostSupportsImageLoadFormatted() => _supportsImageLoadFormatted.Value;
-              public bool QueryHostSupportsTextureShadowLod() => _supportsTextureShadowLod.Value;*/
+              public bool QueryHostSupportsTextureShadowLod() => _supportsTextureShadowLod.Value;
         }
 
         public static string Translate(byte[] data)
