@@ -8,6 +8,7 @@ using OpenTK;
 using MapStudio.Rendering;
 using Toolbox.Core;
 using GLFrameworkEngine;
+using System.IO;
 
 namespace BfresEditor
 {
@@ -67,7 +68,7 @@ namespace BfresEditor
         static void InitTextures()
         {
             //Cube maps
-            CubemapTexture = GLTexture2D.FromGeneric(new DDS($"Resources\\CubemapEquat.dds"), null);
+            CubemapTexture = GLTexture2D.FromGeneric(new DDS($"Resources{Path.DirectorySeparatorChar}CubemapEquat.dds"), null);
 
             CubemapTexture.Bind();
             CubemapTexture.MagFilter = TextureMagFilter.Linear;

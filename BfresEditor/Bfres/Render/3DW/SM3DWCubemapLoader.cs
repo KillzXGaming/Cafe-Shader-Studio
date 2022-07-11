@@ -19,7 +19,7 @@ namespace BfresEditor
         {
             Areas.Clear();
 
-            string path = $"{SM3DWShaderLoader.GamePath}\\CubeMapTextureData\\{Stage}.szs";
+            string path = $"{SM3DWShaderLoader.GamePath}{Path.DirectorySeparatorChar}CubeMapTextureData{Path.DirectorySeparatorChar}{Stage}.szs";
 
             //Load the cubemap (archive -> bfres textures)
             var file = STFileLoader.OpenFileFormat(path) as IArchiveFile;
@@ -30,8 +30,8 @@ namespace BfresEditor
 
             foreach (var texture in cubemapArchive.Textures)
             {
-                if (!File.Exists($"TextureCache\\{texture.Name}.dds") && texture.Name.StartsWith("Default_Obj"))
-                    texture.SaveDDS($"TextureCache\\{texture.Name}.dds");
+                if (!File.Exists($"TextureCache{Path.DirectorySeparatorChar}{texture.Name}.dds") && texture.Name.StartsWith("Default_Obj"))
+                    texture.SaveDDS($"TextureCache{Path.DirectorySeparatorChar}{texture.Name}.dds");
             }
 
             foreach (var texture in cubemapArchive.Textures)
@@ -39,7 +39,7 @@ namespace BfresEditor
                 if (!texture.Name.StartsWith("Default_Obj"))
                     continue;
 
-                var dds = new DDS($"TextureCache\\{texture.Name}.dds");
+                var dds = new DDS($"TextureCache{Path.DirectorySeparatorChar}{texture.Name}.dds");
 
                 //Cubemaps load into areas and have presets from render info in materials
                 string areaName = texture.Name.Split('_').FirstOrDefault();

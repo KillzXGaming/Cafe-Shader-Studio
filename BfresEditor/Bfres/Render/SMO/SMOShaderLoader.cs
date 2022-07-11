@@ -24,12 +24,12 @@ namespace BfresEditor
                 }
             }
 
-           return TryLoadPath($"{GamePath}\\ShaderData", archive);
+           return TryLoadPath($"{GamePath}{Path.DirectorySeparatorChar}ShaderData", archive);
         }
 
         private static BfshaLibrary.BfshaFile TryLoadPath(string folder, string fileName)
         {
-            string outputPath = $"GlobalShaders\\{fileName}.bfsha";
+            string outputPath = $"GlobalShaders{Path.DirectorySeparatorChar}{fileName}.bfsha";
             if (GlobalShaderCache.ShaderFiles.ContainsKey(outputPath))
                 return (BfshaLibrary.BfshaFile)GlobalShaderCache.ShaderFiles[outputPath];
 
@@ -40,15 +40,15 @@ namespace BfresEditor
                 return bfsha;
             }
 
-            Console.WriteLine($"TryLoadPath " + $"{folder}\\{fileName}.szs");
+            Console.WriteLine($"TryLoadPath " + $"{folder}{Path.DirectorySeparatorChar}{fileName}.szs");
 
             //Load from game folder instead if not cached 
-            if (System.IO.File.Exists($"{folder}\\{fileName}.szs")) {
+            if (System.IO.File.Exists($"{folder}{Path.DirectorySeparatorChar}{fileName}.szs")) {
                 if (!Directory.Exists("GlobalShaders"))
                     Directory.CreateDirectory("GlobalShaders");
 
                 //Cache the file and save to disk
-                var sarc = STFileLoader.OpenFileFormat($"{folder}\\{fileName}.szs") as IArchiveFile;
+                var sarc = STFileLoader.OpenFileFormat($"{folder}{Path.DirectorySeparatorChar}{fileName}.szs") as IArchiveFile;
                 var file = sarc.Files.FirstOrDefault(x => x.FileName == $"{fileName}.bfsha");
                 file.FileData.SaveToFile(outputPath);
 

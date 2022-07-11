@@ -63,7 +63,7 @@ namespace CafeShaderStudio
         private void TryLoadPartInfo()
         {
             var actor = new RedStarLibrary.ActorBase();
-            actor.LoadActor($"{RedStarLibrary.GlobalSettings.GamePath}\\ObjectData\\Mario.szs");
+            actor.LoadActor($"{RedStarLibrary.GlobalSettings.GamePath}{Path.DirectorySeparatorChar}ObjectData{Path.DirectorySeparatorChar}Mario.szs");
             LoadActorFile(actor);
             LoadAnimations(actor);
         }
@@ -71,12 +71,12 @@ namespace CafeShaderStudio
         private void LoadAnimations(RedStarLibrary.ActorBase actor)
         {
             Dictionary<string, RedStarLibrary.AnimationSet> animationSets = new Dictionary<string, RedStarLibrary.AnimationSet>();
-            LoadAnimationFile(actor, $"{RedStarLibrary.GlobalSettings.GamePath}\\ObjectData\\PlayerAnimation.szs", animationSets);
+            LoadAnimationFile(actor, $"{RedStarLibrary.GlobalSettings.GamePath}{Path.DirectorySeparatorChar}ObjectData{Path.DirectorySeparatorChar}PlayerAnimation.szs", animationSets);
             foreach (var file in actor.PartActors.Values)
             {
                 if (file.InitModel != null && file.InitModel.ExternalAnimationFile != null)
                 {
-                    LoadAnimationFile(file, $"{RedStarLibrary.GlobalSettings.GamePath}\\ObjectData\\{file.InitModel.ExternalAnimationFile}.szs", animationSets);
+                    LoadAnimationFile(file, $"{RedStarLibrary.GlobalSettings.GamePath}{Path.DirectorySeparatorChar}ObjectData{Path.DirectorySeparatorChar}{file.InitModel.ExternalAnimationFile}.szs", animationSets);
                 }
             }
 
@@ -306,16 +306,16 @@ namespace CafeShaderStudio
 
         private void TryLoadCourseDir(string folder)
         {
-            if (System.IO.File.Exists($"{folder}\\course_muunt.byaml") && MapLoader.HasValidPath)
+            if (System.IO.File.Exists($"{folder}{Path.DirectorySeparatorChar}course_muunt.byaml") && MapLoader.HasValidPath)
             {
-                MapLoader.LoadSkybox($"{folder}\\course_muunt.byaml");
+                MapLoader.LoadSkybox($"{folder}{Path.DirectorySeparatorChar}course_muunt.byaml");
 
                 foreach (var render in MapLoader.Renders)
                     AddDrawable(render);
             }
-            if (System.IO.File.Exists($"{folder}\\course.bgenv"))
+            if (System.IO.File.Exists($"{folder}{Path.DirectorySeparatorChar}course.bgenv"))
             {
-                var archive = (IArchiveFile)STFileLoader.OpenFileFormat($"{folder}\\course.bgenv");
+                var archive = (IArchiveFile)STFileLoader.OpenFileFormat($"{folder}{Path.DirectorySeparatorChar}course.bgenv");
 
                 LightingEngine lightingEngine = new LightingEngine();
                 lightingEngine.LoadArchive(archive.Files.ToList());
@@ -348,15 +348,15 @@ namespace CafeShaderStudio
                     LightingEngine.LightSettings.UpdateCubemap(cubemapRenderModels, false);
                 }
             }
-            if (System.IO.File.Exists($"{folder}\\course_bglpbd.szs"))
+            if (System.IO.File.Exists($"{folder}{Path.DirectorySeparatorChar}course_bglpbd.szs"))
             {
                 //Todo handle probe lighting (they alter lightmaps for map objects)
-                ProbeMapManager.Prepare(Toolbox.Core.IO.YAZ0.Decompress($"{folder}\\course_bglpbd.szs"));
+                ProbeMapManager.Prepare(Toolbox.Core.IO.YAZ0.Decompress($"{folder}{Path.DirectorySeparatorChar}course_bglpbd.szs"));
             }
-            if (System.IO.File.Exists($"{folder}\\course.bglpbd"))
+            if (System.IO.File.Exists($"{folder}{Path.DirectorySeparatorChar}course.bglpbd"))
             {
                 //Todo handle probe lighting (they alter lightmaps for map objects)
-                ProbeMapManager.Prepare(File.ReadAllBytes($"{folder}\\course.bglpbd"));
+                ProbeMapManager.Prepare(File.ReadAllBytes($"{folder}{Path.DirectorySeparatorChar}course.bglpbd"));
             }
         }
 
@@ -1203,7 +1203,7 @@ namespace CafeShaderStudio
             //writing menu list to file
             //create file called "Recent.txt" located on app folder
             StreamWriter stringToWrite =
-            new StreamWriter(Runtime.ExecutableDir + "\\Recent.txt");
+            new StreamWriter(Runtime.ExecutableDir + "{Path.DirectorySeparatorChar}Recent.txt");
             foreach (string item in recentFiles)
             {
                 stringToWrite.WriteLine(item); //write list to stream
@@ -1216,9 +1216,9 @@ namespace CafeShaderStudio
         {
             recentFiles.Clear();
 
-            if (File.Exists(Runtime.ExecutableDir + "\\Recent.txt"))
+            if (File.Exists(Runtime.ExecutableDir + "{Path.DirectorySeparatorChar}Recent.txt"))
             {
-                StreamReader listToRead = new StreamReader(Runtime.ExecutableDir + "\\Recent.txt"); //read file stream
+                StreamReader listToRead = new StreamReader(Runtime.ExecutableDir + "{Path.DirectorySeparatorChar}Recent.txt"); //read file stream
                 string line;
                 while ((line = listToRead.ReadLine()) != null) //read each line until end of file
                 {

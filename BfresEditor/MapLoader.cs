@@ -11,14 +11,14 @@ namespace BfresEditor
 {
     public class MapLoader
     {
-        public static bool HasValidPath => File.Exists($"{GlobalSettingsMK8.MarioKart8Path}\\Data\\objflow.byaml");
+        public static bool HasValidPath => File.Exists($"{GlobalSettingsMK8.MarioKart8Path}{System.IO.Path.DirectorySeparatorChar}Data{System.IO.Path.DirectorySeparatorChar}objflow.byaml");
 
         public static List<GenericRenderer> Renders = new List<GenericRenderer>();
 
         //Only loads skybox for loading into rendered cubemaps
         public static void LoadSkybox(string fileName)
         {
-            LoadObjectDB($"{GlobalSettingsMK8.MarioKart8Path}\\Data\\objflow.byaml");
+            LoadObjectDB($"{GlobalSettingsMK8.MarioKart8Path}{System.IO.Path.DirectorySeparatorChar}Data{System.IO.Path.DirectorySeparatorChar}objflow.byaml");
 
             CourseDefinition course = new CourseDefinition(fileName);
             foreach (var obj in course.Objs)
@@ -26,7 +26,7 @@ namespace BfresEditor
         }
 
         public static void LoadMuunt(string fileName) {
-            LoadObjectDB($"{GlobalSettingsMK8.MarioKart8Path}\\Data\\objflow.byaml");
+            LoadObjectDB($"{GlobalSettingsMK8.MarioKart8Path}{System.IO.Path.DirectorySeparatorChar}Data{System.IO.Path.DirectorySeparatorChar}objflow.byaml");
 
             CourseDefinition course = new CourseDefinition(fileName);
             foreach (var obj in course.Objs)
@@ -102,12 +102,12 @@ namespace BfresEditor
         static string FindFilePath(string resName)
         {
             //Common path for common race objects like coins
-            string raceObjects = $"{GlobalSettingsMK8.MarioKart8Path}\\race_common\\{resName}\\{resName}.bfres";
-            string raceObjectsDX = $"{GlobalSettingsMK8.MarioKart8Path}\\RaceCommon\\{resName}\\{resName}.bfres";
+            string raceObjects = $"{GlobalSettingsMK8.MarioKart8Path}{System.IO.Path.DirectorySeparatorChar}race_common{System.IO.Path.DirectorySeparatorChar}{resName}{System.IO.Path.DirectorySeparatorChar}{resName}.bfres";
+            string raceObjectsDX = $"{GlobalSettingsMK8.MarioKart8Path}{System.IO.Path.DirectorySeparatorChar}RaceCommon{System.IO.Path.DirectorySeparatorChar}{resName}{System.IO.Path.DirectorySeparatorChar}{resName}.bfres";
 
             //The typical path for the base game map objects
-            string mapObjects = $"{GlobalSettingsMK8.MarioKart8Path}\\mapobj\\{resName}\\{resName}.bfres";
-            string mapObjectsDX = $"{GlobalSettingsMK8.MarioKart8Path}\\MapObj\\{resName}\\{resName}.bfres";
+            string mapObjects = $"{GlobalSettingsMK8.MarioKart8Path}{System.IO.Path.DirectorySeparatorChar}mapobj{System.IO.Path.DirectorySeparatorChar}{resName}{System.IO.Path.DirectorySeparatorChar}{resName}.bfres";
+            string mapObjectsDX = $"{GlobalSettingsMK8.MarioKart8Path}{System.IO.Path.DirectorySeparatorChar}MapObj{System.IO.Path.DirectorySeparatorChar}{resName}{System.IO.Path.DirectorySeparatorChar}{resName}.bfres";
 
             if (File.Exists(raceObjects)) return raceObjects;
             if (File.Exists(raceObjectsDX)) return raceObjectsDX;
@@ -123,12 +123,12 @@ namespace BfresEditor
         static string FindAOCPath(string aocContent, string resName)
         {
             if (!aocContent.EndsWith("content"))
-                aocContent = $"{aocContent}\\content";
+                aocContent = $"{aocContent}{System.IO.Path.DirectorySeparatorChar}content";
 
             //Loop each DLC course (00##) folder
             foreach (var dir in Directory.GetDirectories(aocContent))
             {
-                string mapObject = $"{dir}\\mapobj\\{resName}\\{resName}.bfres";
+                string mapObject = $"{dir}{System.IO.Path.DirectorySeparatorChar}mapobj{System.IO.Path.DirectorySeparatorChar}{resName}{System.IO.Path.DirectorySeparatorChar}{resName}.bfres";
                 if (File.Exists(mapObject))
                     return mapObject;
             }

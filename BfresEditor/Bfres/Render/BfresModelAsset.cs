@@ -93,7 +93,7 @@ namespace BfresEditor
                 }
 
                 //Check for the GX2 shader decompiler as needed for Wii U games
-                if (System.IO.File.Exists("GFD\\gx2shader-decompiler.exe"))
+                if (System.IO.File.Exists("GFD{Path.DirectorySeparatorChar}gx2shader-decompiler.exe"))
                 {
                     foreach (var customRender in SharcfbRenders)
                     {
