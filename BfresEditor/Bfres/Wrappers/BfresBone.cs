@@ -22,7 +22,6 @@ namespace BfresEditor
 
         public BfresBone(STSkeleton skeleton) : base(skeleton)
         {
-
         }
 
         public Type GetTypeUI() => typeof(BoneEditor);
