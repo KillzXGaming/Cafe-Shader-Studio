@@ -7,21 +7,6 @@ uniform int pickFace;
 uniform int pickedIndex;
 uniform vec4 color;
 
-vec4 PickFace()
-{
-    int pick = pickedIndex + int(gl_PrimitiveID);
-
-    return vec4(
-        ((pick >> 16) & 0xFF) / 255f,
-        ((pick >> 8) & 0xFF) / 255f,
-        (pick & 0xFF) / 255f,
-        ((pick >> 24) & 0xFF) / 255f
-        );
-}
-
 void main(){
-    if (pickFace == 1)
-        fragOutput = PickFace();
-    else
-        fragOutput = color;
+    fragOutput = color;
 }
