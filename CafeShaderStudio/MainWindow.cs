@@ -1203,7 +1203,7 @@ namespace CafeShaderStudio
             //writing menu list to file
             //create file called "Recent.txt" located on app folder
             StreamWriter stringToWrite =
-            new StreamWriter(Runtime.ExecutableDir + "{Path.DirectorySeparatorChar}Recent.txt");
+            new StreamWriter(Runtime.ExecutableDir + $"{Path.DirectorySeparatorChar}Recent.txt");
             foreach (string item in recentFiles)
             {
                 stringToWrite.WriteLine(item); //write list to stream
@@ -1216,9 +1216,9 @@ namespace CafeShaderStudio
         {
             recentFiles.Clear();
 
-            if (File.Exists(Runtime.ExecutableDir + "{Path.DirectorySeparatorChar}Recent.txt"))
+            if (File.Exists(Runtime.ExecutableDir + $"{Path.DirectorySeparatorChar}Recent.txt"))
             {
-                StreamReader listToRead = new StreamReader(Runtime.ExecutableDir + "{Path.DirectorySeparatorChar}Recent.txt"); //read file stream
+                StreamReader listToRead = new StreamReader(Runtime.ExecutableDir + $"{Path.DirectorySeparatorChar}Recent.txt"); //read file stream
                 string line;
                 while ((line = listToRead.ReadLine()) != null) //read each line until end of file
                 {
