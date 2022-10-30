@@ -201,11 +201,11 @@ namespace BfresEditor
         {
             //Reflective cubemap
            var cubemap = GLTextureCubeArray.FromDDS(
-                new DDS($"Resources\\CubemapHDR.dds"));
+                new DDS($"Resources{Path.DirectorySeparatorChar}CubemapHDR.dds"));
 
             CubemapManager.InitDefault(cubemap);
 
-            CubemapManager.CubeMapTextureArray = GLTexture2DArray.FromDDS(new DDS($"Resources\\CubemapHDR.dds"));
+            CubemapManager.CubeMapTextureArray = GLTexture2DArray.FromDDS(new DDS($"Resources{Path.DirectorySeparatorChar}CubemapHDR.dds"));
             DiffuseLightmapTextureArray = GLTexture2DArray.FromDDS(new DDS[2]
             {
                 new DDS(new MemoryStream(Resources.CubemapLightmap)),

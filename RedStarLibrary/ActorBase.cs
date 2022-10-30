@@ -70,7 +70,7 @@ namespace RedStarLibrary
 
             if (!string.IsNullOrEmpty(InitModel.ExternalTextureFile))
             {
-                string path = $"{GlobalSettings.GamePath}\\ObjectData\\{InitModel.ExternalTextureFile}.szs";
+                string path = $"{GlobalSettings.GamePath}{Path.DirectorySeparatorChar}ObjectData{Path.DirectorySeparatorChar}{InitModel.ExternalTextureFile}.szs";
                 if (!File.Exists(path))
                 {
                     Console.WriteLine($"Failed to find external texture file at path {path}!");
@@ -105,7 +105,7 @@ namespace RedStarLibrary
         /// </summary>
         public void LoadPart(string suffix, string modelName)
         {
-            string path = $"{GlobalSettings.GamePath}\\ObjectData\\{modelName}.szs";
+            string path = $"{GlobalSettings.GamePath}{Path.DirectorySeparatorChar}ObjectData{Path.DirectorySeparatorChar}{modelName}.szs";
             if (!File.Exists(path)) {
                 Console.WriteLine($"Failed to find part at path {path}!");
                 return;

@@ -8,6 +8,7 @@ using Toolbox.Core;
 using GLFrameworkEngine;
 using AGraphicsLibrary;
 using Toolbox.Core.IO;
+using System.IO;
 
 namespace CafeStudio.UI
 {
@@ -268,9 +269,9 @@ namespace CafeStudio.UI
 
         private void TryLoadCourseDir(string folder)
         {
-            if (System.IO.File.Exists($"{folder}\\course.bgenv"))
+            if (System.IO.File.Exists($"{folder}{Path.DirectorySeparatorChar}course.bgenv"))
             {
-                var archive = (IArchiveFile)STFileLoader.OpenFileFormat($"{folder}\\course.bgenv");
+                var archive = (IArchiveFile)STFileLoader.OpenFileFormat($"{folder}{Path.DirectorySeparatorChar}course.bgenv");
 
                 LightingEngine lightingEngine = new LightingEngine();
                 lightingEngine.LoadArchive(archive.Files.ToList());
@@ -278,9 +279,9 @@ namespace CafeStudio.UI
                 LightingEngine.LightSettings.UpdateColorCorrectionTable();
 
             }
-            if (System.IO.File.Exists($"{folder}\\course_bglpbd.szs"))
+            if (System.IO.File.Exists($"{folder}{Path.DirectorySeparatorChar}course_bglpbd.szs"))
             {
-                //ProbeMapManager.Prepare(EveryFileExplorer.YAZ0.Decompress($"{dir}\\course_bglpbd.szs"));
+                //ProbeMapManager.Prepare(EveryFileExplorer.YAZ0.Decompress($"{dir}{Path.DirectorySeparatorChar}course_bglpbd.szs"));
                 //  DataCache.ModelCache.Add(bfres.Renderer.Name, bfres.Renderer);
             }
         }

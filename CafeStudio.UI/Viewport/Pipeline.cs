@@ -149,9 +149,6 @@ namespace CafeStudio.UI
             _floor.Draw(_context, Pass.OPAQUE);
             _context.Scene.DrawSelection(_context);
 
-            foreach (var anim in CameraAnimations)
-                anim.DrawPath(_context);
-
             FinalBuffer.Unbind();
         }
 

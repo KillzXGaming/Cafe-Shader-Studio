@@ -194,14 +194,14 @@ namespace CafeShaderStudio
 
             string name = Path.GetFileNameWithoutExtension(fileName);
             name = PreventDuplicateNames(name);
-            Framebuffer.ReadImagePixels(false).Save($"{OutputFolder}\\{name}.png");
+            Framebuffer.ReadImagePixels(false).Save($"{OutputFolder}{Path.DirectorySeparatorChar}{name}.png");
 
             Framebuffer.Unbind();
         }
 
         private string PreventDuplicateNames(string name, int i = 0)
         {
-            if (!File.Exists($"{OutputFolder}\\{name}.png"))
+            if (!File.Exists($"{OutputFolder}{Path.DirectorySeparatorChar}{name}.png"))
                 return name;
 
             return PreventDuplicateNames($"{name}{i}", i++);

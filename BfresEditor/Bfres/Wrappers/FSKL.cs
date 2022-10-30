@@ -71,6 +71,7 @@ namespace BfresEditor
                         bone.Scale.Y,
                         bone.Scale.Z),
                     ParentSkeletonData = Skeleton,
+                    Visible = bone.Visible,
                 };
 
                 if (Skeleton.FlagsScaling == SkeletonFlagsScaling.Maya)

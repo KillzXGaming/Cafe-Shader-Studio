@@ -22,7 +22,7 @@ namespace BfresEditor
         {
             Scenarios.Clear();
 
-            string path = $"{GlobalSettings.GamePath}\\ObjectData\\CubeMap{Stage}.szs";
+            string path = $"{GlobalSettings.GamePath}{Path.DirectorySeparatorChar}ObjectData{Path.DirectorySeparatorChar}CubeMap{Stage}.szs";
 
             //Load the cubemap (archive -> bfres textures)
             var file = STFileLoader.OpenFileFormat(path) as IArchiveFile;
@@ -36,8 +36,8 @@ namespace BfresEditor
                 if (texture.Name != "Default_")
                     continue;
 
-                if (!File.Exists($"TextureCache\\{texture.Name}.dds"))
-                    texture.SaveDDS($"TextureCache\\{texture.Name}.dds");
+                if (!File.Exists($"TextureCache{Path.DirectorySeparatorChar}{texture.Name}.dds"))
+                    texture.SaveDDS($"TextureCache{Path.DirectorySeparatorChar}{texture.Name}.dds");
             }
 
             foreach (var texture in cubemapArchive.Textures)
@@ -45,7 +45,7 @@ namespace BfresEditor
                 if (texture.Name != "Default_")
                     continue;
 
-                var dds = new DDS($"TextureCache\\{texture.Name}.dds");
+                var dds = new DDS($"TextureCache{Path.DirectorySeparatorChar}{texture.Name}.dds");
                 dds.Parameters.UseSoftwareDecoder = true;
                 dds.Parameters.FlipY = true;
 

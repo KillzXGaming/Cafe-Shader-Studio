@@ -189,7 +189,7 @@ namespace BfresEditor
         {
             //Cube maps
             DiffuseCubemapTexture = GLTextureCube.FromDDS(
-                new DDS($"Resources\\CubemapIrradianceDefault.dds"));
+                new DDS($"Resources{Path.DirectorySeparatorChar}CubemapIrradianceDefault.dds"));
 
             DiffuseCubemapTexture.Bind();
             DiffuseCubemapTexture.MagFilter = TextureMagFilter.Linear;
@@ -200,7 +200,7 @@ namespace BfresEditor
             GL.TexParameter(DiffuseCubemapTexture.Target, TextureParameterName.TextureMaxLevel, 0);
             DiffuseCubemapTexture.Unbind();
 
-            SpecularCubemapTexture = GLTextureCube.FromDDS(new DDS($"Resources\\CubemapDefault.dds"));
+            SpecularCubemapTexture = GLTextureCube.FromDDS(new DDS($"Resources{Path.DirectorySeparatorChar}CubemapDefault.dds"));
 
             SpecularCubemapTexture.Bind();
             SpecularCubemapTexture.MagFilter = TextureMagFilter.Linear;

@@ -93,7 +93,7 @@ namespace GLFrameworkEngine
         {
             List<Shader> shaders = new List<Shader>();
 
-            string shaderFolder = $"{Runtime.ExecutableDir}\\Shaders\\";
+            string shaderFolder = $"{Runtime.ExecutableDir}{Path.DirectorySeparatorChar}Shaders{Path.DirectorySeparatorChar}";
             string frag = $"{shaderFolder}{name}.frag";
             string vert = $"{shaderFolder}{name}.vert";
             string geom = $"{shaderFolder}{name}.geom";

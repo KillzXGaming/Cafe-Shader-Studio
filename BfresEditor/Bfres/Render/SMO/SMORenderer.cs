@@ -105,9 +105,9 @@ namespace BfresEditor
 
         static void InitTextures()
         {
-           SMOCubemapLoader.LoadCubemap();
+           //SMOCubemapLoader.LoadCubemap();
 
-            MaterialLightCube = GLTextureCube.FromDDS(new DDS($"Resources\\CubemapHDR2.dds"), false, true);
+            MaterialLightCube = GLTextureCube.FromDDS(new DDS($"Resources{Path.DirectorySeparatorChar}CubemapHDR2.dds"), false, true);
 
             MaterialLightSphere = GLTexture2D.FromBitmap(Resources.black);
             DirectionalLightTexture = GLTexture2D.FromGeneric(
