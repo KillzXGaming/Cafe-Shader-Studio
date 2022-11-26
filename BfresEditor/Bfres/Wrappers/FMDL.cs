@@ -57,14 +57,14 @@ namespace BfresEditor
 
         public FileFilter[] ReplaceFilter => new FileFilter[]
         {
-          new FileFilter(".bfmdl", "Raw Binary Model"),
           new FileFilter(".dae", "dae"),
+          new FileFilter(".bfmdl", "Raw Binary Model"),
         };
 
         public FileFilter[] ExportFilter => new FileFilter[]
         {
-          new FileFilter(".bfmdl", "Raw Binary Model"),
           new FileFilter(".dae", "dae"),
+          new FileFilter(".bfmdl", "Raw Binary Model"),
         };
 
         public void Replace(string fileName)
