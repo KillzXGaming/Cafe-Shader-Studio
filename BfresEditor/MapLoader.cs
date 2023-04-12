@@ -11,14 +11,14 @@ namespace BfresEditor
 {
     public class MapLoader
     {
-        public static bool HasValidPath => File.Exists($"{GlobalSettingsMK8.MarioKart8Path}{System.IO.Path.DirectorySeparatorChar}Data{System.IO.Path.DirectorySeparatorChar}objflow.byaml");
+        public static bool HasValidPath => File.Exists($"{GlobalSettingsMK8.MarioKart8Path}{System.IO.Path.DirectorySeparatorChar}data{System.IO.Path.DirectorySeparatorChar}objflow.byaml");
 
         public static List<GenericRenderer> Renders = new List<GenericRenderer>();
 
         //Only loads skybox for loading into rendered cubemaps
         public static void LoadSkybox(string fileName)
         {
-            LoadObjectDB($"{GlobalSettingsMK8.MarioKart8Path}{System.IO.Path.DirectorySeparatorChar}Data{System.IO.Path.DirectorySeparatorChar}objflow.byaml");
+            LoadObjectDB($"{GlobalSettingsMK8.MarioKart8Path}{System.IO.Path.DirectorySeparatorChar}data{System.IO.Path.DirectorySeparatorChar}objflow.byaml");
 
             CourseDefinition course = new CourseDefinition(fileName);
             foreach (var obj in course.Objs)
@@ -26,7 +26,7 @@ namespace BfresEditor
         }
 
         public static void LoadMuunt(string fileName) {
-            LoadObjectDB($"{GlobalSettingsMK8.MarioKart8Path}{System.IO.Path.DirectorySeparatorChar}Data{System.IO.Path.DirectorySeparatorChar}objflow.byaml");
+            LoadObjectDB($"{GlobalSettingsMK8.MarioKart8Path}{System.IO.Path.DirectorySeparatorChar}data{System.IO.Path.DirectorySeparatorChar}objflow.byaml");
 
             CourseDefinition course = new CourseDefinition(fileName);
             foreach (var obj in course.Objs)

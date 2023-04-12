@@ -92,7 +92,7 @@ namespace CafeShaderStudio
             HasValidSM3DWPath = Directory.Exists($"{SM3DWGamePath}{Path.DirectorySeparatorChar}ShaderData");
 
             TrackStudioLibrary.Turbo.GlobalSettingsMK8.MarioKart8Path = MK8DGamePath;
-            HasValidMK8DPath = File.Exists($"{MK8DGamePath}{Path.DirectorySeparatorChar}Data{Path.DirectorySeparatorChar}objflow.byaml");
+            HasValidMK8DPath = File.Exists($"{MK8DGamePath}{Path.DirectorySeparatorChar}data{Path.DirectorySeparatorChar}objflow.byaml");
         }
     }
 }
